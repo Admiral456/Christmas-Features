@@ -8,7 +8,7 @@ The supplied catalogue contains **84 presets in seven collections**: trail, aura
 
 It is a particle-only cosmetic plugin. It does not create real blocks, items, mobs or client-side 3D wings, and its effects do not require a resource pack.
 
-The uploaded 1.0.3 JAR is not the latest public listing we found: the Spigot resource currently lists **Trail Studio 1.1** and states that 1.21 is among its tested major versions. For production, prefer the author's latest build after checking its download page and changelog. This repository does not redistribute the third-party JAR.
+The uploaded 1.0.3 JAR is not the latest public listing we found: the [Spigot resource currently lists Trail Studio 1.1](https://www.spigotmc.org/resources/trail-studio.139607/) and states that 1.21 is among its tested major versions. For production, prefer the author's latest build after checking its download page and changelog. This repository does not redistribute the third-party JAR.
 
 ## Winter effects already included in the uploaded JAR
 
@@ -62,3 +62,34 @@ The player can equip the cosmetic themselves in TrailStudio. The reward does not
 The uploaded TrailStudio config already has particle budgets (max-particles-per-frame, max-particles-per-viewer), a maximum of three wearable layers, viewer limits and a 24-block view distance. Keep those limits enabled. If the server has many players, lower the budgets or view distance in TrailStudio's own config instead of increasing them.
 
 Do not rename the TrailStudio plugin, its command, or the built-in effect IDs. Install it as a separate third-party JAR in plugins/; do not put the JAR inside ChristmasFeatures or its GitHub repository.
+
+
+## Connect other Christmas reward plugins
+
+The integration command can also be used from plugins that execute configured rewards as console.
+
+### ChristmasGift
+
+In plugins/ChristmasGift/rewards.yml add a reward command to the tier you want. Example:
+
+~~~~yaml
+tiers:
+  legendary:
+    rewards:
+      - "christmas trail give %player% trail-aurora-braid"
+~~~~
+
+ChristmasGift replaces %player% and dispatches the reward as console, so the command can grant the cosmetic without LuckPerms. The reward command is a separate list entry; keep the existing legendary rewards if you still want them to be available.
+
+### ChristmasSeason Advent Calendar
+
+ChristmasSeason supports console commands in advent.default.commands. Example:
+
+~~~~yaml
+advent:
+  default:
+    commands:
+      - "christmas trail give %player% wings-ice-dragon"
+~~~~
+
+You can also put the command under a specific day override. ChristmasFeatures must be installed and enabled for the command to work.
