@@ -3,8 +3,8 @@ version: 1.0.0
 main: cz.vanocni.features.ChristmasFeaturesPlugin
 api-version: '1.21'
 author: Server Team
-description: Christmas events, key chest and ChatGames for Paper 1.21.10.
-softdepend: [christmas-season, ChristmasGift]
+description: Christmas events, key chest, ChatGames and optional TrailStudio cosmetics for Paper 1.21.10.
+softdepend: [christmas-season, ChristmasGift, TrailStudio]
 commands:
   christmas:
     description: Main command for ChristmasFeatures.
