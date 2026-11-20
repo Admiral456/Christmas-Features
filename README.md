@@ -78,3 +78,11 @@ Konfigurace obsahuje příkazové hooky pro odměny z eventů, ChatGames a bedny
 ## Přehled dodaných assetů
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
+
+## TrailStudio integration
+
+TrailStudio is an optional separate plugin. ChristmasFeatures can permanently unlock its effects from event, ChatGame and key-chest rewards using Bukkit permission attachments; LuckPerms is not required. See docs/TRAILSTUDIO_INTEGRATION.md for the reviewed effect IDs and setup.
+
+## ChristmasSeason setup
+
+ChristmasSeason owns winter biome conversion and restoration when installed. ChristmasFeatures automatically pauses its fallback WinterManager to avoid competing biome edits. See docs/CHRISTMASSEASON_SETUP.md before enabling global snow and instant water freezing.
