@@ -48,10 +48,12 @@ chatgames:
       answer: "snow block"
       aliases: ["snow_block", "snowblock"]
 
-# SIDEBAR shows the event in the right-hand side of the screen.
-# Set BOSSBAR if another plugin already owns the sidebar scoreboard.
+# BETTERHUD uses the optional BetterHud integration and its right-side panel.
+# If BetterHud is missing or its API cannot be loaded, fallback-mode is used.
+# SIDEBAR may conflict with other scoreboard plugins; BOSSBAR is the safe fallback.
 hud:
-  mode: SIDEBAR
+  mode: BETTERHUD
+  fallback-mode: SIDEBAR
 
 chest:
   enabled: true
