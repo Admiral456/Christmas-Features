@@ -220,6 +220,8 @@ public final class HolidayEventManager implements Listener {
         String type = active.type();
         Player winner = Bukkit.getPlayer(uuid);
         if (winner != null) {
+            String trailEffect = plugin.getConfig().getString("cosmetics.events." + type + ".trailstudio-effect", "");
+            if (!trailEffect.isBlank()) plugin.trailStudio().grant(winner, trailEffect);
             List<String> commands = plugin.getConfig().getStringList("cosmetics.events." + type + ".first-place-commands");
             RewardCommands.dispatch(plugin, commands, winner, Map.of(
                     "event", type,
