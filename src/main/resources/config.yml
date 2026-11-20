@@ -80,7 +80,7 @@ chest:
       amount: 2
       lore:
         - "§7Odměna z vánoční bedny"
-    # Optional external cosmetic-plugin reward. Increase weight after adding its command below.
+    # Optional TrailStudio cosmetic reward. The effect ID must exist and be enabled in TrailStudio's effects.yml.
     - weight: 3
       name: "§dVánoční hvězdná aura"
       material: NONE
@@ -88,9 +88,7 @@ chest:
         - "§7Trvalé odemknutí kosmetiky v TrailStudio."
       trailstudio-effect: aura-astral-star
       commands: []
-      # Add your cosmetics plugin command here, for example:
-      # commands:
-      #   - "YOUR_TAG_PLUGIN_COMMAND %player% christmas_tag"
+      # Optional extra console commands for another cosmetics plugin may be added here.
 
 # These are console commands executed by the server. Replace the examples with the actual
 # command syntax of the tags/cosmetics plugin installed on your server.
