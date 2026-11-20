@@ -155,6 +155,8 @@ public final class KeyChestManager implements Listener {
         ItemStack rewardItem = createRewardItem(reward);
         List<String> commands = readStringList(reward.get("commands"));
         RewardCommands.dispatch(plugin, commands, player, Map.of("reward", displayName));
+        Object trailEffect = reward.get("trailstudio-effect");
+        if (trailEffect != null) plugin.trailStudio().grant(player, String.valueOf(trailEffect));
         if (rewardItem != null) {
             Map<Integer, ItemStack> overflow = player.getInventory().addItem(rewardItem);
             for (ItemStack leftover : overflow.values()) player.getWorld().dropItemNaturally(player.getLocation(), leftover);
