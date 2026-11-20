@@ -14,6 +14,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private KeyChestManager keyChestManager;
     private ActivityHud activityHud;
     private TrailStudioBridge trailStudioBridge;
+    private BetterHudBridge betterHudBridge;
 
     @Override
     public void onEnable() {
@@ -29,6 +30,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         keyChestManager = new KeyChestManager(this);
         activityHud = new ActivityHud(this, eventManager, chatGameManager);
         trailStudioBridge = new TrailStudioBridge(this);
+        betterHudBridge = new BetterHudBridge(this);
 
         getServer().getPluginManager().registerEvents(winterManager, this);
         getServer().getPluginManager().registerEvents(eventManager, this);
@@ -46,6 +48,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         winterManager.start();
         eventManager.startScheduler();
         chatGameManager.startScheduler();
+        betterHudBridge.start();
         activityHud.start();
 
         getLogger().info("ChristmasFeatures has been enabled for Paper 1.21.10.");
@@ -56,6 +59,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         if (eventManager != null) eventManager.stop("Plugin vypnut.", false);
         if (chatGameManager != null) chatGameManager.stop("Plugin vypnut.", false);
         if (activityHud != null) activityHud.shutdown();
+        if (betterHudBridge != null) betterHudBridge.shutdown();
         if (winterManager != null) winterManager.shutdown();
         if (trailStudioBridge != null) trailStudioBridge.shutdown();
     }
@@ -90,5 +94,9 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
 
     public TrailStudioBridge trailStudio() {
         return trailStudioBridge;
+    }
+
+    public BetterHudBridge betterHud() {
+        return betterHudBridge;
     }
 }
