@@ -16,10 +16,11 @@ The plugin copies its example font, layouts and HUD definition into the BetterHu
    - `plugins/BetterHud/texts/christmas-font.yml`
    - `plugins/BetterHud/layouts/christmas-event-layout.yml`
    - `plugins/BetterHud/huds/christmas-event-hud.yml`
-5. Check that `christmas_features_hud` appears in `default-hud` in `plugins/BetterHud/config.yml`.
-6. Run `/hud reload`, then rejoin and accept the resource pack if BetterHud asks for it.
+5. Check that `christmas_features_hud` appears in `default-hud` in `plugins/BetterHud/config.yml`. ChristmasFeatures inserts it without replacing existing HUD entries.
+6. ChristmasFeatures automatically calls the BetterHud API reload after installing its files, so a manual `/hud reload` should not be necessary. If startup logs report a BetterHud reload error, run `/hud reload` once and restart the server.
+7. Rejoin and accept BetterHud's resource pack when prompted. The HUD is rendered through BetterHud and depends on its resource pack being accepted by the client.
 
-BetterHud must be installed and enabled before ChristmasFeatures starts (the plugin declares it as a soft dependency). If the BetterHud API cannot be loaded, ChristmasFeatures falls back to the configured `hud.fallback-mode` (SIDEBAR by default).
+BetterHud 1.14.0 is the API baseline pinned by this project and explicitly supports Minecraft 1.21.9/1.21.10. Do not replace it with BetterHud 2.0.0 on a Java 21 / Minecraft 1.21.10 server: the 2.0.0 release targets Minecraft 26.1.x and Java 25. BetterHud must be installed and enabled before ChristmasFeatures starts (the plugin declares it as a soft dependency). If its API or automatic reload cannot be initialized, ChristmasFeatures falls back to the configured `hud.fallback-mode` (SIDEBAR by default).
 
 ## Configuration
 
