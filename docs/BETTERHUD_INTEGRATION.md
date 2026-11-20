@@ -11,12 +11,13 @@ The plugin copies its example font, layouts and HUD definition into the BetterHu
 
 1. Confirm BetterHud is enabled and the server is running Paper/Purpur 1.21.10.
 2. Replace the old ChristmasFeatures JAR with the new build and restart the server.
-3. Check that these files were created:
+3. If this is an existing ChristmasFeatures installation, open `plugins/ChristmasFeatures/config.yml` and set `hud.mode: BETTERHUD`. `saveDefaultConfig()` does not overwrite an existing config, so the new default is applied automatically only on a fresh installation.
+4. Check that these files were created:
    - `plugins/BetterHud/texts/christmas-font.yml`
    - `plugins/BetterHud/layouts/christmas-event-layout.yml`
    - `plugins/BetterHud/huds/christmas-event-hud.yml`
-4. Check that `christmas_features_hud` appears in `default-hud` in `plugins/BetterHud/config.yml`.
-5. Run `/hud reload`, then rejoin and accept the resource pack if BetterHud asks for it.
+5. Check that `christmas_features_hud` appears in `default-hud` in `plugins/BetterHud/config.yml`.
+6. Run `/hud reload`, then rejoin and accept the resource pack if BetterHud asks for it.
 
 BetterHud must be installed and enabled before ChristmasFeatures starts (the plugin declares it as a soft dependency). If the BetterHud API cannot be loaded, ChristmasFeatures falls back to the configured `hud.fallback-mode` (SIDEBAR by default).
 
