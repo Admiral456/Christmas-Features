@@ -81,11 +81,12 @@ chest:
       lore:
         - "§7Odměna z vánoční bedny"
     # Optional external cosmetic-plugin reward. Increase weight after adding its command below.
-    - weight: 0
-      name: "§dVánoční kosmetika"
+    - weight: 3
+      name: "§dVánoční hvězdná aura"
       material: NONE
       lore:
-        - "§7Kosmetika se udělí přes integrační příkaz."
+        - "§7Trvalé odemknutí kosmetiky v TrailStudio."
+      trailstudio-effect: aura-astral-star
       commands: []
       # Add your cosmetics plugin command here, for example:
       # commands:
@@ -96,15 +97,18 @@ chest:
 cosmetics:
   events:
     gifts:
+      trailstudio-effect: trail-aurora-braid
       first-place-commands:
         - "christmas key give %player% 1"
         - "give %player% diamond 3"
       # Example integration command: "YOUR_TAG_PLUGIN_COMMAND %player% christmas_winner"
     ornaments:
+      trailstudio-effect: burst-frost-flower
       first-place-commands:
         - "christmas key give %player% 1"
         - "give %player% emerald 5"
   chatgames:
+    trailstudio-effect: wings-ice-dragon
     winner-commands:
       - "christmas key give %player% 1"
       - "give %player% emerald 3"
