@@ -50,6 +50,7 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas chatgame start` | Spustí ChatGame |
 | `/christmas chatgame stop` | Zastaví ChatGame |
 | `/christmas key give <hráč> [počet]` | Vydá vánoční klíč |
+| `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas chest set` | Nastaví zamčenou bednu na bloku, na který se díváš |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
 | `/christmas reload` | Znovu načte konfiguraci |
@@ -58,7 +59,7 @@ Správcovské příkazy vyžadují `christmas.admin` (defaultně OP).
 
 ## Kosmetické pluginy
 
-Konfigurace obsahuje příkazové hooky pro odměny z eventů, ChatGames a bedny. Do nich doplň přesné příkazy vašeho pluginu na tagy/traily/čepice. ChristmasFeatures spouští zadané příkazy jako konzole; používá placeholdery `%player%`, `%uuid%`, `%display_name%` a podle kontextu také `%event%`, `%score%`, `%rank%`, `%reward%`. Kosmetické odměny jsou ve výchozím stavu vypnuté, dokud se nedoplní integrační příkaz.
+TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální odměna z bedny mohou trvale odemykat efekty. ChristmasFeatures používá vlastní Bukkit PermissionAttachment a ukládá odemknutí do trail-unlocks.yml, takže není nutný LuckPerms. Další tag/trail pluginy lze připojit přes konzolové command hooky s placeholdery `%player%`, `%uuid%`, `%display_name%`, `%event%`, `%score%`, `%rank%` a `%reward%`.
 
 ## Důležité poznámky
 
