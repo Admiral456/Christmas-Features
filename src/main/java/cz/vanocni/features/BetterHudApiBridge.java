@@ -1,6 +1,7 @@
 package cz.vanocni.features;
 
 import kr.toxicity.hud.api.BetterHud;
+import kr.toxicity.hud.api.plugin.ReloadState;
 import kr.toxicity.hud.api.placeholder.HudPlaceholder;
 import kr.toxicity.hud.api.placeholder.PlaceholderContainer;
 import kr.toxicity.hud.api.player.HudPlayer;
@@ -77,6 +78,15 @@ public final class BetterHudApiBridge {
             ));
         });
         snapshots = Map.copyOf(next);
+    }
+
+    /** Reloads BetterHud after the integration files and default-hud entry are installed. */
+    public static boolean reload() {
+        ReloadState state = BetterHud.getInstance().reload();
+        if (state instanceof ReloadState.Failure failure) {
+            throw new IllegalStateException("BetterHud reload failed", failure.throwable());
+        }
+        return state instanceof ReloadState.Success;
     }
 
     public static void clear() {
