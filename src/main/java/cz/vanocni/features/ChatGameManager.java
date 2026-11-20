@@ -138,6 +138,10 @@ public final class ChatGameManager implements Listener {
         return active == null ? "" : "Odpověz do chatu";
     }
 
+    public String hudQuestionText() {
+        return active == null ? "" : active.task().question();
+    }
+
     public long remainingSeconds() {
         if (active == null) return 0L;
         return Math.max(0L, (active.endsAtMillis() - System.currentTimeMillis() + 999L) / 1000L);
