@@ -66,3 +66,15 @@ Konfigurace obsahuje příkazové hooky pro odměny z eventů, ChatGames a bedny
 - Biomy se mění postupně při načítání chunků, aby nedocházelo k hromadnému načítání celého světa. Dosud nenačtené oblasti se upraví až při návštěvě.
 - Změna biomu se ukládá do světa a po odebrání pluginu zůstane zachována.
 - Voda mrzne podle standardních pravidel Minecraftu pro chladné biomy; plugin nepřeměňuje násilně každou vodu na led.
+
+
+## Doporučená integrace s dodanými pluginy
+
+- **ChristmasSeason 2.5.0**: doporučeno pro zimní biomy, sněhové bouře, dekorace, adventní kalendář a vánoční moby. Je-li plugin načten, ChristmasFeatures automaticky vypne svůj jednodušší WinterManager, aby se dva systémy nepřepisovaly. Zimní systém spusť a nastav přes `/xmas on`, `/xmas biome convert-all <radius> <world> confirm` a `/xmas reload`. ChristmasSeason ukládá původní biomy do SQLite snapshotů; před hromadnou konverzí přesto zazálohuj svět.
+- **ChristmasGift 1.4.0**: volitelný systém dárkových itemů s ruletou a váženými Common–Mythic odměnami. Nenahrazuje fyzickou bednu vyžadující klíč v ChristmasFeatures. Pokud používáš zároveň ChristmasSeason, nepoužívej alias `/xmasgift` z ChristmasGift; příkazy `/christmasgift` a `/cgift` zůstávají dostupné.
+- V konfiguraci ChristmasSeason vypni `gifts.enabled`, pokud nechceš další volně otevíratelné dárkové truhly vedle naší klíčové bedny.
+- Vlastní příkazy ChristmasFeatures nepoužívají alias `/xmas`, aby nekolidovaly s ChristmasSeason.
+
+## Přehled dodaných assetů
+
+Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
