@@ -38,6 +38,9 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
                 plugin.winter().refresh();
                 plugin.getLogger().info("Konfigurace ChristmasFeatures byla znovu načtena.");
                 sender.sendMessage("§aChristmasFeatures: konfigurace byla znovu načtena.");
+                if (plugin.winter().isManagedExternally()) {
+                    sender.sendMessage("§eZimní svět spravuje ChristmasSeason. Jeho nastavení načti příkazem /xmas reload.");
+                }
             }
             case "event" -> handleEvent(sender, args);
             case "chatgame" -> handleChatGame(sender, args);
@@ -45,8 +48,12 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             case "chest" -> handleChest(sender, args);
             case "winter" -> {
                 if (args.length > 1 && args[1].equalsIgnoreCase("apply")) {
-                    plugin.winter().refresh();
-                    sender.sendMessage("§aZimní biom se znovu aplikuje na načtené chunky. Nové chunky se upraví automaticky.");
+                    if (plugin.winter().isManagedExternally()) {
+                        sender.sendMessage("§eZimní biomy spravuje ChristmasSeason. Použij /xmas biome convert-all <radius> <world> confirm.");
+                    } else {
+                        plugin.winter().refresh();
+                        sender.sendMessage("§aZimní biom se znovu aplikuje na načtené chunky. Nové chunky se upraví automaticky.");
+                    }
                 } else sender.sendMessage("§ePoužití: /christmas winter apply");
             }
             default -> help(sender);
