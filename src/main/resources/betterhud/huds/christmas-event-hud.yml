@@ -1,0 +1,10 @@
+christmas_features_hud:
+  layouts:
+    1:
+      name: christmas_features_event
+      x: 99
+      y: 20
+    2:
+      name: christmas_features_chatgame
+      x: 99
+      y: 44
