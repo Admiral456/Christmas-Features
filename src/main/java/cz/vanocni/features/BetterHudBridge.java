@@ -98,11 +98,11 @@ public final class BetterHudBridge {
             String key = inline.group(1) + "default-hud:";
             String indent = inline.group(1) + "  ";
             String contents = inline.group(2).trim();
-            StringBuilder replacement = new StringBuilder(key).append('\\n');
+            StringBuilder replacement = new StringBuilder(key).append('\n');
             if (!contents.isEmpty()) {
                 for (String entry : contents.split(",")) {
                     String value = entry.trim();
-                    if (!value.isEmpty()) replacement.append(indent).append("- ").append(value).append('\\n');
+                    if (!value.isEmpty()) replacement.append(indent).append("- ").append(value).append('\n');
                 }
             }
             replacement.append(indent).append("- ").append(HUD_ID).append(inline.group(3));
@@ -116,12 +116,12 @@ public final class BetterHudBridge {
             String tail = yaml.substring(matcher.end());
             Matcher existingEntry = Pattern.compile("(?m)^([ \\t]*)-\\s+").matcher(tail);
             String indent = existingEntry.find() ? existingEntry.group(1) : matcher.group(1) + "  ";
-            String insertion = keyLine + "\\n" + indent + "- " + HUD_ID;
+            String insertion = keyLine + "\n" + indent + "- " + HUD_ID;
             return yaml.substring(0, matcher.start()) + insertion + tail;
         }
 
-        String separator = yaml.endsWith("\\n") ? "" : "\\n";
-        return yaml + separator + "\\ndefault-hud:\\n  - " + HUD_ID + "\\n";
+        String separator = yaml.endsWith("\n") ? "" : "\n";
+        return yaml + separator + "\ndefault-hud:\n  - " + HUD_ID + "\n";
     }
 
     private void refreshNow() {
