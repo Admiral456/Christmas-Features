@@ -33,6 +33,10 @@ public final class WinterManager implements Listener {
     }
 
     public void start() {
+        if (isManagedExternally()) {
+            plugin.getLogger().info("ChristmasSeason je aktivní; správu zimních biomů a počasí přebírá ChristmasSeason.");
+            return;
+        }
         if (!plugin.getConfig().getBoolean("winter.enabled", true)) return;
         applyWeather();
         queueLoadedChunks(false);
@@ -41,8 +45,14 @@ public final class WinterManager implements Listener {
     }
 
     public void refresh() {
+        if (isManagedExternally()) return;
         queueLoadedChunks(true);
         applyWeather();
+    }
+
+    /** True when the dedicated ChristmasSeason plugin owns winter biomes and weather. */
+    public boolean isManagedExternally() {
+        return Bukkit.getPluginManager().isPluginEnabled("christmas-season");
     }
 
     public void shutdown() {
@@ -76,6 +86,7 @@ public final class WinterManager implements Listener {
     }
 
     public boolean isWinterWorld(World world) {
+        if (isManagedExternally()) return false;
         if (world == null || !plugin.getConfig().getBoolean("winter.enabled", true)) return false;
         List<String> worlds = plugin.getConfig().getStringList("winter.worlds");
         if (worlds.isEmpty()) return world.getEnvironment() == World.Environment.NORMAL;
