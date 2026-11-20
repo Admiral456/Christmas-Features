@@ -92,32 +92,36 @@ public final class BetterHudBridge {
     }
 
     private String appendDefaultHud(String yaml) {
-        Pattern inlineList = Pattern.compile("(?m)^(\\s*default-hud\\s*:\\s*)\\[(.*?)\\](\\s*(?:#.*)?)$");
+        Pattern inlineList = Pattern.compile("(?m)^([ \\t]*)default-hud\\s*:\\s*\\[(.*?)\\](\\s*(?:#.*)?)$");
         Matcher inline = inlineList.matcher(yaml);
         if (inline.find()) {
-            String key = inline.group(1);
+            String key = inline.group(1) + "default-hud:";
+            String indent = inline.group(1) + "  ";
             String contents = inline.group(2).trim();
-            String tail = inline.group(3);
-            StringBuilder replacement = new StringBuilder(key.trim()).append('\n');
+            StringBuilder replacement = new StringBuilder(key).append('\\n');
             if (!contents.isEmpty()) {
                 for (String entry : contents.split(",")) {
                     String value = entry.trim();
-                    if (!value.isEmpty()) replacement.append("- ").append(value).append('\n');
+                    if (!value.isEmpty()) replacement.append(indent).append("- ").append(value).append('\\n');
                 }
             }
-            replacement.append("- ").append(HUD_ID).append(tail);
+            replacement.append(indent).append("- ").append(HUD_ID).append(inline.group(3));
             return inline.replaceFirst(Matcher.quoteReplacement(replacement.toString()));
         }
 
-        Pattern key = Pattern.compile("(?m)^(\\s*default-hud\\s*:\\s*(?:#.*)?)$");
+        Pattern key = Pattern.compile("(?m)^([ \\t]*)default-hud\\s*:(?:[ \\t]*(?:#.*)?)$");
         Matcher matcher = key.matcher(yaml);
         if (matcher.find()) {
-            String insertion = matcher.group(1) + "\n- " + HUD_ID;
-            return matcher.replaceFirst(Matcher.quoteReplacement(insertion));
+            String keyLine = matcher.group();
+            String tail = yaml.substring(matcher.end());
+            Matcher existingEntry = Pattern.compile("(?m)^([ \\t]*)-\\s+").matcher(tail);
+            String indent = existingEntry.find() ? existingEntry.group(1) : matcher.group(1) + "  ";
+            String insertion = keyLine + "\\n" + indent + "- " + HUD_ID;
+            return yaml.substring(0, matcher.start()) + insertion + tail;
         }
 
-        String separator = yaml.endsWith("\n") ? "" : "\n";
-        return yaml + separator + "\ndefault-hud:\n- " + HUD_ID + "\n";
+        String separator = yaml.endsWith("\\n") ? "" : "\\n";
+        return yaml + separator + "\\ndefault-hud:\\n  - " + HUD_ID + "\\n";
     }
 
     private void refreshNow() {
