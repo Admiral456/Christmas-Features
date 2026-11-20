@@ -105,6 +105,11 @@ public final class ChatGameManager implements Listener {
     private void finishWinner(GameState state, UUID winnerId, String winnerName) {
         if (active != state) return;
         if (endTask != null) endTask.cancel();
+        String trailEffect = plugin.getConfig().getString("cosmetics.chatgames.trailstudio-effect", "");
+        if (!trailEffect.isBlank()) {
+            Player winner = Bukkit.getPlayer(winnerId);
+            if (winner != null) plugin.trailStudio().grant(winner, trailEffect);
+        }
         List<String> commands = plugin.getConfig().getStringList("cosmetics.chatgames.winner-commands");
         RewardCommands.dispatch(plugin, commands, winnerName, winnerId.toString(), Map.of("answer", state.task().answer()));
         Bukkit.broadcastMessage("§a§l✔ " + winnerName + " úspěšně splnil vánoční úkol jako první a získává odměnu!");
