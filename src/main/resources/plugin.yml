@@ -1,0 +1,15 @@
+name: ChristmasFeatures
+version: 1.0.0
+main: cz.vanocni.features.ChristmasFeaturesPlugin
+api-version: '1.21'
+author: Server Team
+description: Christmas events, key chest, ChatGames and winter world features for Paper 1.21.10.
+commands:
+  christmas:
+    description: Main command for ChristmasFeatures.
+    usage: /christmas help
+    aliases: [xmas, vanoce]
+permissions:
+  christmas.admin:
+    description: Allows managing Christmas events, key chest and winter settings.
+    default: op
