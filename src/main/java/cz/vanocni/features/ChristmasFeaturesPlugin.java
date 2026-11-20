@@ -13,6 +13,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private ChatGameManager chatGameManager;
     private KeyChestManager keyChestManager;
     private ActivityHud activityHud;
+    private TrailStudioBridge trailStudioBridge;
 
     @Override
     public void onEnable() {
@@ -27,12 +28,14 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         chatGameManager = new ChatGameManager(this);
         keyChestManager = new KeyChestManager(this);
         activityHud = new ActivityHud(this, eventManager, chatGameManager);
+        trailStudioBridge = new TrailStudioBridge(this);
 
         getServer().getPluginManager().registerEvents(winterManager, this);
         getServer().getPluginManager().registerEvents(eventManager, this);
         getServer().getPluginManager().registerEvents(chatGameManager, this);
         getServer().getPluginManager().registerEvents(keyChestManager, this);
         getServer().getPluginManager().registerEvents(activityHud, this);
+        getServer().getPluginManager().registerEvents(trailStudioBridge, this);
 
         ChristmasCommand command = new ChristmasCommand(this);
         if (getCommand("christmas") != null) {
@@ -54,6 +57,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         if (chatGameManager != null) chatGameManager.stop("Plugin vypnut.", false);
         if (activityHud != null) activityHud.shutdown();
         if (winterManager != null) winterManager.shutdown();
+        if (trailStudioBridge != null) trailStudioBridge.shutdown();
     }
 
     public NamespacedKey keyToken() {
@@ -82,5 +86,9 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
 
     public KeyChestManager keyChest() {
         return keyChestManager;
+    }
+
+    public TrailStudioBridge trailStudio() {
+        return trailStudioBridge;
     }
 }
