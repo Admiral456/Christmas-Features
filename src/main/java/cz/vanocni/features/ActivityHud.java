@@ -32,6 +32,7 @@ public final class ActivityHud implements Listener {
     private final BossBar bossBar = Bukkit.createBossBar("❄ Vánoční event", BarColor.BLUE, BarStyle.SEGMENTED_10);
     private BukkitTask updateTask;
     private boolean wasActive;
+    private String displayMode = "SIDEBAR";
 
     public ActivityHud(ChristmasFeaturesPlugin plugin, HolidayEventManager events, ChatGameManager chatGames) {
         this.plugin = plugin;
@@ -40,16 +41,30 @@ public final class ActivityHud implements Listener {
     }
 
     public void start() {
-        String mode = plugin.getConfig().getString("hud.mode", "SIDEBAR");
-        if ("SIDEBAR".equalsIgnoreCase(mode)) {
-            plugin.getLogger().warning("HUD používá postranní scoreboard. Pokud ho už zobrazuje jiný plugin, nastav hud.mode: BOSSBAR.");
+        String requestedMode = plugin.getConfig().getString("hud.mode", "SIDEBAR");
+        if ("BETTERHUD".equalsIgnoreCase(requestedMode)) {
+            if (plugin.betterHud() != null && plugin.betterHud().isAvailable()) {
+                displayMode = "BETTERHUD";
+                plugin.getLogger().info("Vánoční event HUD vykresluje BetterHud.");
+                return;
+            }
+            displayMode = plugin.getConfig().getString("hud.fallback-mode", "SIDEBAR");
+            plugin.getLogger().warning("BetterHud není dostupný; použit náhradní HUD režim: " + displayMode);
+        } else {
+            displayMode = requestedMode;
+        }
+
+        if ("SIDEBAR".equalsIgnoreCase(displayMode)) {
+            plugin.getLogger().warning("HUD používá postranní scoreboard. Pokud ho už zobrazuje jiný plugin, nastav hud.fallback-mode: BOSSBAR.");
         }
         updateTask = Bukkit.getScheduler().runTaskTimer(plugin, this::update, 1L, 20L);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Bukkit.getScheduler().runTaskLater(plugin, this::update, 2L);
+        if (!"BETTERHUD".equalsIgnoreCase(displayMode)) {
+            Bukkit.getScheduler().runTaskLater(plugin, this::update, 2L);
+        }
     }
 
     @EventHandler
@@ -59,6 +74,7 @@ public final class ActivityHud implements Listener {
     }
 
     public void update() {
+        if ("BETTERHUD".equalsIgnoreCase(displayMode)) return;
         boolean active = events.isActive() || chatGames.isActive();
         if (!active) {
             if (wasActive) restoreAll();
@@ -66,8 +82,7 @@ public final class ActivityHud implements Listener {
             return;
         }
         wasActive = true;
-        String mode = plugin.getConfig().getString("hud.mode", "SIDEBAR");
-        if ("BOSSBAR".equalsIgnoreCase(mode)) {
+        if ("BOSSBAR".equalsIgnoreCase(displayMode)) {
             updateBossBar();
         } else {
             bossBar.removeAll();
