@@ -80,6 +80,10 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
+## BetterHud integration
+
+When BetterHud is installed, ChristmasFeatures registers live event and ChatGame placeholders and adds its right-side event panel to BetterHud's default HUD list. The old sidebar/BossBar HUD remains available as a fallback. See [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
+
 ## TrailStudio integration
 
 TrailStudio is an optional separate plugin. ChristmasFeatures can permanently unlock its effects from event, ChatGame and key-chest rewards using Bukkit permission attachments; LuckPerms is not required. See docs/TRAILSTUDIO_INTEGRATION.md for the reviewed effect IDs and setup.
