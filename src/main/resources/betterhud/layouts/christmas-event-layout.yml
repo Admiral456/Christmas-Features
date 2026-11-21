@@ -1,27 +1,3 @@
-christmas_features_info:
-  texts:
-    1:
-      name: christmas_font
-      pattern: "<#65DFFF><b>❄ VÁNOČNÍ SEZÓNA</b>"
-      x: 0
-      y: 0
-      align: right
-      outline: true
-    2:
-      name: christmas_font
-      pattern: "<#FFD77A>Klíče: <white>[christmas_key_count]"
-      x: 0
-      y: 13
-      align: right
-      outline: true
-    3:
-      name: christmas_font
-      pattern: "<#A8E8FF>Sbírej dárky a ozdoby!"
-      x: 0
-      y: 26
-      align: right
-      outline: true
-
 christmas_features_event:
   texts:
     1:
