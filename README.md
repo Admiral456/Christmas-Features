@@ -5,9 +5,9 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 ## Funkce
 
 - **Hledání dárků a ozdob:** soutěžní eventy s rozmístěnými sběratelskými předměty. První hráč, který splní cíl, vyhrává; při vypršení limitu rozhoduje nejvyšší skóre.
-- **Event HUD:** pravý postranní panel se jménem eventu, odpočtem a skóre. Alternativou je BossBar, pokud sidebar používá jiný plugin.
+- **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, počet klíčů hráče, probíhající event, skóre, čas a úkol ChatGames. Při nedostupném BetterHud se použije BossBar.
 - **Vánoční bedna:** nastaví se na existující truhlu nebo sud na spawnu. Otevření vyžaduje speciální vánoční klíč s PDC identifikací.
-- **Vánoční klíč a odměny:** klíče získávají vítězové eventů a ChatGames. Bedna losuje odměny podle vah v konfiguraci; umí také spouštět příkazy externích kosmetických pluginů.
+- **Vánoční klíč a odměny:** klíče získávají vítězové eventů a ChatGames. Bedna losuje vážené odměny; každé otevření garantuje skutečný předmět. Kosmetické nebo neplatné odměny mají fyzickou záložní odměnu a při plném inventáři se předmět položí na zem.
 - **ChatGames:** globálně oznámené úkoly. První správná odpověď vyhrává, plugin oznámí vítěze a předá odměnu.
 - **Zimní svět:** při načítání chunků přepisuje 3D biomy na `SNOWY_PLAINS`, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
 - **Resource pack:** vlastní item modely/textury vánočního klíče, dárku a ozdoby.
@@ -63,7 +63,7 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 ## Důležité poznámky
 
-- `hud.mode: SIDEBAR` používá jediný pravý scoreboard slot Minecraftu. Pokud jej používá jiný plugin, nastav `hud.mode: BOSSBAR`.
+- `hud.mode: BETTERHUD` používá samostatný pravý panel BetterHud. Pokud BetterHud není dostupný, plugin použije `hud.fallback-mode: BOSSBAR`. V již existujícím `config.yml` ověř, že `hud.mode` je nastaveno na `BETTERHUD`.
 - Biomy se mění postupně při načítání chunků, aby nedocházelo k hromadnému načítání celého světa. Dosud nenačtené oblasti se upraví až při návštěvě.
 - Změna biomu se ukládá do světa a po odebrání pluginu zůstane zachována.
 - Voda mrzne podle standardních pravidel Minecraftu pro chladné biomy; plugin nepřeměňuje násilně každou vodu na led.
@@ -82,7 +82,7 @@ Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource p
 
 ## BetterHud integration
 
-When BetterHud is installed, ChristmasFeatures registers live event and ChatGame placeholders and adds its right-side event panel to BetterHud's default HUD list. The old sidebar/BossBar HUD remains available as a fallback. See [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
+BetterHud integration registers live event, ChatGame and player key-count placeholders. It installs versioned assets, safely migrates only the ChristmasFeatures HUD entry, and keeps other HUD entries and admin customizations. See [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
 
 ## TrailStudio integration
 
