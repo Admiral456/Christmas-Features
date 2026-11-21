@@ -6,18 +6,18 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -85,16 +85,19 @@ public final class KeyChestManager implements Listener {
         event.setCancelled(true);
 
         Player player = event.getPlayer();
-        if (plugin.getConfig().getMapList("chest.rewards").isEmpty()) {
-            player.sendMessage("§cVánoční bedna nemá nastavené odměny. Kontaktuj správce.");
-            return;
-        }
+
+        // Pick and validate the reward before consuming the key. A broken rewards.yml
+        // must never turn a key into an empty opening.
+        Map<?, ?> reward = chooseReward(plugin.getConfig().getMapList("chest.rewards"));
         if (!removeOneKey(player)) {
             player.sendMessage("§cK otevření vánoční bedny potřebuješ §6Vánoční klíč§c.");
             player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_CHEST_LOCKED, 0.8f, 0.8f);
             return;
         }
-        openChest(player);
+        if (reward == null) {
+            plugin.getLogger().warning("chest.rewards neobsahuje žádnou platnou odměnu; hráči bude vydána záložní odměna.");
+        }
+        openChest(player, reward);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -142,25 +145,31 @@ public final class KeyChestManager implements Listener {
         return false;
     }
 
-    private void openChest(Player player) {
-        List<Map<?, ?>> rewards = plugin.getConfig().getMapList("chest.rewards");
-        Map<?, ?> reward = chooseReward(rewards);
-        if (reward == null) {
-            player.sendMessage("§cVánoční bedna nemá nastavené žádné odměny. Kontaktuj správce.");
-            return;
+    private void openChest(Player player, Map<?, ?> reward) {
+        String displayName = reward == null ? plugin.getConfig().getString(
+                "chest.fallback-reward.name", "§6Vánoční jistota") : String.valueOf(reward.getOrDefault("name", "§6Vánoční odměna"));
+
+        ItemStack rewardItem = reward == null ? null : createRewardItem(reward);
+        List<String> commands = reward == null ? List.of() : readStringList(reward.get("commands"));
+        RewardCommands.dispatch(plugin, commands, player, Map.of("reward", displayName));
+
+        if (reward != null) {
+            Object trailEffect = reward.get("trailstudio-effect");
+            if (trailEffect != null) {
+                boolean granted = plugin.trailStudio().grant(player, String.valueOf(trailEffect));
+                if (!granted) {
+                    plugin.getLogger().warning("TrailStudio odměnu '" + trailEffect + "' se nepodařilo předat hráči " + player.getName() + ".");
+                }
+            }
         }
 
-        Object displayValue = reward.get("name");
-        String displayName = displayValue == null ? "§6Vánoční odměna" : String.valueOf(displayValue);
-        ItemStack rewardItem = createRewardItem(reward);
-        List<String> commands = readStringList(reward.get("commands"));
-        RewardCommands.dispatch(plugin, commands, player, Map.of("reward", displayName));
-        Object trailEffect = reward.get("trailstudio-effect");
-        if (trailEffect != null) plugin.trailStudio().grant(player, String.valueOf(trailEffect));
-        if (rewardItem != null) {
-            Map<Integer, ItemStack> overflow = player.getInventory().addItem(rewardItem);
-            for (ItemStack leftover : overflow.values()) player.getWorld().dropItemNaturally(player.getLocation(), leftover);
-        }
+        boolean fallbackAdded = rewardItem == null;
+        if (fallbackAdded) rewardItem = createGuaranteedFallbackItem();
+
+        // Every key opening always produces a real item, even for cosmetic-only rewards,
+        // missing external plugins, invalid materials, or a damaged reward configuration.
+        Map<Integer, ItemStack> overflow = player.getInventory().addItem(rewardItem);
+        for (ItemStack leftover : overflow.values()) player.getWorld().dropItemNaturally(player.getLocation(), leftover);
 
         RewardInventoryHolder holder = new RewardInventoryHolder();
         Inventory inventory = Bukkit.createInventory(holder, 27, RewardCommands.component("§b✦ Vánoční bedna ✦"));
@@ -170,19 +179,33 @@ public final class KeyChestManager implements Listener {
         fillerMeta.displayName(Component.text(" "));
         filler.setItemMeta(fillerMeta);
         for (int slot = 0; slot < inventory.getSize(); slot++) inventory.setItem(slot, filler);
-        inventory.setItem(13, rewardItem == null ? createCommandRewardIcon(displayName) : rewardItem.clone());
+        inventory.setItem(13, rewardItem.clone());
         player.openInventory(inventory);
         player.playSound(player.getLocation(), org.bukkit.Sound.BLOCK_CHEST_OPEN, 0.9f, 1.1f);
-        player.sendMessage("§aOtevřel jsi vánoční bednu a získal: " + RewardCommands.color(displayName) + "§a!");
+
+        String message = "§aOtevřel jsi vánoční bednu a získal: " + RewardCommands.color(displayName) + "§a!";
+        if (fallbackAdded && reward != null) message += " §7Navíc dostáváš záložní fyzickou odměnu.";
+        player.sendMessage(message);
     }
 
-    private ItemStack createCommandRewardIcon(String name) {
-        ItemStack icon = new ItemStack(Material.NAME_TAG);
-        ItemMeta meta = icon.getItemMeta();
-        meta.displayName(RewardCommands.component(name));
-        meta.lore(List.of(Component.text("§7Kosmetická odměna byla přidána.")));
-        icon.setItemMeta(meta);
-        return icon;
+    private ItemStack createGuaranteedFallbackItem() {
+        String materialName = plugin.getConfig().getString("chest.fallback-reward.material", "GOLD_INGOT");
+        Material material = Material.matchMaterial(materialName == null ? "GOLD_INGOT" : materialName);
+        if (material == null || material.isAir()) material = Material.GOLD_INGOT;
+
+        int amount = Math.max(1, Math.min(material.getMaxStackSize(),
+                plugin.getConfig().getInt("chest.fallback-reward.amount", 3)));
+        ItemStack item = new ItemStack(material, amount);
+        ItemMeta meta = item.getItemMeta();
+
+        String name = plugin.getConfig().getString("chest.fallback-reward.name", "§6Vánoční jistota");
+        if (name != null && !name.isBlank()) meta.displayName(RewardCommands.component(name));
+        List<String> lore = plugin.getConfig().getStringList("chest.fallback-reward.lore");
+        if (!lore.isEmpty()) meta.lore(lore.stream().map(RewardCommands::component).toList());
+        int modelData = plugin.getConfig().getInt("chest.fallback-reward.model-data", 0);
+        if (modelData > 0) meta.setCustomModelData(modelData);
+        item.setItemMeta(meta);
+        return item;
     }
 
     private ItemStack createRewardItem(Map<?, ?> reward) {
@@ -201,22 +224,42 @@ public final class KeyChestManager implements Listener {
         List<String> lore = readStringList(reward.get("lore"));
         if (!lore.isEmpty()) meta.lore(lore.stream().map(RewardCommands::component).toList());
         Object modelData = reward.get("model-data");
-        if (modelData != null) meta.setCustomModelData(parseInt(modelData, 0));
+        if (modelData != null) {
+            int parsed = parseInt(modelData, 0);
+            if (parsed > 0) meta.setCustomModelData(parsed);
+        }
         item.setItemMeta(meta);
         return item;
     }
 
     private Map<?, ?> chooseReward(List<Map<?, ?>> rewards) {
-        if (rewards.isEmpty()) return null;
-        int total = 0;
-        for (Map<?, ?> reward : rewards) total += Math.max(0, parseInt(reward.get("weight"), 1));
-        if (total <= 0) return rewards.get(0);
-        int pick = random.nextInt(total);
+        List<Map<?, ?>> eligible = new ArrayList<>();
+        long totalWeight = 0L;
         for (Map<?, ?> reward : rewards) {
-            pick -= Math.max(0, parseInt(reward.get("weight"), 1));
-            if (pick < 0) return reward;
+            int weight = Math.max(0, Math.min(1_000_000, parseInt(reward.get("weight"), 1)));
+            if (weight == 0 || !isRewardUsable(reward)) continue;
+            eligible.add(reward);
+            totalWeight += weight;
         }
-        return rewards.get(rewards.size() - 1);
+        if (eligible.isEmpty() || totalWeight <= 0L) return null;
+
+        long pick = random.nextLong(totalWeight);
+        for (Map<?, ?> reward : eligible) {
+            pick -= Math.max(0, Math.min(1_000_000, parseInt(reward.get("weight"), 1)));
+            if (pick < 0L) return reward;
+        }
+        return eligible.get(eligible.size() - 1);
+    }
+
+    private boolean isRewardUsable(Map<?, ?> reward) {
+        Object materialValue = reward.get("material");
+        if (materialValue != null && !"NONE".equalsIgnoreCase(String.valueOf(materialValue))) {
+            Material material = Material.matchMaterial(String.valueOf(materialValue));
+            if (material != null && !material.isAir()) return true;
+        }
+        if (!readStringList(reward.get("commands")).isEmpty()) return true;
+        Object trailEffect = reward.get("trailstudio-effect");
+        return trailEffect != null && !String.valueOf(trailEffect).isBlank();
     }
 
     private List<String> readStringList(Object value) {
@@ -251,7 +294,7 @@ public final class KeyChestManager implements Listener {
     private boolean isConfiguredChest(Block block) {
         if (!plugin.getConfig().getBoolean("chest.enabled", true)) return false;
         String world = plugin.getConfig().getString("chest.location.world", "");
-        if (world.isBlank() || block.getWorld().getName().equalsIgnoreCase(world) == false) return false;
+        if (world.isBlank() || !block.getWorld().getName().equalsIgnoreCase(world)) return false;
         return block.getX() == plugin.getConfig().getInt("chest.location.x", Integer.MIN_VALUE)
                 && block.getY() == plugin.getConfig().getInt("chest.location.y", Integer.MIN_VALUE)
                 && block.getZ() == plugin.getConfig().getInt("chest.location.z", Integer.MIN_VALUE);
