@@ -1,7 +1,7 @@
 christmas_features_hud:
   layouts:
     1:
-      name: christmas_features_event
+      name: christmas_features_info
       gui:
         x: 100
         y: 18
@@ -9,10 +9,18 @@ christmas_features_hud:
         x: -8
         y: 0
     2:
+      name: christmas_features_event
+      gui:
+        x: 100
+        y: 53
+      pixel:
+        x: -8
+        y: 0
+    3:
       name: christmas_features_chatgame
       gui:
         x: 100
-        y: 43
+        y: 105
       pixel:
         x: -8
         y: 0
