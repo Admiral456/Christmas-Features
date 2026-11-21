@@ -48,12 +48,10 @@ chatgames:
       answer: "snow block"
       aliases: ["snow_block", "snowblock"]
 
-# BETTERHUD uses the optional BetterHud integration and its right-side panel.
-# If BetterHud is missing or its API cannot be loaded, fallback-mode is used.
-# SIDEBAR may conflict with other scoreboard plugins; BOSSBAR is the safe fallback.
+# BetterHud displays the event panel in the player's right-side HUD.
 hud:
   mode: BETTERHUD
-  fallback-mode: SIDEBAR
+  fallback-mode: BOSSBAR
 
 chest:
   enabled: true
@@ -63,6 +61,13 @@ chest:
     x: 0
     y: 0
     z: 0
+  # A real item is guaranteed even when the selected reward is cosmetic-only or a command fails.
+  fallback-reward:
+    material: GOLD_INGOT
+    amount: 3
+    name: "§6Vánoční jistota"
+    lore:
+      - "§7Základní fyzická odměna z vánoční bedny."
   rewards:
     - weight: 45
       name: "§6Vánoční balíček"
@@ -82,7 +87,7 @@ chest:
       amount: 2
       lore:
         - "§7Odměna z vánoční bedny"
-    # Optional TrailStudio cosmetic reward. The effect ID must exist and be enabled in TrailStudio's effects.yml.
+    # Cosmetic-only rewards still include the configured physical fallback item.
     - weight: 3
       name: "§dVánoční hvězdná aura"
       material: NONE
@@ -90,7 +95,6 @@ chest:
         - "§7Trvalé odemknutí kosmetiky v TrailStudio."
       trailstudio-effect: aura-astral-star
       commands: []
-      # Optional extra console commands for another cosmetics plugin may be added here.
 
 # These are console commands executed by the server. Replace the examples with the actual
 # command syntax of the tags/cosmetics plugin installed on your server.
