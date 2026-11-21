@@ -1,0 +1,26 @@
+christmas_features_hud_v2:
+  layouts:
+    1:
+      name: christmas_features_info_v2
+      gui:
+        x: 100
+        y: 2
+      pixel:
+        x: -8
+        y: 0
+    2:
+      name: christmas_features_event_v2
+      gui:
+        x: 100
+        y: 18
+      pixel:
+        x: -8
+        y: 0
+    3:
+      name: christmas_features_chatgame_v2
+      gui:
+        x: 100
+        y: 43
+      pixel:
+        x: -8
+        y: 0
