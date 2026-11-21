@@ -18,7 +18,8 @@ import java.util.regex.Pattern;
  * only after BetterHud has been detected, so the plugin remains optional.
  */
 public final class BetterHudBridge {
-    private static final String HUD_ID = "christmas_features_hud";
+    private static final String HUD_ID = "christmas_features_hud_v2";
+    private static final String LEGACY_HUD_ID = "christmas_features_hud";
 
     private final ChristmasFeaturesPlugin plugin;
     private BukkitTask refreshTask;
@@ -39,14 +40,14 @@ public final class BetterHudBridge {
 
         try {
             Path dataFolder = betterHud.getDataFolder().toPath();
-            installDefaultFiles(dataFolder);
+            installVersionedFiles(dataFolder);
             ensureDefaultHud(dataFolder.resolve("config.yml"));
 
             Class<?> apiBridge = Class.forName(
                     "cz.vanocni.features.BetterHudApiBridge", true, plugin.getClass().getClassLoader());
 
-            // BetterHud loads its configuration during its own enable phase. Our files are
-            // installed after that, so explicitly reload it before registering placeholders.
+            // BetterHud loads configuration during its own enable phase. Our versioned
+            // files are added after that, so reload before registering custom placeholders.
             Method reloadMethod = apiBridge.getMethod("reload");
             Object reloadResult = reloadMethod.invoke(null);
             if (!Boolean.TRUE.equals(reloadResult)) {
@@ -57,12 +58,12 @@ public final class BetterHudBridge {
             refreshMethod = apiBridge.getMethod("refresh", ChristmasFeaturesPlugin.class);
             clearMethod = apiBridge.getMethod("clear");
 
-            // Register after reload so the custom placeholders are added to the live manager.
+            // Register after reload so placeholders are attached to the live manager.
             registerMethod.invoke(null, plugin);
             available = true;
             refreshNow();
             refreshTask = Bukkit.getScheduler().runTaskTimer(plugin, this::refreshNow, 1L, 20L);
-            plugin.getLogger().info("BetterHud integrace je aktivní; vánoční HUD byl načten a proměnné registrovány.");
+            plugin.getLogger().info("BetterHud integrace v2 je aktivní; HUD a vánoční proměnné byly načteny.");
         } catch (Throwable error) {
             available = false;
             refreshMethod = null;
@@ -72,10 +73,15 @@ public final class BetterHudBridge {
         }
     }
 
-    private void installDefaultFiles(Path dataFolder) throws IOException {
-        copyIfMissing("betterhud/texts/christmas-font.yml", dataFolder.resolve("texts/christmas-font.yml"));
-        copyIfMissing("betterhud/layouts/christmas-event-layout.yml", dataFolder.resolve("layouts/christmas-event-layout.yml"));
-        copyIfMissing("betterhud/huds/christmas-event-hud.yml", dataFolder.resolve("huds/christmas-event-hud.yml"));
+    private void installVersionedFiles(Path dataFolder) throws IOException {
+        // Versioned filenames let us upgrade the integration without overwriting
+        // administrator customizations or leaving players stuck on an old layout.
+        copyIfMissing("betterhud/v2/texts/christmas-font-v2.yml",
+                dataFolder.resolve("texts/christmas-font-v2.yml"));
+        copyIfMissing("betterhud/v2/layouts/christmas-layout-v2.yml",
+                dataFolder.resolve("layouts/christmas-layout-v2.yml"));
+        copyIfMissing("betterhud/v2/huds/christmas-hud-v2.yml",
+                dataFolder.resolve("huds/christmas-hud-v2.yml"));
     }
 
     private void copyIfMissing(String resource, Path target) throws IOException {
@@ -89,22 +95,22 @@ public final class BetterHudBridge {
 
     private void ensureDefaultHud(Path configPath) throws IOException {
         if (!Files.exists(configPath)) {
-            throw new IOException("BetterHud config.yml nebyl nalezen; nelze bezpečně přidat vánoční HUD.");
+            throw new IOException("BetterHud config.yml nebyl nalezen; nelze bezpečně aktivovat vánoční HUD.");
         }
 
         String original = Files.readString(configPath, StandardCharsets.UTF_8);
-        Pattern item = Pattern.compile("(?m)^\\s*-\\s*" + Pattern.quote(HUD_ID) + "\\s*$");
-        if (item.matcher(original).find()) return;
-
-        String updated = appendDefaultHud(original);
+        String updated = migrateDefaultHud(original);
         if (!updated.equals(original)) {
             Files.writeString(configPath, updated, StandardCharsets.UTF_8);
-        } else {
-            throw new IOException("V BetterHud config.yml nebylo možné bezpečně najít default-hud.");
         }
     }
 
-    private String appendDefaultHud(String yaml) {
+    /**
+     * Removes only the previous ChristmasFeatures HUD ID, retains all other
+     * default HUD entries and adds the new versioned ID. Supports inline and
+     * block YAML lists without reserializing the user's complete config.
+     */
+    private String migrateDefaultHud(String yaml) {
         Pattern inlineList = Pattern.compile("(?m)^([ \\t]*)default-hud\\s*:\\s*\\[(.*?)\\](\\s*(?:#.*)?)$");
         Matcher inline = inlineList.matcher(yaml);
         if (inline.find()) {
@@ -115,27 +121,36 @@ public final class BetterHudBridge {
             if (!contents.isEmpty()) {
                 for (String entry : contents.split(",")) {
                     String value = entry.trim();
-                    if (!value.isEmpty()) replacement.append(indent).append("- ").append(value).append('\n');
+                    String plain = value.replace("\"", "").replace("'", "");
+                    if (!value.isEmpty() && !plain.equals(LEGACY_HUD_ID) && !plain.equals(HUD_ID)) {
+                        replacement.append(indent).append("- ").append(value).append('\n');
+                    }
                 }
             }
             replacement.append(indent).append("- ").append(HUD_ID).append(inline.group(3));
             return inline.replaceFirst(Matcher.quoteReplacement(replacement.toString()));
         }
 
+        Pattern legacyEntry = Pattern.compile(
+                "(?m)^[ \\t]*-[ \\t]*" + Pattern.quote(LEGACY_HUD_ID) + "[ \\t]*(?:\\r?\\n|$)");
+        String updated = legacyEntry.matcher(yaml).replaceAll("");
+
+        Pattern activeEntry = Pattern.compile("(?m)^[ \\t]*-[ \\t]*" + Pattern.quote(HUD_ID) + "[ \\t]*$");
+        if (activeEntry.matcher(updated).find()) return updated;
+
         Pattern key = Pattern.compile("(?m)^([ \\t]*)default-hud\\s*:(?:[ \\t]*(?:#.*)?)$");
-        Matcher matcher = key.matcher(yaml);
+        Matcher matcher = key.matcher(updated);
         if (matcher.find()) {
             String keyLine = matcher.group();
-            String tail = yaml.substring(matcher.end());
-            Matcher existingEntry = Pattern.compile("(?m)^([ \\t]*)-\\s+").matcher(tail);
+            String tail = updated.substring(matcher.end());
+            Matcher existingEntry = Pattern.compile("(?m)^([ \\t]*)-[ \\t]+").matcher(tail);
             String indent = existingEntry.find() ? existingEntry.group(1) : matcher.group(1) + "  ";
             String insertion = keyLine + "\n" + indent + "- " + HUD_ID;
-            return yaml.substring(0, matcher.start()) + insertion + tail;
+            return updated.substring(0, matcher.start()) + insertion + tail;
         }
 
-        // Keep the rest of BetterHud's existing settings untouched.
-        String separator = yaml.endsWith("\n") ? "" : "\n";
-        return yaml + separator + "\ndefault-hud:\n  - " + HUD_ID + "\n";
+        String separator = updated.endsWith("\n") ? "" : "\n";
+        return updated + separator + "\ndefault-hud:\n  - " + HUD_ID + "\n";
     }
 
     private void refreshNow() {
