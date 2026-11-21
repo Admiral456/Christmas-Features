@@ -11,6 +11,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **ChatGames:** globálně oznámené úkoly. První správná odpověď vyhrává, plugin oznámí vítěze a předá odměnu.
 - **Zimní svět:** při načítání chunků přepisuje 3D biomy na `SNOWY_PLAINS`, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
 - **Resource pack:** vlastní item modely/textury vánočního klíče, dárku a ozdoby.
+- Přesný výchozí loot table, váhy, šance a pravidla záložní fyzické odměny jsou popsány v [docs/KEY_CHEST_LOOT.md](docs/KEY_CHEST_LOOT.md).
 
 Podle zadání projekt neobsahuje bossy ani speciální bojové itemy.
 
