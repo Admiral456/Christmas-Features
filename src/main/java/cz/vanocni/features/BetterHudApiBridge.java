@@ -67,6 +67,7 @@ public final class BetterHudApiBridge {
             String eventTime = eventActive ? TimeFormat.mmss(plugin.events().remainingSeconds()) : "";
             String chatQuestion = chatGameActive ? plugin.chatGames().hudQuestionText() : "";
             String chatTime = chatGameActive ? TimeFormat.mmss(plugin.chatGames().remainingSeconds()) : "";
+            String keyCount = Integer.toString(plugin.keyChest().countKeys(player));
 
             next.put(player.getUniqueId(), new HudSnapshot(
                     Boolean.toString(eventActive),
@@ -75,7 +76,8 @@ public final class BetterHudApiBridge {
                     eventTime,
                     Boolean.toString(chatGameActive),
                     chatQuestion,
-                    chatTime
+                    chatTime,
+                    keyCount
             ));
         });
         snapshots = Map.copyOf(next);
@@ -101,7 +103,8 @@ public final class BetterHudApiBridge {
             String eventTime,
             String chatGameActive,
             String chatGameQuestion,
-            String chatGameTime
+            String chatGameTime,
+            String keyCount
     ) {
     }
 }
