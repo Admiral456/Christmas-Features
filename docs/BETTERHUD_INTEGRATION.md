@@ -4,6 +4,7 @@ ChristmasFeatures has an optional direct integration with BetterHud. It register
 
 - `[christmas_event_active]`, `[christmas_event_name]`, `[christmas_event_score]`, `[christmas_event_time]`
 - `[christmas_chatgame_active]`, `[christmas_chatgame_question]`, `[christmas_chatgame_time]`
+- `[christmas_key_count]` (the player's own valid Christmas keys in their inventory)
 
 The plugin copies its example font, layouts and HUD definition into the BetterHud data folder only when those files do not already exist. It also appends `christmas_features_hud` to BetterHud's `default-hud` list without replacing other listed HUDs.
 
