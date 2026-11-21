@@ -146,8 +146,9 @@ public final class KeyChestManager implements Listener {
     }
 
     private void openChest(Player player, Map<?, ?> reward) {
-        String displayName = reward == null ? plugin.getConfig().getString(
-                "chest.fallback-reward.name", "§6Vánoční jistota") : String.valueOf(reward.getOrDefault("name", "§6Vánoční odměna"));
+        Object displayValue = reward == null ? plugin.getConfig().getString(
+                "chest.fallback-reward.name", "§6Vánoční jistota") : reward.get("name");
+        String displayName = displayValue == null ? "§6Vánoční odměna" : String.valueOf(displayValue);
 
         ItemStack rewardItem = reward == null ? null : createRewardItem(reward);
         List<String> commands = reward == null ? List.of() : readStringList(reward.get("commands"));
