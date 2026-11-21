@@ -1,0 +1,88 @@
+christmas_features_info_v2:
+  texts:
+    1:
+      name: christmas_font_v2
+      pattern: "<#65DFFF><b>❄ VÁNOČNÍ SEZÓNA</b>"
+      x: 0
+      y: 0
+      align: right
+      outline: true
+    2:
+      name: christmas_font_v2
+      pattern: "<#FFD77A>Klíče: <white>[christmas_key_count]"
+      x: 0
+      y: 13
+      align: right
+      outline: true
+    3:
+      name: christmas_font_v2
+      pattern: "<#A8E8FF>Sbírej dárky a ozdoby!"
+      x: 0
+      y: 26
+      align: right
+      outline: true
+
+christmas_features_event_v2:
+  texts:
+    1:
+      name: christmas_font_v2
+      pattern: "<#65DFFF><b>❄ VÁNOČNÍ EVENT</b>"
+      x: 0
+      y: 0
+      align: right
+      outline: true
+    2:
+      name: christmas_font_v2
+      pattern: "<white>[christmas_event_name]"
+      x: 0
+      y: 13
+      align: right
+      outline: true
+    3:
+      name: christmas_font_v2
+      pattern: "<#A8E8FF>Body: <white>[christmas_event_score]"
+      x: 0
+      y: 26
+      align: right
+      outline: true
+    4:
+      name: christmas_font_v2
+      pattern: "<#A8E8FF>Zbývá: <white>[christmas_event_time]"
+      x: 0
+      y: 39
+      align: right
+      outline: true
+  conditions:
+    1:
+      first: christmas_event_active
+      second: "'true'"
+      operation: '=='
+
+christmas_features_chatgame_v2:
+  texts:
+    1:
+      name: christmas_font_v2
+      pattern: "<#E9A3FF><b>✦ VÁNOČNÍ CHATGAME</b>"
+      x: 0
+      y: 0
+      align: right
+      outline: true
+    2:
+      name: christmas_font_v2
+      pattern: "<white>[christmas_chatgame_question]"
+      x: 0
+      y: 13
+      align: right
+      outline: true
+    3:
+      name: christmas_font_v2
+      pattern: "<#E9A3FF>Zbývá: <white>[christmas_chatgame_time]"
+      x: 0
+      y: 26
+      align: right
+      outline: true
+  conditions:
+    1:
+      first: christmas_chatgame_active
+      second: "'true'"
+      operation: '=='
