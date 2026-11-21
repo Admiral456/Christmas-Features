@@ -1,0 +1,4 @@
+christmas_font_v2:
+  scale: 16
+  merge-default-bitmap: true
+  use-unifont: true
