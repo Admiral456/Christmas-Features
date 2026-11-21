@@ -87,6 +87,24 @@ chest:
       amount: 2
       lore:
         - "§7Odměna z vánoční bedny"
+    - weight: 8
+      name: "§2Smaragdový balíček"
+      material: EMERALD
+      amount: 5
+      lore:
+        - "§7Vzácnější vánoční nález"
+    - weight: 3
+      name: "§6Zlaté vánoční jablko"
+      material: ENCHANTED_GOLDEN_APPLE
+      amount: 1
+      lore:
+        - "§7Velmi vzácná odměna z vánoční bedny"
+    - weight: 2
+      name: "§5Netheritový úlomek"
+      material: NETHERITE_SCRAP
+      amount: 1
+      lore:
+        - "§7Mimořádně vzácná surovina"
     # Cosmetic-only rewards still include the configured physical fallback item.
     - weight: 3
       name: "§dVánoční hvězdná aura"
