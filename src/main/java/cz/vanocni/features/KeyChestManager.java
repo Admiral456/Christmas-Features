@@ -145,6 +145,17 @@ public final class KeyChestManager implements Listener {
         return false;
     }
 
+    /** Returns the amount of valid Christmas keys in the player's inventory. */
+    public int countKeys(Player player) {
+        int total = 0;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item == null || item.getType() != Material.TRIPWIRE_HOOK || !item.hasItemMeta()) continue;
+            Byte marker = item.getItemMeta().getPersistentDataContainer().get(plugin.keyToken(), PersistentDataType.BYTE);
+            if (marker != null && marker == (byte) 1) total += item.getAmount();
+        }
+        return total;
+    }
+
     private void openChest(Player player, Map<?, ?> reward) {
         Object displayValue = reward == null ? plugin.getConfig().getString(
                 "chest.fallback-reward.name", "§6Vánoční jistota") : reward.get("name");
