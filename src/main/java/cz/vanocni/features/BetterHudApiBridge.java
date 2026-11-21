@@ -35,6 +35,7 @@ public final class BetterHudApiBridge {
         addString(strings, "christmas_chatgame_active", HudSnapshot::chatGameActive);
         addString(strings, "christmas_chatgame_question", HudSnapshot::chatGameQuestion);
         addString(strings, "christmas_chatgame_time", HudSnapshot::chatGameTime);
+        addString(strings, "christmas_key_count", HudSnapshot::keyCount);
 
         registered = true;
         refresh(plugin);
