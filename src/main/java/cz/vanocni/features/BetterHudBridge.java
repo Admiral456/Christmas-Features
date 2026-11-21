@@ -14,8 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Optional BetterHud integration. BetterHud API classes are only loaded reflectively
- * after the BetterHud plugin has been detected, so BetterHud remains optional.
+ * Optional BetterHud integration. BetterHud API classes are loaded reflectively
+ * only after BetterHud has been detected, so the plugin remains optional.
  */
 public final class BetterHudBridge {
     private static final String HUD_ID = "christmas_features_hud";
@@ -38,24 +38,37 @@ public final class BetterHudBridge {
         }
 
         try {
-            installDefaultFiles(betterHud.getDataFolder().toPath());
-            ensureDefaultHud(betterHud.getDataFolder().toPath().resolve("config.yml"));
+            Path dataFolder = betterHud.getDataFolder().toPath();
+            installDefaultFiles(dataFolder);
+            ensureDefaultHud(dataFolder.resolve("config.yml"));
 
             Class<?> apiBridge = Class.forName(
                     "cz.vanocni.features.BetterHudApiBridge", true, plugin.getClass().getClassLoader());
+
+            // BetterHud loads its configuration during its own enable phase. Our files are
+            // installed after that, so explicitly reload it before registering placeholders.
+            Method reloadMethod = apiBridge.getMethod("reload");
+            Object reloadResult = reloadMethod.invoke(null);
+            if (!Boolean.TRUE.equals(reloadResult)) {
+                throw new IllegalStateException("BetterHud API did not confirm a successful reload.");
+            }
+
             Method registerMethod = apiBridge.getMethod("register", ChristmasFeaturesPlugin.class);
             refreshMethod = apiBridge.getMethod("refresh", ChristmasFeaturesPlugin.class);
             clearMethod = apiBridge.getMethod("clear");
 
+            // Register after reload so the custom placeholders are added to the live manager.
             registerMethod.invoke(null, plugin);
             available = true;
             refreshNow();
             refreshTask = Bukkit.getScheduler().runTaskTimer(plugin, this::refreshNow, 1L, 20L);
-            plugin.getLogger().info("BetterHud integrace byla aktivována. Vánoční HUD je přidán mezi výchozí HUDy.");
+            plugin.getLogger().info("BetterHud integrace je aktivní; vánoční HUD byl načten a proměnné registrovány.");
         } catch (Throwable error) {
             available = false;
+            refreshMethod = null;
+            clearMethod = null;
             plugin.getLogger().log(java.util.logging.Level.WARNING,
-                    "BetterHud integrace se nepodařila inicializovat; použije se náhradní HUD.", error);
+                    "BetterHud integraci se nepodařilo inicializovat; použije se náhradní HUD.", error);
         }
     }
 
@@ -76,9 +89,7 @@ public final class BetterHudBridge {
 
     private void ensureDefaultHud(Path configPath) throws IOException {
         if (!Files.exists(configPath)) {
-            plugin.getLogger().warning("BetterHud config.yml nebyl nalezen; HUD soubory byly vytvořeny, ale je nutné přidat "
-                    + HUD_ID + " do default-hud.");
-            return;
+            throw new IOException("BetterHud config.yml nebyl nalezen; nelze bezpečně přidat vánoční HUD.");
         }
 
         String original = Files.readString(configPath, StandardCharsets.UTF_8);
@@ -88,6 +99,8 @@ public final class BetterHudBridge {
         String updated = appendDefaultHud(original);
         if (!updated.equals(original)) {
             Files.writeString(configPath, updated, StandardCharsets.UTF_8);
+        } else {
+            throw new IOException("V BetterHud config.yml nebylo možné bezpečně najít default-hud.");
         }
     }
 
@@ -120,6 +133,7 @@ public final class BetterHudBridge {
             return yaml.substring(0, matcher.start()) + insertion + tail;
         }
 
+        // Keep the rest of BetterHud's existing settings untouched.
         String separator = yaml.endsWith("\n") ? "" : "\n";
         return yaml + separator + "\ndefault-hud:\n  - " + HUD_ID + "\n";
     }
