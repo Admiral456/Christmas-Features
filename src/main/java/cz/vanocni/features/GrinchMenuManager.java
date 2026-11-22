@@ -45,7 +45,7 @@ public final class GrinchMenuManager implements Listener {
                         "§eKlikni pro otevření tagů.")));
         inventory.setItem(13, item(Material.GREEN_DYE,
                 "§2Grinchův vzkaz",
-                List.of("§7"Dárky? Ty si nechám všechny!"",
+                List.of("§7\\\"Dárky? Ty si nechám všechny!\\\"",
                         "§8Ale možná ti nějaký úkol nabídnu.")));
         inventory.setItem(22, item(Material.BARRIER, "§cZavřít", List.of("§7Zavře toto menu.")));
 
