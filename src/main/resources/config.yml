@@ -53,6 +53,14 @@ hud:
   mode: BETTERHUD
   fallback-mode: BOSSBAR
 
+# The Grinch NPC opens this menu when a player right-clicks it.
+# Set these to the actual console commands of the tag and quest plugins on this server.
+# Use %player% as the placeholder for the player who clicked the Grinch.
+grinch:
+  menu:
+    tags-command: ""
+    quests-command: ""
+
 chest:
   enabled: true
   # Set the block in-game with /christmas chest set while looking at a chest or barrel.
