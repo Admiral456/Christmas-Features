@@ -6,6 +6,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 
 - **Hledání dárků a ozdob:** soutěžní eventy s rozmístěnými sběratelskými předměty. První hráč, který splní cíl, vyhrává; při vypršení limitu rozhoduje nejvyšší skóre.
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, počet klíčů hráče, probíhající event, skóre, čas a úkol ChatGames. Při nedostupném BetterHud se použije BossBar.
+- **Grinch na spawnu:** MythicMobs NPC s ModeEngine modelem, animací pozdravu a průběžným sledováním nejbližšího hráče. Kliknutí otevře GUI s volbami Úkoly a Tagy; obě stránky se napojí na příslušný plugin přes konzolové příkazy v konfiguraci.
 - **Vánoční bedna:** nastaví se na existující truhlu nebo sud na spawnu. Otevření vyžaduje speciální vánoční klíč s PDC identifikací.
 - **Vánoční klíč a odměny:** klíče získávají vítězové eventů a ChatGames. Bedna losuje vážené odměny; každé otevření garantuje skutečný předmět. Kosmetické nebo neplatné odměny mají fyzickou záložní odměnu a při plném inventáři se předmět položí na zem.
 - **ChatGames:** globálně oznámené úkoly. První správná odpověď vyhrává, plugin oznámí vítěze a předá odměnu.
@@ -52,6 +53,7 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas chatgame stop` | Zastaví ChatGame |
 | `/christmas key give <hráč> [počet]` | Vydá vánoční klíč |
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
+| `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
 | `/christmas chest set` | Nastaví zamčenou bednu na bloku, na který se díváš |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
 | `/christmas reload` | Znovu načte konfiguraci |
@@ -84,6 +86,10 @@ Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource p
 ## BetterHud integration
 
 BetterHud integration registers live event, ChatGame and player key-count placeholders. It installs versioned assets, safely migrates only the ChristmasFeatures HUD entry, and keeps other HUD entries and admin customizations. See [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
+
+## Grinch, Yeti and Frost Emperor
+
+The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu's external tag and quest commands must be filled in after confirming which tag/quest plugin is installed.
 
 ## TrailStudio integration
 
