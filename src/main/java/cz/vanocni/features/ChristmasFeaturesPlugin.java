@@ -15,6 +15,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private ActivityHud activityHud;
     private TrailStudioBridge trailStudioBridge;
     private BetterHudBridge betterHudBridge;
+    private GrinchMenuManager grinchMenuManager;
 
     @Override
     public void onEnable() {
@@ -31,6 +32,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         activityHud = new ActivityHud(this, eventManager, chatGameManager);
         trailStudioBridge = new TrailStudioBridge(this);
         betterHudBridge = new BetterHudBridge(this);
+        grinchMenuManager = new GrinchMenuManager(this);
 
         getServer().getPluginManager().registerEvents(winterManager, this);
         getServer().getPluginManager().registerEvents(eventManager, this);
@@ -38,6 +40,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(keyChestManager, this);
         getServer().getPluginManager().registerEvents(activityHud, this);
         getServer().getPluginManager().registerEvents(trailStudioBridge, this);
+        getServer().getPluginManager().registerEvents(grinchMenuManager, this);
 
         ChristmasCommand command = new ChristmasCommand(this);
         if (getCommand("christmas") != null) {
@@ -98,5 +101,9 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
 
     public BetterHudBridge betterHud() {
         return betterHudBridge;
+    }
+
+    public GrinchMenuManager grinchMenu() {
+        return grinchMenuManager;
     }
 }
