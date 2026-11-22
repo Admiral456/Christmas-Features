@@ -83,6 +83,10 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
+## Christmas NPC models
+
+See [docs/CHRISTMAS_MOBS_INTEGRATION.md](docs/CHRISTMAS_MOBS_INTEGRATION.md) for the Grinch spawn NPC, Grinch tag/quest menu hooks, and the Yeti/Frost Emperor mountain spawns.
+
 ## BetterHud integration
 
 BetterHud integration registers live event, ChatGame and player key-count placeholders. It installs versioned assets, safely migrates only the ChristmasFeatures HUD entry, and keeps other HUD entries and admin customizations. See [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
