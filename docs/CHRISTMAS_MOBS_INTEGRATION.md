@@ -110,11 +110,11 @@ WorldEdit/FAWE uses `//schem load <filename>` for loading a schematic. On Bukkit
 1. Prefer a separate mountain world or a verified empty area, at least 128 × 128 blocks wide with 92 blocks of free vertical space.
 2. Back up the target world. Place the paste origin at the ground-level southwest corner of the chosen footprint.
 3. Load it with `//schem load Christmas_Alpine_Range_128x92x128`.
-4. Use `//paste -ab` to skip air blocks and preserve existing buildings outside the mountain mass. Existing terrain blocks inside the footprint can still overlap the mountain, so a flat/open target or a prepared mountain world is strongly preferred.
+4. Use `//paste -ab`. `-a` skips air blocks. The current FAWE source describes `-b` as pasting biome data, though one published command-reference page describes the opposite; check `/help //paste` in the installed 2.14.4 build before relying on the flag. Existing terrain blocks inside the footprint can still overlap the mountain, so a flat/open target or a prepared mountain world is strongly preferred.
 5. If you deliberately want to replace every block inside the 128 × 92 × 128 box, use `//paste` without `-a` only after confirming the area is empty or safely backed up. This removes existing blocks in that full box.
 6. Check biome data on the slopes and peaks. ChristmasFeatures 1.0.7 now preserves `SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS` and `GROVE` when its winter conversion is enabled. Keep these entries in `winter.preserve-biomes`; do not remove them, or MythicMobs' biome filters may stop matching.
 
-Use `//undo` immediately if the paste is in the wrong place.
+Use `//undo` immediately if the paste is in the wrong place. Then verify several slope and summit points using `//biomeinfo -t`; do not enable random spawns until the four biome types are confirmed in-game.
 
 ## Verification status and safety
 
