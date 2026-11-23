@@ -26,7 +26,7 @@ ChristmasGrinch:
     MovementSpeed: 0
     FollowRange: 0
   Skills:
-    - meg:model{mid=grinch;n=name;save=true;viewrange=64;damagetint=false} @self ~onSpawn
+    - meg:model{mid=grinch;n=name;save=true;usm=true;viewrange=64;damagetint=false} @self ~onSpawn
     - addtag{t=christmas_grinch} @self ~onSpawn
     - meg:state{mid=grinch;s=idle;li=0} @self ~onSpawn
     - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
