@@ -163,6 +163,8 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§72. V cílovém světě world se postav na místo, kde má být počátek hor.");
         sender.sendMessage("§73. Načti schéma: §f//schem load Christmas_Alpine_Range_128x92x128");
         sender.sendMessage("§74. Vlož terén a biomy: §f//paste -ab");
+        sender.sendMessage("§75. Ověř biomy na svazích a vrcholech: §f//biomeinfo -t");
+        sender.sendMessage("§eDokumentace FAWE se v přepínači -b rozchází; ověř jeho význam přes /help //paste ve své verzi a před spawnováním zkontroluj biomeinfo.");
         sender.sendMessage("§7Rozměry: 128 × 92 × 128 bloků. -a přeskočí vzduch, -b vloží biomy.");
         sender.sendMessage("§cPřed vložením zálohuj svět a ověř prázdný prostor. Nevzduchové bloky uvnitř oblasti mohou přepsat stávající terén.");
         sender.sendMessage("§7Při okamžité chybě můžeš zkusit §f//undo§7. Pro jistotu měj zálohu.");
