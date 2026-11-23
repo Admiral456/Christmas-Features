@@ -41,12 +41,17 @@ public final class ChristmasDiagnostics {
                 world == null ? "Svět world není načten." : "Svět world je načten.");
 
         Path modelFolder = pluginFolder("ModelEngine", "blueprints/Christmas");
-        report(sender, hasAnyFile(modelFolder, ".bbmodel"),
-                "ModelEngine blueprinty: " + modelFolder + (hasAnyFile(modelFolder, ".bbmodel") ? " (nalezeny)" : " (chybí .bbmodel)"));
+        checkFile(sender, modelFolder.resolve("grinch.bbmodel"), "ModelEngine Grinch blueprint");
+        checkFile(sender, modelFolder.resolve("yeti.bbmodel"), "ModelEngine Yeti blueprint");
+        checkFile(sender, modelFolder.resolve("frost_emperor.bbmodel"), "ModelEngine Frost Emperor blueprint");
+        Path modelPack = pluginFolder("ModelEngine", "resource pack");
+        report(sender, Files.isDirectory(modelPack),
+                "ModelEngine vygenerovaný resource pack: " + (Files.isDirectory(modelPack) ? "složka nalezena" : "zatím chybí; vznikne po importu modelů"));
 
         Path mythicMobs = pluginFolder("MythicMobs", "Mobs/Christmas");
-        report(sender, Files.isDirectory(mythicMobs),
-                "MythicMobs mob konfigurace: " + (Files.isDirectory(mythicMobs) ? "složka nalezena" : "složka chybí"));
+        checkFile(sender, mythicMobs.resolve("ChristmasGrinch.yml"), "MythicMobs Grinch YAML");
+        checkFile(sender, mythicMobs.resolve("ChristmasYeti.yml"), "MythicMobs Yeti YAML");
+        checkFile(sender, mythicMobs.resolve("ChristmasFrostEmperor.yml"), "MythicMobs Frost Emperor YAML");
 
         Path randomSpawns = pluginFolder("MythicMobs", "RandomSpawns/ChristmasMountains.yml");
         report(sender, Files.isRegularFile(randomSpawns),
@@ -142,14 +147,8 @@ public final class ChristmasDiagnostics {
         return root.resolve(child);
     }
 
-    private boolean hasAnyFile(Path folder, String suffix) {
-        if (!Files.isDirectory(folder)) return false;
-        try (var files = Files.list(folder)) {
-            return files.anyMatch(path -> path.getFileName().toString().toLowerCase().endsWith(suffix));
-        } catch (Exception exception) {
-            plugin.getLogger().fine("Diagnostics could not inspect " + folder + ": " + exception.getMessage());
-            return false;
-        }
+    private void checkFile(CommandSender sender, Path path, String label) {
+        report(sender, Files.isRegularFile(path), label + ": " + (Files.isRegularFile(path) ? "nalezen" : "chybí"));
     }
 
     private void report(CommandSender sender, boolean ok, String message) {
