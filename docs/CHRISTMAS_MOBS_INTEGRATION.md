@@ -1,6 +1,16 @@
 # Christmas NPC models – ModelEngine + MythicMobs
 
-This integration uses the three supplied Blockbench models with ModelEngine 4 and MythicMobs. It does not use FancyNpcs: the FancyNpcs authors currently state that ModelEngine 4 is not supported.
+This integration targets the exact plugin versions reported on the warriorland server:
+
+| Plugin | Server version |
+|---|---:|
+| ModelEngine | 4.1.1 |
+| MythicMobs Premium | 5.12.1-SNAPSHOT 5882 |
+| FastAsyncWorldEdit | 2.14.4-SNAPSHOT-1257 |
+| SupremeTags | 2.1.16 |
+| BattlePass | 5.0.12 |
+
+The Blockbench source models are converted only by ModelEngine when its blueprint loader runs; nothing is procedurally generated during gameplay.
 
 ## Models
 
@@ -10,60 +20,92 @@ This integration uses the three supplied Blockbench models with ModelEngine 4 an
 | `yeti` | Yeti, 231 cubes | `idle` (loop), `roar` (one-shot) |
 | `frost_emperor` | Frost Emperor, 238 cubes | `idle` (loop), `raise_staff` (one-shot) |
 
-The import bundle adds one empty `tag_name` bone to each model for the ModelEngine nametag anchor. The existing `head` bone is preserved for ModelEngine's `headtarget` mechanic.
+The prepared blueprints preserve the original cube and animation UUIDs. Each model's head bone is tagged `h[yaw=75;pitch=30;speed=8]_head`, so the model can turn its head separately from its body. Each model also has an empty `tag_name` bone as a nametag anchor.
 
-## Install
+## Install model and mob files
 
-1. Back up `plugins/ModelEngine/` and `plugins/MythicMobs/`.
-2. Copy the bundle's `plugins/ModelEngine/blueprints/` into your server's `plugins/ModelEngine/blueprints/`.
-3. Copy the bundle's `plugins/MythicMobs/Mobs/Christmas/` into `plugins/MythicMobs/Mobs/Christmas/`.
+1. Stop the server and back up `plugins/ModelEngine/` and `plugins/MythicMobs/`.
+2. Copy the package's `plugins/ModelEngine/blueprints/Christmas/` directory into the matching server directory.
+3. Copy `plugins/MythicMobs/Mobs/Christmas/` into the server's `plugins/MythicMobs/Mobs/Christmas/`.
 4. Copy `plugins/MythicMobs/RandomSpawns/ChristmasMountains.yml` into `plugins/MythicMobs/RandomSpawns/`.
-5. In `plugins/MythicMobs/config/config-spawning.yml`, enable `GenerateSpawnPoints: true`. Do not replace the rest of that file.
-6. Run `/meg reload`, then `/mm reload`. Check the console for model import errors.
-7. Players must receive and accept ModelEngine's generated resource pack. ModelEngine generates the pack but does not distribute it automatically.
+5. In `plugins/MythicMobs/config/config-spawning.yml`, enable `GenerateSpawnPoints: true`. Change only that setting; do not replace the whole file.
+6. Set the `Worlds:` value in `ChristmasMountains.yml` to the exact world name where the mountain range will be pasted. The console excerpt showed a player in `spawnmapa`, but that does not prove that it is the intended mountain world.
+7. Run `/meg reload models`, then `/mm reload`. Check the console for import or YAML errors.
+8. ModelEngine generates a client resource pack. The pack must then be distributed to players through the server's resource-pack setup; the blueprint ZIP does not configure a public pack URL automatically.
 
 ## Grinch – spawn NPC
 
-Stand at the exact location where the Grinch should stand and run:
+The Grinch is a stationary, non-hostile MythicMobs zombie with a ModelEngine model. Its MythicMobs definition adds the scoreboard tag `christmas_grinch` on spawn. The updated ChristmasFeatures plugin listens for Bukkit's `PlayerInteractEntityEvent`, identifies this tag and opens the Grinch menu on a main-hand right-click.
+
+This interaction does not depend on MythicCrucible or MythicRPG `~onInteract` triggers. It requires the updated ChristmasFeatures JAR, not only the MythicMobs YAML. The user's current Hostify `plugins/` listing did not show a ChristmasFeatures folder/JAR, so that plugin still has to be installed.
+
+Test the menu independently with:
+
+```
+/christmas grinch open
+```
+
+Spawn the NPC at the player's current position:
 
 ```
 /mm m spawn ChristmasGrinch
 ```
 
-The Grinch is a persistent, non-collidable `INTERACTION` NPC. Right-clicking him opens the ChristmasFeatures GUI. His model plays `greet` on interaction. Every 10 ticks, ModelEngine aims the `head` bone at the nearest player within 24 blocks; it follows that player as they move left, right or around him.
+The model head tracks the nearest player within 24 blocks on a 10-tick interval. The Grinch itself remains non-collidable and invulnerable.
 
-The GUI has two destinations: **Grinchovy úkoly** and **Vánoční tagy**. Connect them to the server's installed plugins in `plugins/ChristmasFeatures/config.yml`:
+## Grinch menu – installed tag and quest plugins
+
+The server already has SupremeTags 2.1.16 and BattlePass 5.0.12. The default config in the updated ChristmasFeatures version is:
 
 ```yaml
 grinch:
   menu:
-    tags-command: "YOUR_TAG_PLUGIN_COMMAND %player%"
-    quests-command: "YOUR_QUEST_PLUGIN_COMMAND %player%"
+    tags-command: "player:tags"
+    quests-command: "player:bp open quests"
 ```
 
-Those values are intentionally blank in the default configuration. The exact commands depend on the actual tag and quest plugin installed on the server. The front menu works now; a page with no configured command explains that it has not been connected yet.
+The `player:` prefix means the clicking player executes the command, so permission checks and player GUI context are retained. The previous implementation dispatched all commands as console, which is not suitable for these player menus.
 
-You can test the GUI without the NPC using `/christmas grinch open`.
+SupremeTags opens its player tag menu through `/tags`. BattlePass supports `/bp open <menu name>`; `quests` is the weekly quests menu. To show daily quests instead, use `player:bp open daily-quests`. Check that the default group has the relevant plugin permissions; the SupremeTags player command permission is `supremetags.player`.
 
-## Yeti and Frost Emperor – mountains
+## Yeti and Frost Emperor – mountain spawns
 
-The package adds MythicMobs RandomSpawns for:
-- Yeti: snowy slopes, frozen/jagged peaks and groves; 1% chance per generated spawn point, 3-minute cooldown and a radius cap.
-- Frost Emperor: frozen and jagged peaks only; 0.2% chance per generated spawn point, 15-minute cooldown and a radius cap.
+The RandomSpawns configuration is additive to vanilla spawns:
 
-To test manually:
+| Mob | Biomes | Chance per generated spawn point | Cooldown |
+|---|---|---:|---:|
+| Yeti | `SNOWY_SLOPES`, `FROZEN_PEAKS`, `GROVE` | 1% | 180 seconds |
+| Frost Emperor | `FROZEN_PEAKS`, `JAGGED_PEAKS` | 0.2% | 900 seconds |
+
+There are no fixed Y-level conditions. This keeps the spawns working if the mountain schematic is pasted at a different elevation. MythicMobs `ADD` random spawns require generated spawn points and a suitable Survival/Adventure player nearby.
+
+Manual tests:
 
 ```
 /mm m spawn ChristmasYeti
 /mm m spawn ChristmasFrostEmperor
 ```
 
-The random-spawn configuration uses the world name `world`; change it if your overworld is named differently. MythicMobs `ADD` random spawns are additive to vanilla spawns and require `GenerateSpawnPoints: true`.
+The current RandomSpawns file uses `Worlds: world` as a placeholder. Replace it before enabling natural spawns.
 
-## Preserve actual mountains
+## Mountain terrain – FAWE schematic
 
-This server also has ChristmasSeason available for winter biome conversion. If its `convert-all` operation replaces the mountain biome IDs with `SNOWY_PLAINS`, the MythicMobs biome filters above will no longer match those areas. Keep the mountain range excluded from biome conversion (or change the `Biomes:` lists to the actual biome IDs after checking them in-game). Do not convert the whole map before the mountain exclusion has been configured.
+The separate `Christmas-Mountain-NPC-Integration.zip` package includes `Christmas_Alpine_Range_128x92x128.schem`, a Sponge Schematic v3 region with three snowy peaks, steep stone faces, a frozen lake, spruce forest pockets and 3D biome data (`snowy_slopes`, `frozen_peaks`, `jagged_peaks`, `grove`). The structure is 128 × 92 × 128 blocks and includes approximately 140 spruce trees.
 
-## Verification status
+WorldEdit/FAWE uses `//schem load <filename>` for loading a schematic. On Bukkit/Paper the default schematic folder is `plugins/WorldEdit/schematics/` (unless the path was changed in configuration).
 
-The model JSON files and MythicMobs YAML files in the bundle were structurally checked. The Java-side Grinch menu is included in ChristmasFeatures. A real ModelEngine/MythicMobs spawn test and the actual external tag/quest menu handoff still require the live server and the installed tag/quest plugin versions.
+1. Prefer a separate mountain world or a verified empty area, at least 128 × 128 blocks wide with 92 blocks of free vertical space.
+2. Back up the target world. Place the paste origin at the ground-level southwest corner of the chosen footprint.
+3. Load it with `//schem load Christmas_Alpine_Range_128x92x128`.
+4. Use `//paste -a` to skip air blocks and preserve existing buildings outside the mountain mass. Existing terrain blocks inside the footprint can still overlap the mountain, so a flat/open target or a prepared mountain world is strongly preferred.
+5. If you deliberately want to replace every block inside the 128 × 92 × 128 box, use `//paste` without `-a` only after confirming the area is empty or safely backed up. This removes existing blocks in that full box.
+6. Check biome data on the slopes and peaks. Do not let a global biome converter overwrite these four mountain biome IDs with `SNOWY_PLAINS`; that would invalidate MythicMobs' biome filters.
+
+Use `//undo` immediately if the paste is in the wrong place.
+
+## Verification status and safety
+
+- The model JSON files, original animation UUIDs, schematic palette/data lengths and MythicMobs YAML structure were locally checked.
+- The live ModelEngine import, actual mob spawning and resource-pack delivery still require an in-game server test.
+- The mountain schematic does not place mob entities; MythicMobs handles their spawns separately.
+- The server's storage was at 93.3% when the plugin list was supplied. Before pasting new terrain or making server-side copies of large packs/world backups, free storage or upgrade the SSD package. Prefer downloading backups off-server so the backup itself does not consume the remaining server disk.
