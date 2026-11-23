@@ -27,7 +27,7 @@ spawns = load_yaml("integrations/MythicMobs/RandomSpawns/ChristmasMountains.yml"
 pom = File.read("pom.xml")
 pom_version = pom[/<artifactId>christmas-features<\/artifactId>\s*<version>([^<]+)<\/version>/, 1]
 fail!("pom.xml version does not match plugin.yml") unless pom_version == plugin["version"]
-fail!("expected a bumped 1.0.6 release") unless plugin["version"] == "1.0.6"
+fail!("expected a bumped 1.0.7 release") unless plugin["version"] == "1.0.7"
 
 preserved = Array(config.dig("winter", "preserve-biomes"))
 %w[SNOWY_SLOPES FROZEN_PEAKS JAGGED_PEAKS GROVE].each do |biome|
@@ -76,6 +76,9 @@ end
 
 fail!("Grinch tags menu is not player-context /tags") unless config.dig("grinch", "menu", "tags-command") == "player:tags"
 fail!("Grinch quests menu is not player-context BattlePass quests") unless config.dig("grinch", "menu", "quests-command") == "player:bp open quests"
+fail!("deployment diagnostics helper is missing") unless File.file?("src/main/java/cz/vanocni/features/ChristmasDiagnostics.java")
+command_source = File.read("src/main/java/cz/vanocni/features/ChristmasCommand.java")
+fail!("diagnostics command is not registered") unless command_source.include?('case "diagnostics" -> new ChristmasDiagnostics(plugin).print(sender);')
 
 Dir.glob("resourcepack/**/*.json").each do |path|
   begin
