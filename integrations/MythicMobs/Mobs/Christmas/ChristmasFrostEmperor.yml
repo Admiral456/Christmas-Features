@@ -25,7 +25,8 @@ ChristmasFrostEmperor:
     - meg:model{mid=frost_emperor} @self ~onSpawn
     - meg:state{mid=frost_emperor;s=idle;li=0} @self ~onSpawn
     - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
-    - meg:headtarget{p=head;em=true;y=1.65;follow=true} @NearestPlayer{r=32} ~onTimer:10
+    - meg:headtarget{p=head;em=true;y=1.65;follow=true} @NearestPlayer{r=32} ~onTimer:10 ?playerwithin{d=32}
+    - meg:headtarget{p=head;clear=true} @self ~onTimer:10 ?playernotwithin{d=32}
     - meg:state{mid=frost_emperor;s=raise_staff;li=0} @self ~onAttack
     - effect:particles{p=snowflake;amount=22;hS=0.8;vS=0.8;speed=0.04} @self ~onDamaged
     - potion{type=SLOW;duration=50;level=1} @trigger ~onAttack
