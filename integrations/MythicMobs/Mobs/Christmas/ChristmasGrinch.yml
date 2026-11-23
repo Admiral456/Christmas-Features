@@ -1,0 +1,31 @@
+# ChristmasFeatures / ModelEngine 4.1.1 / MythicMobs Premium 5.12.x
+# Spawn with: /mm m spawn ChristmasGrinch
+ChristmasGrinch:
+  Type: ZOMBIE
+  Display: '&2&lGrinch'
+  Health: 100
+  Damage: 0
+  Faction: ChristmasNPC
+  Options:
+    Despawn: false
+    Silent: true
+    NoAI: true
+    Invincible: true
+    PreventOtherDrops: true
+    PreventItemPickup: true
+    PreventRandomEquipment: true
+    Collidable: false
+    Interactable: true
+    KnockbackResistance: 1
+    MovementSpeed: 0
+    FollowRange: 0
+  Model:
+    Id: grinch
+    ViewRadius: 64
+    Drive: false
+    DamageTint: false
+  Skills:
+    - addtag{t=christmas_grinch} @self ~onSpawn
+    - state{mid=grinch;s=idle;li=0} @self ~onSpawn
+    - headconfig{p=head;em=false;yaw=75;pitch=30;speed=8} @self ~onSpawn
+    - headtarget{p=head;em=false;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10
