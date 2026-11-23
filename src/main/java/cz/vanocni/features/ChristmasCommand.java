@@ -50,6 +50,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             case "chest" -> handleChest(sender, args);
             case "trail" -> handleTrail(sender, args);
             case "grinch" -> handleGrinch(sender, args);
+            case "mountains" -> handleMountains(sender);
             case "winter" -> {
                 if (args.length > 1 && args[1].equalsIgnoreCase("apply")) {
                     if (plugin.winter().isManagedExternally()) {
@@ -155,6 +156,20 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         plugin.grinchMenu().open(target);
     }
 
+    private void handleMountains(CommandSender sender) {
+        sender.sendMessage("§b§lChristmas Mountains §7— FAWE instalace");
+        sender.sendMessage("§71. Nahraj .schem do plugins/WorldEdit/schematics/.");
+        sender.sendMessage("§72. V cílovém světě world se postav na místo, kde má být počátek hor.");
+        sender.sendMessage("§73. Načti schéma: §f/schematic load Christmas_Alpine_Range_128x92x128");
+        sender.sendMessage("§74. Vlož terén a biomy: §f//paste -ab");
+        sender.sendMessage("§7Rozměry: 128 × 92 × 128 bloků. -a přeskočí vzduch, -b vloží biomy.");
+        sender.sendMessage("§cPřed vložením zálohuj svět a ověř prázdný prostor. Nevzduchové bloky uvnitř oblasti mohou přepsat stávající terén.");
+        sender.sendMessage("§7Při okamžité chybě můžeš zkusit §f//undo§7. Pro jistotu měj zálohu.");
+        if (sender instanceof Player player && !player.getWorld().getName().equalsIgnoreCase("world")) {
+            sender.sendMessage("§ePrávě jsi ve světě " + player.getWorld().getName() + "; pro tuto schematiku je nastaven svět world.");
+        }
+    }
+
     private void handleChest(CommandSender sender, String[] args) {
         if (args.length < 2 || !args[1].equalsIgnoreCase("set")) {
             sender.sendMessage("§ePoužití: /christmas chest set (dívej se na truhlu nebo sud na spawnu)");
@@ -175,6 +190,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§f/christmas key give <hráč> [počet] §7— vydá klíč");
         sender.sendMessage("§f/christmas trail give <hráč> <effect-id> §7— odemkne TrailStudio kosmetiku");
         sender.sendMessage("§f/christmas grinch open [hráč] §7— otevře Grinchovo menu");
+        sender.sendMessage("§f/christmas mountains §7— zobrazí postup vložení horské schematiky přes FAWE");
         sender.sendMessage("§f/christmas chest set §7— nastaví zamčenou bednu na cílovém bloku");
         sender.sendMessage("§f/christmas winter apply §7— znovu aplikuje zimu na načtené chunky");
         sender.sendMessage("§f/christmas reload §7— načte konfiguraci znovu");
@@ -183,7 +199,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> suggestions = new ArrayList<>();
-        if (args.length == 1) return filter(List.of("help", "event", "chatgame", "key", "chest", "trail", "grinch", "winter", "reload"), args[0]);
+        if (args.length == 1) return filter(List.of("help", "event", "chatgame", "key", "chest", "trail", "grinch", "mountains", "winter", "reload"), args[0]);
         if (args.length == 2) {
             return switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "event" -> filter(List.of("start", "stop"), args[1]);
@@ -192,6 +208,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
                 case "chest" -> filter(List.of("set"), args[1]);
                 case "trail" -> filter(List.of("give"), args[1]);
                 case "grinch" -> filter(List.of("open"), args[1]);
+                case "mountains" -> suggestions;
                 case "winter" -> filter(List.of("apply"), args[1]);
                 default -> suggestions;
             };
