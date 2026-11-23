@@ -54,6 +54,7 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas key give <hráč> [počet]` | Vydá vánoční klíč |
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
+| `/christmas mountains` | Zobrazí bezpečný postup vložení horské schematiky přes FAWE |
 | `/christmas chest set` | Nastaví zamčenou bednu na bloku, na který se díváš |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
 | `/christmas reload` | Znovu načte konfiguraci |
@@ -83,7 +84,7 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
-ChristmasFeatures 1.0.4 also preserves the mountain biome IDs (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) during its own winter-biome conversion, so mountain RandomSpawns remain valid.
+ChristmasFeatures 1.0.5 also preserves the mountain biome IDs (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) during its own winter-biome conversion, so mountain RandomSpawns remain valid.
 
 ## Christmas NPC models
 
@@ -95,7 +96,7 @@ BetterHud integration registers live event, ChatGame and player key-count placeh
 
 ## Grinch, Yeti and Frost Emperor
 
-The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu is wired to the installed SupremeTags (`/tags`) and BattlePass (`/bp open quests`) player commands in config.yml. The `greet` animation is played through ModelEngine's API on right-click.
+The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu is wired to the installed SupremeTags (`/tags`) and BattlePass (`/bp open quests`) player commands in config.yml. The `greet` animation is played through ModelEngine's API on right-click. `/christmas mountains` prints the FAWE load/paste instructions for the `world` world.
 
 ## TrailStudio integration
 
