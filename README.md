@@ -6,7 +6,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 
 - **Hledání dárků a ozdob:** soutěžní eventy s rozmístěnými sběratelskými předměty. První hráč, který splní cíl, vyhrává; při vypršení limitu rozhoduje nejvyšší skóre.
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, počet klíčů hráče, probíhající event, skóre, čas a úkol ChatGames. Při nedostupném BetterHud se použije BossBar.
-- **Grinch na spawnu:** MythicMobs NPC s ModeEngine modelem, animací pozdravu a průběžným sledováním nejbližšího hráče. Kliknutí otevře GUI s volbami Úkoly a Tagy; obě stránky se napojí na příslušný plugin přes konzolové příkazy v konfiguraci.
+- **Grinch na spawnu:** MythicMobs NPC s ModelEngine modelem a průběžným sledováním nejbližšího hráče. ChristmasFeatures zachytí pravý klik přes scoreboard tag NPC a otevře GUI; SupremeTags a BattlePass nabídky se spouštějí v kontextu klikajícího hráče.
 - **Vánoční bedna:** nastaví se na existující truhlu nebo sud na spawnu. Otevření vyžaduje speciální vánoční klíč s PDC identifikací.
 - **Vánoční klíč a odměny:** klíče získávají vítězové eventů a ChatGames. Bedna losuje vážené odměny; každé otevření garantuje skutečný předmět. Kosmetické nebo neplatné odměny mají fyzickou záložní odměnu a při plném inventáři se předmět položí na zem.
 - **ChatGames:** globálně oznámené úkoly. První správná odpověď vyhrává, plugin oznámí vítěze a předá odměnu.
@@ -54,6 +54,8 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas key give <hráč> [počet]` | Vydá vánoční klíč |
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
+| `/christmas mountains` | Zobrazí bezpečný postup vložení horské schematiky přes FAWE |
+| `/christmas diagnostics` | Zkontroluje načtení pluginů, ModelEngine modely, MythicMobs spawny a ItemsAdder resource pack |
 | `/christmas chest set` | Nastaví zamčenou bednu na bloku, na který se díváš |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
 | `/christmas reload` | Znovu načte konfiguraci |
@@ -83,6 +85,8 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
+ChristmasFeatures 1.0.9 navíc zachovává horské biomy (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) při vlastní zimní konverzi, takže podmínky spawnování horských mobů zůstávají platné.
+
 ## Christmas NPC models
 
 See [docs/CHRISTMAS_MOBS_INTEGRATION.md](docs/CHRISTMAS_MOBS_INTEGRATION.md) for the Grinch spawn NPC, Grinch tag/quest menu hooks, and the Yeti/Frost Emperor mountain spawns.
@@ -93,7 +97,7 @@ BetterHud integration registers live event, ChatGame and player key-count placeh
 
 ## Grinch, Yeti and Frost Emperor
 
-The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu's external tag and quest commands must be filled in after confirming which tag/quest plugin is installed.
+The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu is wired to the installed SupremeTags (`/tags`) and BattlePass (`/bp open quests`) player commands in config.yml. The `greet` animation is played through ModelEngine's API on right-click. `/christmas mountains` prints the FAWE load/paste instructions for the `world` world.
 
 ## TrailStudio integration
 

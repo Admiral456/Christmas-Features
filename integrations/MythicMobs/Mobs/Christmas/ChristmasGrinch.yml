@@ -1,0 +1,34 @@
+# ChristmasFeatures / ModelEngine 4.1.1 / MythicMobs Premium 5.12.x
+# Spawn once at the intended spawn location: /mm m spawn ChristmasGrinch
+ChristmasGrinch:
+  Type: ZOMBIE
+  Display: '&2&lGrinch'
+  Health: 100
+  Damage: 0
+  Faction: ChristmasNPC
+  AIGoalSelectors:
+    - clear
+  AITargetSelectors:
+    - clear
+  Options:
+    Despawn: PERSISTENT
+    Silent: true
+    PreventSunburn: true
+    PreventTransformation: true
+    PreventJockeyMounts: true
+    PreventOtherDrops: true
+    PreventItemPickup: true
+    PreventRandomEquipment: true
+    Collidable: false
+    Interactable: true
+    Invincible: true
+    KnockbackResistance: 1
+    MovementSpeed: 0
+    FollowRange: 0
+  Skills:
+    - meg:model{mid=grinch;n=name;save=true;usm=true;viewrange=64;damagetint=false} @self ~onSpawn
+    - addtag{t=christmas_grinch} @self ~onSpawn
+    - meg:state{mid=grinch;s=idle;li=0} @self ~onSpawn
+    - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
+    - meg:headtarget{p=head;em=true;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10 ?playerwithin{d=24}
+    - meg:headtarget{p=head;clear=true} @self ~onTimer:10 ?playernotwithin{d=24}

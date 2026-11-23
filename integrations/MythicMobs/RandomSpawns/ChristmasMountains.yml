@@ -1,0 +1,21 @@
+# MythicMobs Premium RandomSpawns for world "world"
+# Requires GenerateSpawnPoints: true in plugins/MythicMobs/config/config-spawning.yml.
+ChristmasYetiMountains:
+  Type: ChristmasYeti
+  Worlds: world
+  Action: ADD
+  Chance: 0.01
+  Priority: 1
+  Cooldown: 180
+  Biomes: SNOWY_SLOPES,FROZEN_PEAKS,GROVE
+  PositionType: LAND
+
+ChristmasFrostEmperorMountains:
+  Type: ChristmasFrostEmperor
+  Worlds: world
+  Action: ADD
+  Chance: 0.002
+  Priority: 1
+  Cooldown: 900
+  Biomes: FROZEN_PEAKS,JAGGED_PEAKS
+  PositionType: LAND

@@ -38,6 +38,9 @@ jobs:
             fi
           fi
 
+      - name: Validate integration configs
+        run: ruby scripts/validate_integration.rb
+
       - name: Build plugin
         run: mvn --batch-mode --no-transfer-progress clean verify
 

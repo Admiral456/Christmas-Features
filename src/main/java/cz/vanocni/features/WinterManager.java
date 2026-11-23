@@ -16,12 +16,22 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-/** Applies a cold 3-D biome to loaded and newly loaded chunks without regenerating terrain. */
+/**
+ * Applies a cold 3-D biome to loaded and newly loaded chunks without regenerating terrain.
+ * Built-in mountain biomes are always preserved, including when upgrading from a config
+ * created by an older version that has no winter.preserve-biomes setting yet.
+ */
 public final class WinterManager implements Listener {
+    private static final Set<String> BUILT_IN_PRESERVED_BIOMES = Set.of(
+            "SNOWY_SLOPES", "FROZEN_PEAKS", "JAGGED_PEAKS", "GROVE"
+    );
+
     private final ChristmasFeaturesPlugin plugin;
     private final Queue<ChunkRef> queue = new ArrayDeque<>();
     private final Set<String> queued = new HashSet<>();
@@ -129,11 +139,16 @@ public final class WinterManager implements Listener {
         String configured = plugin.getConfig().getString("winter.biome", "SNOWY_PLAINS");
         Biome winterBiome;
         try {
-            winterBiome = Biome.valueOf(configured.toUpperCase());
+            winterBiome = Biome.valueOf(configured.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException exception) {
             plugin.getLogger().warning("Neznámý biome " + configured + ", používám SNOWY_PLAINS.");
             winterBiome = Biome.SNOWY_PLAINS;
         }
+
+        Set<String> preservedBiomes = new HashSet<>(BUILT_IN_PRESERVED_BIOMES);
+        preservedBiomes.addAll(plugin.getConfig().getStringList("winter.preserve-biomes").stream()
+                .map(value -> value.toUpperCase(Locale.ROOT))
+                .collect(Collectors.toSet()));
 
         World world = chunk.getWorld();
         int baseX = chunk.getX() << 4;
@@ -142,7 +157,10 @@ public final class WinterManager implements Listener {
         for (int y = world.getMinHeight(); y < world.getMaxHeight(); y += 4) {
             for (int x = 0; x < 16; x += 4) {
                 for (int z = 0; z < 16; z += 4) {
-                    world.setBiome(baseX + x, y, baseZ + z, winterBiome);
+                    int blockX = baseX + x;
+                    int blockZ = baseZ + z;
+                    if (preservedBiomes.contains(world.getBiome(blockX, y, blockZ).name())) continue;
+                    world.setBiome(blockX, y, blockZ, winterBiome);
                 }
             }
         }

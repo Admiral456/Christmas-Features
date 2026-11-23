@@ -1,10 +1,10 @@
 name: ChristmasFeatures
-version: 1.0.2
+version: 1.0.9
 main: cz.vanocni.features.ChristmasFeaturesPlugin
 api-version: '1.21'
 author: Server Team
 description: Christmas events, key chest, ChatGames, BetterHud HUD and TrailStudio cosmetics for Paper 1.21.10.
-softdepend: [ModelEngine, MythicMobs, BetterHud, christmas-season, ChristmasGift, TrailStudio]
+softdepend: [ModelEngine, MythicMobs, BetterHud, christmas-season, ChristmasGift, TrailStudio, SupremeTags, BattlePass]
 commands:
   christmas:
     description: Main command for ChristmasFeatures.

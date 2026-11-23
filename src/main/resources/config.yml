@@ -8,6 +8,12 @@ winter:
   biome: SNOWY_PLAINS
   force-snow-weather: true
   chunks-per-tick: 1
+  # Keep these terrain biomes intact so custom mountain mobs can spawn after chunk reloads.
+  preserve-biomes:
+    - SNOWY_SLOPES
+    - FROZEN_PEAKS
+    - JAGGED_PEAKS
+    - GROVE
 
 # The event centre defaults to the configured world's world spawn.
 # You can set center.x/y/z in each event to override it.
@@ -58,8 +64,8 @@ hud:
 # Use %player% as the placeholder for the player who clicked the Grinch.
 grinch:
   menu:
-    tags-command: ""
-    quests-command: ""
+    tags-command: "player:tags"
+    quests-command: "player:bp open quests"
 
 chest:
   enabled: true

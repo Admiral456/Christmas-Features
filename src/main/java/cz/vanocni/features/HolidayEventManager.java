@@ -44,6 +44,16 @@ public final class HolidayEventManager implements Listener {
     }
 
     public void startScheduler() {
+        // Chunks may already be loaded before this plugin registers its listeners.
+        // Scan them once after enable so event items left by a previous server session
+        // do not remain forever in already-loaded chunks.
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            for (World world : Bukkit.getWorlds()) {
+                for (org.bukkit.Chunk chunk : world.getLoadedChunks()) {
+                    cleanupEventItemsInChunk(chunk);
+                }
+            }
+        });
         scheduleAutoStart();
     }
 
@@ -161,13 +171,20 @@ public final class HolidayEventManager implements Listener {
 
     @EventHandler
     public void onChunkLoad(ChunkLoadEvent event) {
+        cleanupEventItemsInChunk(event.getChunk());
+    }
+
+    private void cleanupEventItemsInChunk(org.bukkit.Chunk chunk) {
         // Remove leftovers from an event that ended while its chunk was unloaded or before a restart.
-        for (org.bukkit.entity.Entity entity : event.getChunk().getEntities()) {
+        for (org.bukkit.entity.Entity entity : chunk.getEntities()) {
             if (!(entity instanceof Item item)) continue;
             ItemMeta meta = item.getItemStack().getItemMeta();
             if (meta == null) continue;
             String eventId = meta.getPersistentDataContainer().get(plugin.eventItemToken(), PersistentDataType.STRING);
-            if (eventId != null && (active == null || !eventId.equals(active.eventId()))) entity.remove();
+            if (eventId != null && (active == null || !eventId.equals(active.eventId()))) {
+                entity.remove();
+                eventItems.remove(entity.getUniqueId());
+            }
         }
     }
 
@@ -208,7 +225,7 @@ public final class HolidayEventManager implements Listener {
                 .sorted(Map.Entry.<UUID, Integer>comparingByValue(Comparator.reverseOrder()))
                 .toList();
         if (ranking.isEmpty()) {
-            finish("§7Event skončil, ale nikdo nic nenašel.", null, false);
+            finish("§7Event skončil, ale nikdo nic nenašel.", null, true);
             return;
         }
         Map.Entry<UUID, Integer> first = ranking.get(0);
@@ -247,8 +264,9 @@ public final class HolidayEventManager implements Listener {
         scores.clear();
         playerNames.clear();
         active = null;
-        if (announce && message != null) Bukkit.broadcastMessage("§b§l✦ VÁNOČNÍ EVENT ✦ §f" + message);
-        else if (message != null && !message.isBlank()) Bukkit.broadcastMessage("§7" + message);
+        if (announce && message != null && !message.isBlank()) {
+            Bukkit.broadcastMessage("§b§l✦ VÁNOČNÍ EVENT ✦ §f" + message);
+        }
     }
 
     public boolean isActive() {
