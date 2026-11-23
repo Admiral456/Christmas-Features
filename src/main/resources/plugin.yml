@@ -1,5 +1,5 @@
 name: ChristmasFeatures
-version: 1.0.7
+version: 1.0.8
 main: cz.vanocni.features.ChristmasFeaturesPlugin
 api-version: '1.21'
 author: Server Team
