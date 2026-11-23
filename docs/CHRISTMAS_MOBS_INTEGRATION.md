@@ -101,7 +101,7 @@ The current RandomSpawns file is already configured for `Worlds: world`, as requ
 
 ## Mountain terrain – FAWE schematic
 
-The in-game helper command `/christmas mountains` prints the install steps; it deliberately does not paste the schematic automatically.
+The in-game helper command `/christmas mountains` prints the install steps; it deliberately does not paste the schematic automatically. After installation, `/christmas diagnostics` checks plugin availability, resource-pack merge configuration, the MythicMobs spawn-point flag, required files and the target world.
 
 The separate `Christmas-Mountain-NPC-Integration.zip` package includes `Christmas_Alpine_Range_128x92x128.schem`, a Sponge Schematic v3 region with three snowy peaks, steep stone faces, a frozen lake, spruce forest pockets and 3D biome data (`snowy_slopes`, `frozen_peaks`, `jagged_peaks`, `grove`). The structure is 128 × 92 × 128 blocks and includes approximately 140 spruce trees.
 
@@ -112,7 +112,7 @@ WorldEdit/FAWE uses `//schem load <filename>` for loading a schematic. On Bukkit
 3. Load it with `//schem load Christmas_Alpine_Range_128x92x128`.
 4. Use `//paste -ab` to skip air blocks and preserve existing buildings outside the mountain mass. Existing terrain blocks inside the footprint can still overlap the mountain, so a flat/open target or a prepared mountain world is strongly preferred.
 5. If you deliberately want to replace every block inside the 128 × 92 × 128 box, use `//paste` without `-a` only after confirming the area is empty or safely backed up. This removes existing blocks in that full box.
-6. Check biome data on the slopes and peaks. ChristmasFeatures 1.0.6 now preserves `SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS` and `GROVE` when its winter conversion is enabled. Keep these entries in `winter.preserve-biomes`; do not remove them, or MythicMobs' biome filters may stop matching.
+6. Check biome data on the slopes and peaks. ChristmasFeatures 1.0.7 now preserves `SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS` and `GROVE` when its winter conversion is enabled. Keep these entries in `winter.preserve-biomes`; do not remove them, or MythicMobs' biome filters may stop matching.
 
 Use `//undo` immediately if the paste is in the wrong place.
 
