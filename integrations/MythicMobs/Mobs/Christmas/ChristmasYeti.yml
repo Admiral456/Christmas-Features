@@ -16,11 +16,11 @@ ChristmasYeti:
     FollowRange: 32
     MaxCombatDistance: 32
   Skills:
-    - meg:model{mid=yeti;nametag=tag_name;viewrange=64;damagetint=true} @self ~onSpawn
+    - meg:model{mid=yeti;nametag=name;viewrange=64;damagetint=true} @self ~onSpawn
     - meg:state{mid=yeti;s=idle;li=0} @self ~onSpawn
     - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
     - meg:headtarget{p=head;em=true;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10 ?playerwithin{d=24}
     - meg:headtarget{p=head;clear=true} @self ~onTimer:10 ?playernotwithin{d=24}
-    - meg:state{mid=yeti;s=roar;li=0} @self ~onEnterCombat
+    - meg:state{mid=yeti;s=roar;li=0} @self ~onAttack
     - potion{type=SLOW;duration=35;level=1} @trigger ~onAttack
     - effect:particles{p=snowflake;amount=16;hS=0.5;vS=0.6;speed=0.03} @self ~onDamaged
