@@ -55,6 +55,7 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
 | `/christmas mountains` | Zobrazí bezpečný postup vložení horské schematiky přes FAWE |
+| `/christmas diagnostics` | Zkontroluje načtení pluginů, ModelEngine modely, MythicMobs spawny a ItemsAdder resource pack |
 | `/christmas chest set` | Nastaví zamčenou bednu na bloku, na který se díváš |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
 | `/christmas reload` | Znovu načte konfiguraci |
@@ -84,7 +85,7 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
-ChristmasFeatures 1.0.6 navíc zachovává horské biomy (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) při vlastní zimní konverzi, takže podmínky spawnování horských mobů zůstávají platné.
+ChristmasFeatures 1.0.7 navíc zachovává horské biomy (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) při vlastní zimní konverzi, takže podmínky spawnování horských mobů zůstávají platné.
 
 ## Christmas NPC models
 
