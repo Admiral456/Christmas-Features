@@ -30,4 +30,5 @@ ChristmasGrinch:
     - addtag{t=christmas_grinch} @self ~onSpawn
     - meg:state{mid=grinch;s=idle;li=0} @self ~onSpawn
     - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
-    - meg:headtarget{p=head;em=true;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10
+    - meg:headtarget{p=head;em=true;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10 ?playerwithin{d=24}
+    - meg:headtarget{p=head;clear=true} @self ~onTimer:10 ?playernotwithin{d=24}
