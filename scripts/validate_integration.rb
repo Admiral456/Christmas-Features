@@ -43,7 +43,7 @@ grinch_skills = Array(grinch["Skills"]).join("\n")
 %w[meg:model{mid=grinch meg:headtarget{p=head addtag{t=christmas_grinch].each do |required|
   fail!("Grinch missing required skill fragment: #{required}") unless grinch_skills.include?(required)
 end
-fail!("Grinch model must save on entity unload and use tag_name anchor id") unless grinch_skills.include?("save=true") && grinch_skills.include?("nametag=name")
+fail!("Grinch model must save on entity unload and use tag_name anchor id") unless grinch_skills.include?("save=true") && grinch_skills.include?("n=name")
 
 {
   "ChristmasYeti" => [yeti_doc, "yeti"],
@@ -52,7 +52,7 @@ fail!("Grinch model must save on entity unload and use tag_name anchor id") unle
   mob = document[mob_id] || fail!("#{mob_id} definition missing")
   skills = Array(mob["Skills"]).join("\n")
   fail!("#{mob_id} does not apply ModelEngine model #{model_id}") unless skills.include?("meg:model{mid=#{model_id}")
-  fail!("#{mob_id} has incorrect nametag anchor") unless skills.include?("nametag=name")
+  fail!("#{mob_id} has incorrect nametag anchor") unless skills.include?("n=name")
   fail!("#{mob_id} does not initialize idle animation") unless skills.include?("s=idle")
   fail!("#{mob_id} does not track nearby players") unless skills.include?("meg:headtarget{p=head")
 end
