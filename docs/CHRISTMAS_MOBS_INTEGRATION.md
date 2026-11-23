@@ -31,7 +31,7 @@ The prepared blueprints preserve the original cube and animation UUIDs. Each mod
 5. In `plugins/MythicMobs/config/config-spawning.yml`, enable `GenerateSpawnPoints: true`. Change only that setting; do not replace the whole file.
 6. Set the `Worlds:` value in `ChristmasMountains.yml` to the exact world name where the mountain range will be pasted. The console excerpt showed a player in `spawnmapa`, but that does not prove that it is the intended mountain world.
 7. Run `/meg reload models`, then `/mm reload`. Check the console for import or YAML errors.
-8. ModelEngine generates a client resource pack. The pack must then be distributed to players through the server's resource-pack setup; the blueprint ZIP does not configure a public pack URL automatically.
+8. ModelEngine generates a client resource pack under `plugins/ModelEngine/resource pack/`. This server already has ItemsAdder 4.0.16, so use ItemsAdder as the single resource-pack distributor: copy the package's `plugins/ItemsAdder/contents/christmasfeatures/` folder into the existing `plugins/ItemsAdder/contents/` folder; in the existing ItemsAdder `config.yml`, append `ModelEngine/resource pack` to `merge_other_plugins_resourcepacks_folders` (do not erase other entries); run `/meg reload` and then `/iazip`. Continue using the existing ItemsAdder hosting configuration. This combines the ChristmasFeatures item assets and ModelEngine mob models into the one pack players receive.
 
 ## Grinch – spawn NPC
 
@@ -67,6 +67,17 @@ grinch:
 The `player:` prefix means the clicking player executes the command, so permission checks and player GUI context are retained. The previous implementation dispatched all commands as console, which is not suitable for these player menus.
 
 SupremeTags opens its player tag menu through `/tags`. BattlePass supports `/bp open <menu name>`; `quests` is the weekly quests menu. To show daily quests instead, use `player:bp open daily-quests`. Check that the default group has the relevant plugin permissions; the SupremeTags player command permission is `supremetags.player`.
+
+## Resource pack – ItemsAdder (installed 4.0.16)
+
+The full-install ZIP includes the ChristmasFeatures assets in `plugins/ItemsAdder/contents/christmasfeatures/resourcepack/assets/`. Merge that folder into the existing ItemsAdder contents tree. Add this path to the existing merge list in `plugins/ItemsAdder/config.yml`:
+
+```yaml
+merge_other_plugins_resourcepacks_folders:
+  - "ModelEngine/resource pack"
+```
+
+If the setting already has other folders, keep them and append only this one. After installing the models, run `/meg reload` and then `/iazip`. ItemsAdder will build one combined pack from the ChristmasFeatures custom item assets and the ModelEngine model assets. Keep the current ItemsAdder hosting method; do not configure a second resource-pack URL.
 
 ## Yeti and Frost Emperor – mountain spawns
 
