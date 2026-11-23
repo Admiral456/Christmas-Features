@@ -1,4 +1,4 @@
-# Spawn with: /mm m spawn ChristmasYeti
+# Spawn for testing: /mm m spawn ChristmasYeti
 ChristmasYeti:
   Type: HUSK
   Display: '&f&lYeti'
@@ -15,14 +15,11 @@ ChristmasYeti:
     MovementSpeed: 0.28
     FollowRange: 32
     MaxCombatDistance: 32
-  Model:
-    Id: yeti
-    ViewRadius: 64
-    DamageTint: true
   Skills:
-    - state{mid=yeti;s=idle;li=0} @self ~onSpawn
-    - headconfig{p=head;em=false;yaw=75;pitch=30;speed=8} @self ~onSpawn
-    - headtarget{p=head;em=false;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10
-    - state{mid=yeti;s=roar;li=0} @self ~onEnterCombat
+    - meg:model{mid=yeti} @self ~onSpawn
+    - meg:state{mid=yeti;s=idle;li=0} @self ~onSpawn
+    - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
+    - meg:headtarget{p=head;em=true;y=1.6;follow=true} @NearestPlayer{r=24} ~onTimer:10
+    - meg:state{mid=yeti;s=roar;li=0} @self ~onEnterCombat
     - potion{type=SLOW;duration=35;level=1} @trigger ~onAttack
     - effect:particles{p=snowflake;amount=16;hS=0.5;vS=0.6;speed=0.03} @self ~onDamaged
