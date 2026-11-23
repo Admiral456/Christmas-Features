@@ -51,6 +51,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             case "trail" -> handleTrail(sender, args);
             case "grinch" -> handleGrinch(sender, args);
             case "mountains" -> handleMountains(sender);
+            case "diagnostics" -> new ChristmasDiagnostics(plugin).print(sender);
             case "winter" -> {
                 if (args.length > 1 && args[1].equalsIgnoreCase("apply")) {
                     if (plugin.winter().isManagedExternally()) {
@@ -191,6 +192,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§f/christmas trail give <hráč> <effect-id> §7— odemkne TrailStudio kosmetiku");
         sender.sendMessage("§f/christmas grinch open [hráč] §7— otevře Grinchovo menu");
         sender.sendMessage("§f/christmas mountains §7— zobrazí postup vložení horské schematiky přes FAWE");
+        sender.sendMessage("§f/christmas diagnostics §7— zkontroluje vánoční integrace a konfigurace serveru");
         sender.sendMessage("§f/christmas chest set §7— nastaví zamčenou bednu na cílovém bloku");
         sender.sendMessage("§f/christmas winter apply §7— znovu aplikuje zimu na načtené chunky");
         sender.sendMessage("§f/christmas reload §7— načte konfiguraci znovu");
@@ -199,7 +201,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> suggestions = new ArrayList<>();
-        if (args.length == 1) return filter(List.of("help", "event", "chatgame", "key", "chest", "trail", "grinch", "mountains", "winter", "reload"), args[0]);
+        if (args.length == 1) return filter(List.of("help", "event", "chatgame", "key", "chest", "trail", "grinch", "mountains", "diagnostics", "winter", "reload"), args[0]);
         if (args.length == 2) {
             return switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "event" -> filter(List.of("start", "stop"), args[1]);
@@ -209,6 +211,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
                 case "trail" -> filter(List.of("give"), args[1]);
                 case "grinch" -> filter(List.of("open"), args[1]);
                 case "mountains" -> suggestions;
+                case "diagnostics" -> suggestions;
                 case "winter" -> filter(List.of("apply"), args[1]);
                 default -> suggestions;
             };
