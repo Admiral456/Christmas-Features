@@ -20,7 +20,7 @@ The Blockbench source models are converted only by ModelEngine when its blueprin
 | `yeti` | Yeti, 231 cubes | `idle` (loop), `roar` (one-shot) |
 | `frost_emperor` | Frost Emperor, 238 cubes | `idle` (loop), `raise_staff` (one-shot) |
 
-The prepared blueprints preserve the original cube and animation UUIDs. Each model's head bone is tagged `h[yaw=75;pitch=30;speed=8]_head`, so the model can turn its head separately from its body. Each model also has an empty `tag_name` bone as a nametag anchor. In the ModelEngine mechanic, use the bone ID `name`, using the ModelEngine mechanic parameter `n=name` (the `tag_` prefix is not included in the value).
+The prepared blueprints preserve the original cube and animation UUIDs. Each model's head bone is tagged `h[yaw=75;pitch=30;speed=8]_head`, so the model can turn its head separately from its body. Each model also has an empty `tag_name` bone as a name-tag anchor. In the ModelEngine mechanic, use the bone ID `name`, using the ModelEngine mechanic parameter `n=name` (the `tag_` prefix is not included in the value).
 
 ## Install model and mob files
 
