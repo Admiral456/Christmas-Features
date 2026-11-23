@@ -85,7 +85,7 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
-ChristmasFeatures 1.0.8 navíc zachovává horské biomy (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) při vlastní zimní konverzi, takže podmínky spawnování horských mobů zůstávají platné.
+ChristmasFeatures 1.0.9 navíc zachovává horské biomy (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) při vlastní zimní konverzi, takže podmínky spawnování horských mobů zůstávají platné.
 
 ## Christmas NPC models
 
