@@ -137,7 +137,7 @@ public final class ChristmasDiagnostics {
 
     private Path pluginFolder(String pluginName, String child) {
         Plugin dependency = Bukkit.getPluginManager().getPlugin(pluginName);
-        Path root = dependency == null ? Bukkit.getPluginsFolder().toPath().resolve(pluginName)
+        Path root = dependency == null ? Path.of("plugins", pluginName)
                 : dependency.getDataFolder().toPath();
         return root.resolve(child);
     }
