@@ -24,10 +24,14 @@ import java.util.stream.Collectors;
 
 /**
  * Applies a cold 3-D biome to loaded and newly loaded chunks without regenerating terrain.
- * Configured preserved biomes are never flattened to the global winter biome. This is
- * important for biome-specific MythicMobs spawns and custom FAWE structures.
+ * Built-in mountain biomes are always preserved, including when upgrading from a config
+ * created by an older version that has no winter.preserve-biomes setting yet.
  */
 public final class WinterManager implements Listener {
+    private static final Set<String> BUILT_IN_PRESERVED_BIOMES = Set.of(
+            "SNOWY_SLOPES", "FROZEN_PEAKS", "JAGGED_PEAKS", "GROVE"
+    );
+
     private final ChristmasFeaturesPlugin plugin;
     private final Queue<ChunkRef> queue = new ArrayDeque<>();
     private final Set<String> queued = new HashSet<>();
@@ -141,9 +145,10 @@ public final class WinterManager implements Listener {
             winterBiome = Biome.SNOWY_PLAINS;
         }
 
-        Set<String> preservedBiomes = plugin.getConfig().getStringList("winter.preserve-biomes").stream()
+        Set<String> preservedBiomes = new HashSet<>(BUILT_IN_PRESERVED_BIOMES);
+        preservedBiomes.addAll(plugin.getConfig().getStringList("winter.preserve-biomes").stream()
                 .map(value -> value.toUpperCase(Locale.ROOT))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet()));
 
         World world = chunk.getWorld();
         int baseX = chunk.getX() << 4;
