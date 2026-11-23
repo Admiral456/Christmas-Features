@@ -58,8 +58,8 @@ hud:
 # Use %player% as the placeholder for the player who clicked the Grinch.
 grinch:
   menu:
-    tags-command: ""
-    quests-command: ""
+    tags-command: "player:tags"
+    quests-command: "player:bp open quests"
 
 chest:
   enabled: true
