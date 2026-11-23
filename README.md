@@ -83,6 +83,8 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 
 Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource packy nejsou kopírovány do veřejného repozitáře; jejich licence a požadované klientské modifikace je nutné respektovat.
 
+ChristmasFeatures 1.0.4 also preserves the mountain biome IDs (`SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS`, `GROVE`) during its own winter-biome conversion, so mountain RandomSpawns remain valid.
+
 ## Christmas NPC models
 
 See [docs/CHRISTMAS_MOBS_INTEGRATION.md](docs/CHRISTMAS_MOBS_INTEGRATION.md) for the Grinch spawn NPC, Grinch tag/quest menu hooks, and the Yeti/Frost Emperor mountain spawns.
@@ -93,7 +95,7 @@ BetterHud integration registers live event, ChatGame and player key-count placeh
 
 ## Grinch, Yeti and Frost Emperor
 
-The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu is wired to the installed SupremeTags (`/tags`) and BattlePass (`/bp open quests`) player commands in config.yml.
+The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu is wired to the installed SupremeTags (`/tags`) and BattlePass (`/bp open quests`) player commands in config.yml. The `greet` animation is played through ModelEngine's API on right-click.
 
 ## TrailStudio integration
 
