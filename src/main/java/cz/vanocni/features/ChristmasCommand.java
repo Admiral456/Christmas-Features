@@ -25,7 +25,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         boolean publicGrinchOpen = args[0].equalsIgnoreCase("grinch")
-                && args.length >= 2 && args[1].equalsIgnoreCase("open");
+                && args.length == 2 && args[1].equalsIgnoreCase("open");
         if (!publicGrinchOpen && !sender.hasPermission("christmas.admin")) {
             sender.sendMessage("§cNa tento příkaz nemáš oprávnění.");
             return true;
