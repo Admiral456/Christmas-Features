@@ -14,11 +14,13 @@ The companion asset bundle contains `Christmas_Alpine_Range_128x92x128.schem` in
 
 ## Paste instructions
 
+The helper command `/christmas mountains` prints these instructions in-game; it does not paste automatically. This keeps the final paste under the operator's control.
+
 1. Back up the destination world.
 2. Upload the `.schem` file to the WorldEdit schematic directory. Default Bukkit/Paper path: `plugins/WorldEdit/schematics/`; FAWE uses the WorldEdit schematic manager unless its path has been customised.
 3. Choose an open/flat area or a separate mountain world. Allow at least 128 × 128 horizontal blocks and 92 blocks of vertical clearance.
 4. Stand at the southwest corner at ground level and load `//schem load Christmas_Alpine_Range_128x92x128`.
-5. Preview the paste location and run `//paste -a`. This skips air. Biome data is pasted by default; do not use `-b`, because FAWE defines that flag as 'skip biome pasting'. blocks already present inside the mountain volume may overlap it.
+5. Preview the paste location and run `//paste -ab`. `-a` skips air, while `-b` explicitly includes biome pasting. Both flags are required so the mountain stays integrated into the terrain and keeps the custom spawn biomes. blocks already present inside the mountain volume may overlap it.
 6. Only use `//paste` without `-a` when you explicitly want to clear/replace the entire 128 × 92 × 128 volume and have confirmed that it contains nothing you need.
 7. Use `//undo` immediately if pasted at the wrong location.
 
