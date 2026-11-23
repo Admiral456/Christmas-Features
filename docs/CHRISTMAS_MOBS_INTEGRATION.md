@@ -20,7 +20,7 @@ The Blockbench source models are converted only by ModelEngine when its blueprin
 | `yeti` | Yeti, 231 cubes | `idle` (loop), `roar` (one-shot) |
 | `frost_emperor` | Frost Emperor, 238 cubes | `idle` (loop), `raise_staff` (one-shot) |
 
-The prepared blueprints preserve the original cube and animation UUIDs. Each model's head bone is tagged `h[yaw=75;pitch=30;speed=8]_head`, so the model can turn its head separately from its body. Each model also has an empty `tag_name` bone as a nametag anchor.
+The prepared blueprints preserve the original cube and animation UUIDs. Each model's head bone is tagged `h[yaw=75;pitch=30;speed=8]_head`, so the model can turn its head separately from its body. Each model also has an empty `tag_name` bone as a nametag anchor. In the ModelEngine mechanic, use the bone ID `name` (the `tag_` prefix is not included in the `nametag=` value).
 
 ## Install model and mob files
 
@@ -51,7 +51,7 @@ Spawn the NPC at the player's current position:
 /mm m spawn ChristmasGrinch
 ```
 
-The model head tracks the nearest player within 24 blocks on a 10-tick interval. The Grinch itself remains non-collidable and invulnerable.
+The model head tracks the nearest player within 24 blocks on a 10-tick interval. The Grinch uses cleared AI goal selectors instead of `NoAI: true`; MythicMobs documents that `NoAI: true` prevents skills from being cast. ModelEngine's `save=true` keeps the Grinch model attached when the persistent entity's chunk unloads. The Grinch itself remains non-collidable and invulnerable.
 
 ## Grinch menu – installed tag and quest plugins
 
@@ -112,7 +112,7 @@ WorldEdit/FAWE uses `//schem load <filename>` for loading a schematic. On Bukkit
 3. Load it with `//schem load Christmas_Alpine_Range_128x92x128`.
 4. Use `//paste -ab` to skip air blocks and preserve existing buildings outside the mountain mass. Existing terrain blocks inside the footprint can still overlap the mountain, so a flat/open target or a prepared mountain world is strongly preferred.
 5. If you deliberately want to replace every block inside the 128 × 92 × 128 box, use `//paste` without `-a` only after confirming the area is empty or safely backed up. This removes existing blocks in that full box.
-6. Check biome data on the slopes and peaks. ChristmasFeatures 1.0.5 now preserves `SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS` and `GROVE` when its winter conversion is enabled. Keep these entries in `winter.preserve-biomes`; do not remove them, or MythicMobs' biome filters may stop matching.
+6. Check biome data on the slopes and peaks. ChristmasFeatures 1.0.6 now preserves `SNOWY_SLOPES`, `FROZEN_PEAKS`, `JAGGED_PEAKS` and `GROVE` when its winter conversion is enabled. Keep these entries in `winter.preserve-biomes`; do not remove them, or MythicMobs' biome filters may stop matching.
 
 Use `//undo` immediately if the paste is in the wrong place.
 
