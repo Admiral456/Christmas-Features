@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.vanocni</groupId>
     <artifactId>christmas-features</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <name>ChristmasFeatures</name>
     <description>Christmas events, key chest, ChatGames and winter biomes for Paper 1.21.10.</description>
 
