@@ -22,7 +22,7 @@ ChristmasFrostEmperor:
     FollowRange: 36
     MaxCombatDistance: 36
   Skills:
-    - meg:model{mid=frost_emperor;nametag=name;viewrange=72;damagetint=true} @self ~onSpawn
+    - meg:model{mid=frost_emperor;n=name;viewrange=72;damagetint=true} @self ~onSpawn
     - meg:state{mid=frost_emperor;s=idle;li=0} @self ~onSpawn
     - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
     - meg:headtarget{p=head;em=true;y=1.65;follow=true} @NearestPlayer{r=32} ~onTimer:10 ?playerwithin{d=32}
