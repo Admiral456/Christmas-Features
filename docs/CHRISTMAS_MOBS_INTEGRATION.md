@@ -29,7 +29,7 @@ The prepared blueprints preserve the original cube and animation UUIDs. Each mod
 3. Copy `plugins/MythicMobs/Mobs/Christmas/` into the server's `plugins/MythicMobs/Mobs/Christmas/`.
 4. Copy `plugins/MythicMobs/RandomSpawns/ChristmasMountains.yml` into `plugins/MythicMobs/RandomSpawns/`.
 5. In `plugins/MythicMobs/config/config-spawning.yml`, enable `GenerateSpawnPoints: true`. Change only that setting; do not replace the whole file.
-6. Set the `Worlds:` value in `ChristmasMountains.yml` to the exact world name where the mountain range will be pasted. The console excerpt showed a player in `spawnmapa`, but that does not prove that it is the intended mountain world.
+6. Set the `Worlds:` value in `ChristmasMountains.yml` to the exact world name where the mountain range will be pasted. The deployment target selected for the mountains is `world`.
 7. Run `/meg reload models`, then `/mm reload`. Check the console for import or YAML errors.
 8. ModelEngine generates a client resource pack under `plugins/ModelEngine/resource pack/`. This server already has ItemsAdder 4.0.16, so use ItemsAdder as the single resource-pack distributor: copy the package's `plugins/ItemsAdder/contents/christmasfeatures/` folder into the existing `plugins/ItemsAdder/contents/` folder; in the existing ItemsAdder `config.yml`, append `ModelEngine/resource pack` to `merge_other_plugins_resourcepacks_folders` (do not erase other entries); run `/meg reload` and then `/iazip`. Continue using the existing ItemsAdder hosting configuration. This combines the ChristmasFeatures item assets and ModelEngine mob models into the one pack players receive.
 
