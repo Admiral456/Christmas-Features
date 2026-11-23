@@ -1,4 +1,4 @@
-# Spawn with: /mm m spawn ChristmasFrostEmperor
+# Spawn for testing: /mm m spawn ChristmasFrostEmperor
 ChristmasFrostEmperor:
   Type: STRAY
   Display: '&b&lFrost Emperor'
@@ -21,14 +21,11 @@ ChristmasFrostEmperor:
     MovementSpeed: 0.24
     FollowRange: 36
     MaxCombatDistance: 36
-  Model:
-    Id: frost_emperor
-    ViewRadius: 72
-    DamageTint: true
   Skills:
-    - state{mid=frost_emperor;s=idle;li=0} @self ~onSpawn
-    - headconfig{p=head;em=false;yaw=75;pitch=30;speed=8} @self ~onSpawn
-    - headtarget{p=head;em=false;y=1.65;follow=true} @NearestPlayer{r=32} ~onTimer:10
-    - state{mid=frost_emperor;s=raise_staff;li=0} @self ~onAttack
+    - meg:model{mid=frost_emperor} @self ~onSpawn
+    - meg:state{mid=frost_emperor;s=idle;li=0} @self ~onSpawn
+    - meg:headconfig{p=head;em=true;yaw=75;pitch=30;speed=8} @self ~onSpawn
+    - meg:headtarget{p=head;em=true;y=1.65;follow=true} @NearestPlayer{r=32} ~onTimer:10
+    - meg:state{mid=frost_emperor;s=raise_staff;li=0} @self ~onAttack
     - effect:particles{p=snowflake;amount=22;hS=0.8;vS=0.8;speed=0.04} @self ~onDamaged
     - potion{type=SLOW;duration=50;level=1} @trigger ~onAttack
