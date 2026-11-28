@@ -8,6 +8,11 @@ winter:
   biome: SNOWY_PLAINS
   force-snow-weather: true
   chunks-per-tick: 1
+  ambience:
+    enabled: true
+    interval-ticks: 40
+    particles-per-player: 2
+    radius: 8
 
 # Event centre defaults to the configured world's world spawn.
 # The 45-block radius has approximately twice the area of the former 32-block radius.
@@ -20,12 +25,14 @@ events:
     duration-seconds: 600
     spawn-count: 10
     radius: 45
+    min-distance-between-items: 9
     target-score: 10
   ornaments:
     world: world
     duration-seconds: 300
     spawn-count: 18
     radius: 32
+    min-distance-between-items: 7
     target-score: 5
 
 chatgames:
