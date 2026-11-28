@@ -174,7 +174,6 @@ public final class IllusionerBossManager implements Listener {
                 participants.add(player.getUniqueId());
             }
         }
-        if (initiator != null) participants.add(initiator.getUniqueId());
         if (participants.isEmpty()) return false;
 
         phaseTwo = false;
@@ -274,6 +273,11 @@ public final class IllusionerBossManager implements Listener {
             if (!ending) cleanup(false);
             return;
         }
+        if (onlineParticipants().isEmpty()) {
+            cleanup(false);
+            return;
+        }
+
         fightTicks += 5;
         double maxHealth = boss.getAttribute(Attribute.MAX_HEALTH) == null
                 ? MAX_HEALTH : boss.getAttribute(Attribute.MAX_HEALTH).getValue();
@@ -594,7 +598,11 @@ public final class IllusionerBossManager implements Listener {
         List<Player> online = new ArrayList<>();
         for (UUID uuid : participants) {
             Player player = Bukkit.getPlayer(uuid);
-            if (player != null && player.isOnline() && player.getWorld().equals(spawnLocation.getWorld())) online.add(player);
+            if (player != null && player.isOnline() && !player.isDead()
+                    && player.getWorld().equals(spawnLocation.getWorld())
+                    && player.getLocation().distanceSquared(spawnLocation) <= PARTICIPANT_RANGE * PARTICIPANT_RANGE) {
+                online.add(player);
+            }
         }
         return online;
     }
