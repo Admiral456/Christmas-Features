@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -48,6 +49,7 @@ public final class CosmeticsManager implements Listener {
     private final org.bukkit.NamespacedKey idKey;
     private final org.bukkit.NamespacedKey hatKey;
     private final Map<UUID, TrailPreview> trailPreviews = new HashMap<>();
+    private boolean dataLoadFailed;
     private BukkitTask particleTask;
     private long animationTick;
     private long particleIntervalTicks = 4L;
@@ -122,10 +124,27 @@ public final class CosmeticsManager implements Listener {
         if (!plugin.getDataFolder().exists() && !plugin.getDataFolder().mkdirs()) {
             plugin.getLogger().warning("Nelze vytvořit složku pro vánoční kosmetiku.");
         }
-        this.data = YamlConfiguration.loadConfiguration(dataFile);
+        this.data = loadDataSafely();
         this.categoryKey = new org.bukkit.NamespacedKey(plugin, "cosmetic_category");
         this.idKey = new org.bukkit.NamespacedKey(plugin, "cosmetic_id");
         this.hatKey = new org.bukkit.NamespacedKey(plugin, "cosmetic_hat");
+    }
+
+    private YamlConfiguration loadDataSafely() {
+        YamlConfiguration loaded = new YamlConfiguration();
+        if (!dataFile.isFile()) return loaded;
+        try {
+            loaded.load(dataFile);
+        } catch (IOException | InvalidConfigurationException exception) {
+            dataLoadFailed = true;
+            File backup = plugin.backupInvalidYaml(dataFile);
+            String backupInfo = backup == null
+                    ? "Původní soubor zůstal nedotčen; zálohu se nepodařilo vytvořit."
+                    : "Vytvořena záloha " + backup.getName() + ".";
+            plugin.getLogger().severe("Soubor cosmetics.yml obsahuje neplatný YAML: "
+                    + exception.getMessage() + ". Ukládání kosmetiky bylo zablokováno. " + backupInfo);
+        }
+        return loaded;
     }
 
     public void start() {
@@ -244,6 +263,11 @@ public final class CosmeticsManager implements Listener {
         String action = clicked.getItemMeta().getPersistentDataContainer().get(categoryKey, PersistentDataType.STRING);
         String id = clicked.getItemMeta().getPersistentDataContainer().get(idKey, PersistentDataType.STRING);
         if (action == null || id == null) return;
+        if (dataLoadFailed && (action.equals("clear")
+                || List.of("tag", "trail", "hat").contains(action))) {
+            player.sendMessage("§cKosmetická data jsou poškozená. Ukládání je zablokováno, aby se nepřepsala původní data. Oprav cosmetics.yml ze zálohy a restartuj server.");
+            return;
+        }
 
         if (action.equals("back")) {
             openMain(player);
@@ -914,6 +938,7 @@ public final class CosmeticsManager implements Listener {
     }
 
     private void save() {
+        if (dataLoadFailed) return;
         try {
             data.save(dataFile);
         } catch (IOException exception) {
