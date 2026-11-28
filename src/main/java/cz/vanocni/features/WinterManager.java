@@ -1,9 +1,12 @@
 package cz.vanocni.features;
 
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -27,6 +30,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.Random;
+import java.util.Locale;
 
 /** Applies a cold 3-D biome to loaded and newly loaded chunks without regenerating terrain. */
 public final class WinterManager implements Listener {
@@ -35,6 +39,8 @@ public final class WinterManager implements Listener {
     private final Set<String> queued = new HashSet<>();
     private final Map<UUID, WeatherState> originalWeather = new HashMap<>();
     private final Random random = new Random();
+    private List<String> cachedPreservedBiomeNames = List.of();
+    private Set<Biome> cachedPreservedBiomes = Set.of();
     private BukkitTask workerTask;
     private BukkitTask weatherTask;
     private BukkitTask ambienceTask;
@@ -248,14 +254,53 @@ public final class WinterManager implements Listener {
         World world = chunk.getWorld();
         int baseX = chunk.getX() << 4;
         int baseZ = chunk.getZ() << 4;
+        Set<Biome> preservedBiomes = getPreservedBiomes();
+
         // Biomes are stored as 4x4x4 quart cells. One write per quart is enough.
+        // Preserve selected mountain biomes so mob spawn filters and regional identity survive.
         for (int y = world.getMinHeight(); y < world.getMaxHeight(); y += 4) {
             for (int x = 0; x < 16; x += 4) {
                 for (int z = 0; z < 16; z += 4) {
-                    world.setBiome(baseX + x, y, baseZ + z, winterBiome);
+                    int blockX = baseX + x;
+                    int blockZ = baseZ + z;
+                    if (preservedBiomes.contains(world.getBiome(blockX, y, blockZ))) continue;
+                    world.setBiome(blockX, y, blockZ, winterBiome);
                 }
             }
         }
+    }
+
+    private Set<Biome> getPreservedBiomes() {
+        List<String> configured = plugin.getConfig().getStringList("winter.preserve-biomes")
+                .stream()
+                .map(String::trim)
+                .filter(name -> !name.isEmpty())
+                .toList();
+        if (configured.equals(cachedPreservedBiomeNames)) return cachedPreservedBiomes;
+
+        Set<Biome> resolved = new HashSet<>();
+        var biomeRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME);
+        for (String configuredName : configured) {
+            String normalized = configuredName.toLowerCase(Locale.ROOT);
+            NamespacedKey key = normalized.contains(":")
+                    ? NamespacedKey.fromString(normalized)
+                    : NamespacedKey.minecraft(normalized);
+            if (key == null) {
+                plugin.getLogger().warning("Neplatný klíč chráněného biomu: " + configuredName);
+                continue;
+            }
+
+            Biome biome = biomeRegistry.get(key);
+            if (biome == null) {
+                plugin.getLogger().warning("Chráněný biome nebyl nalezen v registru: " + configuredName);
+                continue;
+            }
+            resolved.add(biome);
+        }
+
+        cachedPreservedBiomeNames = List.copyOf(configured);
+        cachedPreservedBiomes = Set.copyOf(resolved);
+        return cachedPreservedBiomes;
     }
 
     private void applyWeather() {
