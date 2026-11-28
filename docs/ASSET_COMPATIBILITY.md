@@ -76,6 +76,14 @@ python -m unittest discover -s scripts/tests -v
 
 Nejprve si stáhni nebo zkopíruj skutečný výsledný serverový pack, který už obsahuje assety všech aktivních pluginů (například ItemsAdder, Oraxen, ModelEngine a BetterHud). Pracuj s kopií, nikoliv se složkou pluginu nebo jediným produkčním souborem.
 
+Nejprve proveď pouze náhled, který nic nezapisuje:
+
+```bash
+python scripts/resourcepack_guard.py merge --base ./server-pack-copy.zip --addon ./resourcepack --dry-run
+```
+
+Náhled ověří oba packy, vypíše soubory, které by se přidaly nebo sloučily, a zastaví se při kolizi. Nevytvoří ZIP ani SHA-256 soubor a nemění vstupy. Teprve po kontrole výpisu spusť skutečné sloučení do nového názvu:
+
 ```bash
 python scripts/resourcepack_guard.py merge --base ./server-pack-copy.zip --addon ./resourcepack --output ./dist/ChristmasFeatures-Merged-1.21.10.zip
 ```
