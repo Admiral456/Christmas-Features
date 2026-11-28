@@ -115,8 +115,9 @@ public final class HolidayEventManager implements Listener {
         active = new EventState(type, eventId, endsAtMillis, target, world);
 
         int spawned = 0;
+        Set<Long> usedColumns = new HashSet<>();
         for (int i = 0; i < count; i++) {
-            Location location = findSafeLocation(world, center, radius);
+            Location location = findSafeLocation(world, center, radius, usedColumns);
             if (location == null) continue;
             ItemStack stack = createEventItem(type, eventId);
             Item item = world.dropItem(location, stack);
@@ -132,6 +133,17 @@ public final class HolidayEventManager implements Listener {
         if (spawned == 0) {
             active = null;
             plugin.getLogger().warning("Vánoční event nebyl spuštěn: nepodařilo se najít bezpečné místo pro žádný předmět.");
+            return false;
+        }
+        if (type.equals("gifts") && spawned < count) {
+            for (UUID entityId : new HashSet<>(eventItems)) {
+                org.bukkit.entity.Entity entity = Bukkit.getEntity(entityId);
+                if (entity != null) entity.remove();
+            }
+            eventItems.clear();
+            active = null;
+            plugin.getLogger().warning("Hledání dárků nebylo spuštěno: podařilo se bezpečně rozmístit pouze "
+                    + spawned + " z požadovaných " + count + " dárků. Event vyžaduje všech 10.");
             return false;
         }
         if (spawned < target) {
@@ -163,15 +175,18 @@ public final class HolidayEventManager implements Listener {
         return world.getSpawnLocation();
     }
 
-    private Location findSafeLocation(World world, Location center, int radius) {
-        for (int attempt = 0; attempt < 32; attempt++) {
+    private Location findSafeLocation(World world, Location center, int radius, Set<Long> usedColumns) {
+        for (int attempt = 0; attempt < 100; attempt++) {
             int x = center.getBlockX() + random.nextInt(radius * 2 + 1) - radius;
             int z = center.getBlockZ() + random.nextInt(radius * 2 + 1) - radius;
+            long columnKey = (((long) x) << 32) ^ (z & 0xffffffffL);
+            if (usedColumns.contains(columnKey)) continue;
             int y = world.getHighestBlockYAt(x, z);
             if (y < world.getMinHeight() || y + 1 >= world.getMaxHeight()) continue;
             if (!world.getBlockAt(x, y, z).getType().isSolid()) continue;
             if (!world.getBlockAt(x, y + 1, z).isEmpty()) continue;
             if (!world.getBlockAt(x, y + 1, z).isPassable()) continue;
+            usedColumns.add(columnKey);
             return new Location(world, x + 0.5, y + 1.2, z + 0.5);
         }
         return null;
@@ -262,16 +277,13 @@ public final class HolidayEventManager implements Listener {
     private void finishWithWinner(UUID uuid, String name, int score) {
         if (active == null) return;
         String type = active.type();
-        Player winner = Bukkit.getPlayer(uuid);
-        if (winner != null) {
-            String trailEffect = plugin.getConfig().getString("cosmetics.events." + type + ".trailstudio-effect", "");
-            if (!trailEffect.isBlank()) plugin.trailStudio().grant(winner, trailEffect);
-            List<String> commands = plugin.getConfig().getStringList("cosmetics.events." + type + ".first-place-commands");
-            RewardCommands.dispatch(plugin, commands, winner, Map.of(
-                    "event", type,
-                    "score", Integer.toString(score),
-                    "rank", "1"));
-        }
+        String trailEffect = plugin.getConfig().getString("cosmetics.events." + type + ".trailstudio-effect", "");
+        if (trailEffect != null && !trailEffect.isBlank()) plugin.trailStudio().grant(uuid, trailEffect);
+        List<String> commands = plugin.getConfig().getStringList("cosmetics.events." + type + ".first-place-commands");
+        RewardCommands.dispatch(plugin, commands, name, uuid.toString(), Map.of(
+                "event", type,
+                "score", Integer.toString(score),
+                "rank", "1"));
         finish("§a§l" + name + " vyhrál vánoční event! §7Získal " + score + " bodů.", uuid, true);
     }
 

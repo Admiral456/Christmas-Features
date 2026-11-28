@@ -1,69 +1,72 @@
 # Christmas NPC models – ModelEngine + MythicMobs
 
-This integration uses the three supplied Blockbench models with ModelEngine 4 and MythicMobs. It does not use FancyNpcs: the FancyNpcs authors currently state that ModelEngine 4 is not supported.
+This integration uses the supplied Grinch and Yeti Blockbench models with ModelEngine 4 and MythicMobs. It does not use FancyNpcs.
 
 ## Models
 
 | Model ID | Model | Animations |
 |---|---|---|
-| `grinch` | Grinch, 229 cubes | `idle` (loop), `greet` (one-shot) |
-| `yeti` | Yeti, 231 cubes | `idle` (loop), `roar` (one-shot) |
-| `frost_emperor` | Frost Emperor, 238 cubes | `idle` (loop), `raise_staff` (one-shot) |
-
-The import bundle adds one empty `tag_name` bone to each model for the ModelEngine nametag anchor. The existing `head` bone is preserved for ModelEngine's `headtarget` mechanic.
+| grinch | Grinch | idle (loop), greet (one-shot) |
+| yeti | Yeti | idle (loop), roar (one-shot) |
 
 ## Install
 
-1. Back up `plugins/ModelEngine/` and `plugins/MythicMobs/`.
-2. Copy the bundle's `plugins/ModelEngine/blueprints/` into your server's `plugins/ModelEngine/blueprints/`.
-3. Copy the bundle's `plugins/MythicMobs/Mobs/Christmas/` into `plugins/MythicMobs/Mobs/Christmas/`.
-4. Copy `plugins/MythicMobs/RandomSpawns/ChristmasMountains.yml` into `plugins/MythicMobs/RandomSpawns/`.
-5. In `plugins/MythicMobs/config/config-spawning.yml`, enable `GenerateSpawnPoints: true`. Do not replace the rest of that file.
-6. Run `/meg reload`, then `/mm reload`. Check the console for model import errors.
+1. Back up plugins/ModelEngine/ and plugins/MythicMobs/.
+2. Copy the Grinch and Yeti blueprints into plugins/ModelEngine/blueprints/.
+3. Copy the Grinch and Yeti definitions into plugins/MythicMobs/Mobs/Christmas/.
+4. Copy the Yeti random-spawn configuration into plugins/MythicMobs/RandomSpawns/ only if you want the Yeti to spawn naturally.
+5. In plugins/MythicMobs/config/config-spawning.yml, enable GenerateSpawnPoints: true. Do not replace the rest of that file.
+6. Run /meg reload, then /mm reload. Check the console for model import errors.
 7. Players must receive and accept ModelEngine's generated resource pack. ModelEngine generates the pack but does not distribute it automatically.
 
 ## Grinch – spawn NPC
 
-Stand at the exact location where the Grinch should stand and run:
+Stand exactly where you want the Grinch and run:
 
-```
-/mm m spawn ChristmasGrinch
-```
+~~~text
+/christmas npc spawn
+~~~
 
-The Grinch is a persistent, non-collidable `INTERACTION` NPC. Right-clicking him opens the ChristmasFeatures GUI. His model plays `greet` on interaction. Every 10 ticks, ModelEngine aims the `head` bone at the nearest player within 24 blocks; it follows that player as they move left, right or around him.
+When ModelEngine and MythicMobs are enabled, ChristmasFeatures calls MythicMobs' /mm m spawn ChristmasGrinch at the invoking player's position, using the imported Blockbench model. Right-clicking that model opens the ChristmasFeatures GUI when the supplied MythicMobs interaction definition is installed.
 
-The GUI has two destinations: **Grinchovy úkoly** and **Vánoční tagy**. The tag button is connected by default to the built-in ChristmasFeatures cosmetic selector:
+If either model plugin is unavailable, ChristmasFeatures creates its own persistent, clickable in-plugin Grinch NPC at the player's position. Right-click opens the same menu.
 
-```yaml
+The GUI contains:
+- Hledání vánočních dárků: starts the global gift hunt, shows its configuration and whether the Aurora reward is unlocked.
+- Vánoční ChatGames: starts a question round and displays normal/VIP reward information.
+- Vánoční tagy and Trail effects: opens the built-in cosmetic selectors.
+- Grinchovy úkoly: optional command handoff to an external quest plugin.
+
+The default hooks are:
+
+~~~yaml
 grinch:
   menu:
     tags-command: "christmas cosmetics %player% tag"
     quests-command: ""
-```
+    gift-start-cooldown-seconds: 1800
+    chatgame-start-cooldown-seconds: 900
+~~~
 
-ChristmasFeatures migrates an older blank `tags-command` to this default when the plugin starts. The quest page is intentionally left blank until the actual quest plugin and its command are confirmed. If you use another tag plugin instead, you can replace `tags-command` with its console command and keep `%player%` as the player placeholder.
+## Yeti – mountains
 
-You can test the GUI without the NPC using `/christmas grinch open`.
-
-## Yeti and Frost Emperor – mountains
-
-The package adds MythicMobs RandomSpawns for:
-- Yeti: snowy slopes, frozen/jagged peaks and groves; 1% chance per generated spawn point, 3-minute cooldown and a radius cap.
-- Frost Emperor: frozen and jagged peaks only; 0.2% chance per generated spawn point, 15-minute cooldown and a radius cap.
+The supported optional random-spawn configuration is for the Yeti only:
+- snowy slopes, frozen/jagged peaks and groves;
+- a low spawn chance per generated spawn point;
+- a cooldown and radius cap to avoid repeated nearby spawns.
 
 To test manually:
 
-```
+~~~text
 /mm m spawn ChristmasYeti
-/mm m spawn ChristmasFrostEmperor
-```
+~~~
 
-The random-spawn configuration uses the world name `world`; change it if your overworld is named differently. MythicMobs `ADD` random spawns are additive to vanilla spawns and require `GenerateSpawnPoints: true`.
+The random-spawn configuration uses the world name world; change it if your overworld is named differently. MythicMobs ADD random spawns are additive to vanilla spawns and require GenerateSpawnPoints: true.
+
+## Frost Emperor removed
+
+The Frost Emperor winter boss is no longer part of the ChristmasFeatures setup. If an earlier model bundle was already installed on the server, remove its ChristmasFrostEmperor mob definition from plugins/MythicMobs/Mobs/Christmas/ and its random-spawn entry from plugins/MythicMobs/RandomSpawns/ChristmasMountains.yml, then run /mm reload. If one is currently spawned, remove the live entity through MythicMobs before or during maintenance. This external MythicMobs data cannot be deleted by ChristmasFeatures itself.
 
 ## Preserve actual mountains
 
-This server also has ChristmasSeason available for winter biome conversion. If its `convert-all` operation replaces the mountain biome IDs with `SNOWY_PLAINS`, the MythicMobs biome filters above will no longer match those areas. Keep the mountain range excluded from biome conversion (or change the `Biomes:` lists to the actual biome IDs after checking them in-game). Do not convert the whole map before the mountain exclusion has been configured.
-
-## Verification status
-
-The model JSON files and MythicMobs YAML files in the bundle were structurally checked. The Java-side Grinch menu is included in ChristmasFeatures. A real ModelEngine/MythicMobs spawn test and the actual external tag/quest menu handoff still require the live server and the installed tag/quest plugin versions.
+If ChristmasSeason is used for winter biome conversion, do not convert the mountain biome IDs used by the Yeti random-spawn configuration to SNOWY_PLAINS. Keep the mountain range excluded from biome conversion or update the Yeti's biome filters after checking them in-game.

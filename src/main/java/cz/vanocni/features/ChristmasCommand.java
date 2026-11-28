@@ -52,6 +52,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             case "trail" -> handleTrail(sender, args);
             case "cosmetics" -> handleCosmetics(sender, args);
             case "grinch" -> handleGrinch(sender, args);
+            case "npc" -> handleNpc(sender, args);
             case "winter" -> {
                 if (args.length > 1 && args[1].equalsIgnoreCase("apply")) {
                     if (plugin.winter().isManagedExternally()) {
@@ -123,7 +124,6 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             plugin.cosmetics().openMain(player);
             return;
         }
-
         Player target = Bukkit.getPlayerExact(args[1]);
         if (target == null) {
             sender.sendMessage("§cHráč není online.");
@@ -156,7 +156,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
 
         sender.sendMessage("§b§lChristmasFeatures §7| §fStav systému");
         sender.sendMessage("§7Event: " + eventStatus);
-        sender.sendMessage("§7ChatGame: " + chatStatus);
+        sender.sendMessage("§7ChatGame: " + chatStatus + " §8| §7Úkolů: §f" + plugin.chatGames().taskCount());
         sender.sendMessage("§7Zimní svět: " + winterStatus);
         sender.sendMessage("§7HUD: " + hudStatus + " §8| §7PlaceholderAPI: " + (papi ? "§aAno" : "§eNe"));
         sender.sendMessage("§7TrailStudio: " + trailStatus);
@@ -167,19 +167,29 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage("§ePoužití: /christmas grinch open [hráč]");
             return;
         }
-
         Player target;
         if (args.length >= 3) {
             target = Bukkit.getPlayerExact(args[2]);
         } else {
             target = sender instanceof Player player ? player : null;
         }
-
         if (target == null) {
             sender.sendMessage("§cHráč není online. Použití: /christmas grinch open <hráč>");
             return;
         }
         plugin.grinchMenu().open(target);
+    }
+
+    private void handleNpc(CommandSender sender, String[] args) {
+        if (args.length < 2 || !args[1].equalsIgnoreCase("spawn")) {
+            sender.sendMessage("§ePoužití: /christmas npc spawn");
+            return;
+        }
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("§cTento příkaz musíš spustit přímo ve hře.");
+            return;
+        }
+        plugin.grinchNpc().spawn(player);
     }
 
     private void help(CommandSender sender) {
@@ -191,21 +201,26 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§f/christmas status §7— zobrazí stav hlavních systémů");
         sender.sendMessage("§f/christmas trail give <hráč> <effect-id> §7— odemkne TrailStudio kosmetiku");
         sender.sendMessage("§f/christmas grinch open [hráč] §7— otevře Grinchovo menu");
+        sender.sendMessage("§f/christmas npc spawn §7— umístí Grinche na tvou pozici");
         sender.sendMessage("§f/christmas winter apply §7— znovu aplikuje zimu na načtené chunky");
-        sender.sendMessage("§f/christmas reload §7— načte konfiguraci znovu");
+        sender.sendMessage("§f/christmas reload §7— načte konfiguraci");
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> suggestions = new ArrayList<>();
-        if (args.length == 1) return filter(List.of("help", "status", "event", "chatgame", "cosmetics", "trail", "grinch", "winter", "reload"), args[0]);
+        if (args.length == 1) {
+            return filter(List.of("help", "status", "event", "chatgame", "cosmetics", "trail", "grinch", "npc", "winter", "reload"), args[0]);
+        }
         if (args.length == 2) {
             return switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "event" -> filter(List.of("start", "stop"), args[1]);
                 case "chatgame" -> filter(List.of("start", "stop"), args[1]);
                 case "trail" -> filter(List.of("give"), args[1]);
-                case "cosmetics" -> Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(name -> name.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
+                case "cosmetics" -> Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                        .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
                 case "grinch" -> filter(List.of("open"), args[1]);
+                case "npc" -> filter(List.of("spawn"), args[1]);
                 case "winter" -> filter(List.of("apply"), args[1]);
                 default -> suggestions;
             };
@@ -217,7 +232,8 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             return filter(List.of("gifts", "ornaments"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("trail") && args[1].equalsIgnoreCase("give")) {
-            return Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(name -> name.toLowerCase(Locale.ROOT).startsWith(args[2].toLowerCase(Locale.ROOT))).toList();
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName)
+                    .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(args[2].toLowerCase(Locale.ROOT))).toList();
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("grinch") && args[1].equalsIgnoreCase("open")) {
             return Bukkit.getOnlinePlayers().stream().map(Player::getName)

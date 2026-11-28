@@ -49,25 +49,34 @@ public final class TrailStudioBridge implements Listener {
     }
 
     public boolean grant(Player player, String requestedEffectId) {
-        if (player == null || requestedEffectId == null || requestedEffectId.isBlank()) return false;
+        if (player == null) return false;
+        return grant(player.getUniqueId(), requestedEffectId);
+    }
 
+    public boolean grant(UUID playerId, String requestedEffectId) {
+        if (playerId == null || requestedEffectId == null || requestedEffectId.isBlank()) return false;
         String effectId = requestedEffectId.trim().toLowerCase(Locale.ROOT);
         if (!EFFECT_ID.matcher(effectId).matches()) {
             plugin.getLogger().warning("Neplatné TrailStudio effect ID v konfiguraci: " + requestedEffectId);
             return false;
         }
 
+        Player onlinePlayer = Bukkit.getPlayer(playerId);
         if (isAvailable() && !isEffectConfigured(effectId)) {
             plugin.getLogger().warning("TrailStudio neobsahuje efekt '" + effectId
                     + "'. Přidej jej do plugins/TrailStudio/effects.yml nebo oprav cosmetics konfiguraci.");
-            player.sendMessage("§cKosmetický efekt není v TrailStudio nakonfigurovaný: §f" + effectId);
+            if (onlinePlayer != null) {
+                onlinePlayer.sendMessage("§cKosmetický efekt není v TrailStudio nakonfigurovaný: §f" + effectId);
+            }
             return false;
         }
 
-        String path = "unlocks." + player.getUniqueId();
+        String path = "unlocks." + playerId;
         List<String> unlocked = new ArrayList<>(data.getStringList(path));
         if (unlocked.contains(effectId)) {
-            player.sendMessage("§7Tento TrailStudio efekt už máš odemčený: §b" + effectId);
+            if (onlinePlayer != null) {
+                onlinePlayer.sendMessage("§7Tento TrailStudio efekt už máš odemčený: §b" + effectId);
+            }
             return true;
         }
 
@@ -75,12 +84,17 @@ public final class TrailStudioBridge implements Listener {
         data.set(path, unlocked);
         save();
 
-        if (isAvailable()) {
-            apply(player);
-            player.sendMessage("§aOdemkl sis vánoční kosmetiku: §b" + effectId + "§a. Vybavíš ji přes §f/trails§a.");
+        if (onlinePlayer != null) {
+            if (isAvailable()) {
+                apply(onlinePlayer);
+                onlinePlayer.sendMessage("§aOdemkl sis vánoční kosmetiku: §b" + effectId
+                        + "§a. Vybavíš ji přes §f/trails§a.");
+            } else {
+                onlinePlayer.sendMessage("§aOdemknutí kosmetiky §b" + effectId
+                        + " §aje uloženo. Efekt bude dostupný po instalaci TrailStudio a restartu serveru.");
+            }
         } else {
-            player.sendMessage("§aOdemknutí kosmetiky §b" + effectId
-                    + " §aje uloženo. Efekt bude dostupný po instalaci TrailStudio a restartu serveru.");
+            plugin.getLogger().info("TrailStudio unlock '" + effectId + "' uložen pro offline hráče " + playerId + ".");
         }
         return true;
     }
