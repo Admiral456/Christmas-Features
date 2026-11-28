@@ -40,14 +40,23 @@ public final class WinterManager implements Listener {
         if (!plugin.getConfig().getBoolean("winter.enabled", true)) return;
         applyWeather();
         queueLoadedChunks(false);
-        workerTask = Bukkit.getScheduler().runTaskTimer(plugin, this::processQueue, 1L, 1L);
-        weatherTask = Bukkit.getScheduler().runTaskTimer(plugin, this::applyWeather, 1200L, 1200L);
+        ensureTasks();
     }
 
     public void refresh() {
-        if (isManagedExternally()) return;
+        if (isManagedExternally() || !plugin.getConfig().getBoolean("winter.enabled", true)) return;
         queueLoadedChunks(true);
         applyWeather();
+        ensureTasks();
+    }
+
+    private void ensureTasks() {
+        if (workerTask == null || workerTask.isCancelled()) {
+            workerTask = Bukkit.getScheduler().runTaskTimer(plugin, this::processQueue, 1L, 1L);
+        }
+        if (weatherTask == null || weatherTask.isCancelled()) {
+            weatherTask = Bukkit.getScheduler().runTaskTimer(plugin, this::applyWeather, 1200L, 1200L);
+        }
     }
 
     /** True when the dedicated ChristmasSeason plugin owns winter biomes and weather. */
