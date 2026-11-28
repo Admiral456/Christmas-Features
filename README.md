@@ -10,7 +10,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **Grinchovo GUI:** obsahuje hledání dárků, ChatGames, kosmetické tagy a trail efekty. Hledání dárků i ChatGame lze spustit přímo z menu.
 - **ChatGames:** rozšířená sada více než 20 početních úloh, hádanek a Minecraft/vánočních otázek. Odpovědi se kontrolují bez ohledu na velikost písmen, českou diakritiku a běžnou interpunkci. Běžný hráč získá 3 smaragdy a 12 XP; VIP má navíc 2 smaragdy, 2 zlaté ingoty a zvláštní TrailStudio auru.
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, probíhající event, skóre, čas a úkol ChatGames. Při nedostupnosti BetterHud se použije BossBar.
-- **Vánoční kosmetika:** chat tagy, čepice a trail efekty; několik ultimátních efektů je výhradně pro VIP.
+- **Vánoční kosmetika:** 7 běžných a 9 VIP propracovaných částicových trailů, chat tagy, čepice a koruny. Nové traily zahrnují Polární lišku, Srdce z křišťálu, Sněžítko, Aurorového serafa, Astrálního strážce a Ledového leviatana.
 - **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
 - **Zimní svět:** při načítání chunků přepisuje 3D biomy na SNOWY_PLAINS, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
 - **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
