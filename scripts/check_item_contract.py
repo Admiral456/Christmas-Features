@@ -45,8 +45,8 @@ def _json_file(pack_root: Path, relative_path: str) -> dict[str, Any]:
 
 def verify_contract(java_source: str, pack_root: Path) -> list[str]:
     material_match = re.search(
-        r'Material\\s+base\\s*=\\s*type\\.equals\\("gifts"\\)\\s*'
-        r'\\?\\s*Material\\.(\\w+)\\s*:\\s*Material\\.(\\w+)\\s*;',
+        r'Material\s+base\s*=\s*type\.equals\("gifts"\)\s*'
+        r'\?\s*Material\.(\w+)\s*:\s*Material\.(\w+)\s*;',
         java_source,
     )
     if not material_match:
@@ -60,8 +60,8 @@ def verify_contract(java_source: str, pack_root: Path) -> list[str]:
     }
 
     branch_match = re.search(
-        r'if\\s*\\(\\s*type\\.equals\\("gifts"\\)\\s*\\)\\s*'
-        r'\\{(?P<gifts>.*?)\\}\\s*else\\s*\\{(?P<ornaments>.*?)\\}',
+        r'if\s*\(\s*type\.equals\("gifts"\)\s*\)\s*'
+        r'\{(?P<gifts>.*?)\}\s*else\s*\{(?P<ornaments>.*?)\}',
         java_source,
         re.DOTALL,
     )
@@ -81,7 +81,7 @@ def verify_contract(java_source: str, pack_root: Path) -> list[str]:
             )
 
         branch = branch_match.group(item_type)
-        values = re.findall(r"setCustomModelData\\s*\\(\\s*(\\d+)\\s*\\)", branch)
+        values = re.findall(r"setCustomModelData\s*\(\s*(\d+)\s*\)", branch)
         if len(values) != 1:
             raise ContractError(
                 f"{item_type}: očekávána právě jedna hodnota setCustomModelData, "
