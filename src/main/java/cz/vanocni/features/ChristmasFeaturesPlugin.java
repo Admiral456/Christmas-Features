@@ -5,6 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private NamespacedKey eventItemToken;
+    private NamespacedKey eventItemUniqueToken;
     private NamespacedKey winterAppliedToken;
 
     private WinterManager winterManager;
@@ -15,7 +16,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private BetterHudBridge betterHudBridge;
     private GrinchMenuManager grinchMenuManager;
     private CosmeticsManager cosmeticsManager;
-    private IllusionerBossManager illusionerBossManager;
     private ChristmasPlaceholderExpansion placeholderExpansion;
 
     @Override
@@ -24,6 +24,9 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         if (getConfig().contains("chest")) {
             getConfig().set("chest", null);
         }
+        if (getConfig().contains("bosses.illusioner")) {
+            getConfig().set("bosses.illusioner", null);
+        }
         // Migrate old installations whose Grinch tag hook was left blank.
         if (getConfig().getString("grinch.menu.tags-command", "").isBlank()) {
             getConfig().set("grinch.menu.tags-command", "christmas cosmetics %player% tag");
@@ -31,6 +34,7 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         saveConfig();
 
         eventItemToken = new NamespacedKey(this, "christmas_event_item");
+        eventItemUniqueToken = new NamespacedKey(this, "christmas_event_item_id");
         winterAppliedToken = new NamespacedKey(this, "winter_biome_applied");
 
         winterManager = new WinterManager(this);
@@ -41,7 +45,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         betterHudBridge = new BetterHudBridge(this);
         grinchMenuManager = new GrinchMenuManager(this);
         cosmeticsManager = new CosmeticsManager(this);
-        illusionerBossManager = new IllusionerBossManager(this);
 
         getServer().getPluginManager().registerEvents(winterManager, this);
         getServer().getPluginManager().registerEvents(eventManager, this);
@@ -50,7 +53,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(trailStudioBridge, this);
         getServer().getPluginManager().registerEvents(grinchMenuManager, this);
         getServer().getPluginManager().registerEvents(cosmeticsManager, this);
-        getServer().getPluginManager().registerEvents(illusionerBossManager, this);
 
         ChristmasCommand command = new ChristmasCommand(this);
         if (getCommand("christmas") != null) {
@@ -62,7 +64,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         eventManager.startScheduler();
         chatGameManager.startScheduler();
         cosmeticsManager.start();
-        illusionerBossManager.startScheduler();
         if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             placeholderExpansion = new ChristmasPlaceholderExpansion(this);
             if (!placeholderExpansion.register()) {
@@ -84,12 +85,15 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         if (winterManager != null) winterManager.shutdown();
         if (trailStudioBridge != null) trailStudioBridge.shutdown();
         if (cosmeticsManager != null) cosmeticsManager.shutdown();
-        if (illusionerBossManager != null) illusionerBossManager.shutdown();
         if (placeholderExpansion != null && placeholderExpansion.isRegistered()) placeholderExpansion.unregister();
     }
 
     public NamespacedKey eventItemToken() {
         return eventItemToken;
+    }
+
+    public NamespacedKey eventItemUniqueToken() {
+        return eventItemUniqueToken;
     }
 
     public NamespacedKey winterAppliedToken() {
@@ -124,7 +128,4 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         return cosmeticsManager;
     }
 
-    public IllusionerBossManager illusionerBoss() {
-        return illusionerBossManager;
-    }
 }
