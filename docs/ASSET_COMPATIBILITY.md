@@ -85,3 +85,18 @@ Výstupní ZIP je nový soubor a vedle něj vznikne `.sha256` kontrolní součet
 **Důležité:** výstup se automaticky nenahrává na server a nemění URL serverového resource packu. Před změnou produkční URL jej otestuj na kopii serveru s reálnými pluginy a klientem. Samotný úspěšný GitHub Actions build potvrzuje kontrolu souborů a sestavení, nikoliv kompatibilitu s konkrétní instalací serveru.
 
 Resource packy generované pluginy nikdy neupravuj přímo. Vždy pracuj s kopií finálního sloučeného packu a zachovej původní vstupy i možnost návratu.
+
+## Kontrola vazby mezi Java předměty a modely
+
+CI navíc spouští `scripts/check_item_contract.py`. Ten ověřuje, že Java vytváří:
+
+- dárek jako `Material.PAPER` s CustomModelData **12022**, jehož item definition ukazuje na `christmasfeatures:item/christmas_gift`;
+- ozdobu jako `Material.AMETHYST_SHARD` s CustomModelData **12023**, jejíž item definition ukazuje na `christmasfeatures:item/christmas_ornament`.
+
+Při změně hodnoty v Java kódu nebo v resource packu se build zastaví dřív, než vznikne instalační artefakt. Kontrola odkazů nyní odmítá i chybějící vlastní namespace a současně rozpoznává texturové proměnné typu `#layer0`, které se dědí z rodičovského modelu.
+
+Příkaz lze spustit samostatně:
+
+```bash
+python scripts/check_item_contract.py
+```
