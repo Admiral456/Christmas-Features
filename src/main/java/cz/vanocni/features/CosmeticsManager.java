@@ -115,7 +115,7 @@ public final class CosmeticsManager implements Listener {
     }
 
     public void openMain(Player player) {
-        MenuHolder holder = new MenuHolder("main");
+        MenuHolder holder = new MenuHolder("main", 0);
         Inventory inventory = Bukkit.createInventory(holder, 45,
                 RewardCommands.component("§b§lVánoční kosmetika"));
         holder.setInventory(inventory);
