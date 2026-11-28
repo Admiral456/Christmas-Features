@@ -74,7 +74,13 @@ public final class CosmeticsManager implements Listener {
             new Cosmetic("frost_phoenix", "Ledový fénix", true, Material.BLUE_ICE,
                     "Ledové plamenné křídla a mrazivý výbuch"),
             new Cosmetic("prismatic_dragon", "Prismatický drak", true, Material.END_CRYSTAL,
-                    "Vícebarevná dračí spirála kolem těla")
+                    "Vícebarevná dračí spirála kolem těla"),
+            new Cosmetic("comet_wake", "Kometa zimy", false, Material.PRISMARINE_SHARD,
+                    "Ledová kometa a jiskřivá stopa za každým krokem"),
+            new Cosmetic("celestial_tempest", "Nebeská bouře", true, Material.NETHER_STAR,
+                    "VIP světelná koruna a hvězdné oblouky kolem těla"),
+            new Cosmetic("eclipse_dragon", "Drak zatmění", true, Material.DRAGON_EGG,
+                    "Ultimátní VIP temná aura s ledovými křídly")
     );
 
     private static final List<Cosmetic> HATS = List.of(
@@ -427,6 +433,54 @@ public final class CosmeticsManager implements Listener {
                     };
                     dust(world, point, color, 1.15f);
                     if (i % 2 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                }
+            }
+            case "comet_wake" -> {
+                Location tail = base.clone().subtract(direction.clone().multiply(0.55)).add(0, 0.22, 0);
+                for (int i = 0; i < 5; i++) {
+                    double t = i / 4.0;
+                    Location point = tail.clone().subtract(direction.clone().multiply(t * 0.8))
+                            .add(0, Math.sin(animationTick * 0.12 + i * 0.7) * 0.14, 0);
+                    dust(world, point, Color.fromRGB(105, 220, 255), 1.0f - (float) t * 0.35f);
+                    if (i % 2 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
+                }
+                if (moving) {
+                    world.spawnParticle(Particle.FIREWORK, tail, 1, 0.08, 0.05, 0.08, 0.01);
+                    world.spawnParticle(Particle.END_ROD, tail, 0);
+                }
+            }
+            case "celestial_tempest" -> {
+                Location crown = base.clone().add(0, 2.12, 0);
+                for (int i = 0; i < 12; i++) {
+                    double angle = animationTick * 0.09 + i * Math.PI * 2.0 / 12.0;
+                    Location point = crown.clone().add(Math.cos(angle) * 0.48,
+                            Math.sin(angle * 2.0) * 0.10, Math.sin(angle) * 0.48);
+                    dust(world, point, i % 2 == 0 ? Color.fromRGB(255, 230, 150)
+                            : Color.fromRGB(130, 205, 255), 1.15f);
+                    if (i % 3 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                }
+                for (int i = 0; i < 8; i++) {
+                    double t = i / 7.0;
+                    double angle = animationTick * 0.07 + t * Math.PI * 2.0;
+                    Location point = base.clone().add(Math.cos(angle) * (0.28 + t * 0.42),
+                            0.35 + t * 1.35, Math.sin(angle) * (0.28 + t * 0.42));
+                    dust(world, point, Color.fromRGB(180, 130, 255), 0.95f);
+                }
+            }
+            case "eclipse_dragon" -> {
+                renderWings(player, right, direction, Color.fromRGB(160, 105, 255), true);
+                Location center = base.clone().add(0, 1.05, 0);
+                for (int i = 0; i < 10; i++) {
+                    double angle = animationTick * 0.10 + i * Math.PI * 2.0 / 10.0;
+                    Location point = center.clone().add(Math.cos(angle) * 0.62,
+                            Math.sin(angle * 1.5) * 0.48, Math.sin(angle) * 0.62);
+                    dust(world, point, i % 2 == 0 ? Color.fromRGB(105, 75, 210)
+                            : Color.fromRGB(90, 225, 255), 1.25f);
+                    if (i % 2 == 0) world.spawnParticle(Particle.REVERSE_PORTAL, point, 0);
+                }
+                if (animationTick % 16L == 0L) {
+                    world.spawnParticle(Particle.SOUL, center, 8, 0.42, 0.55, 0.42, 0.015);
+                    world.spawnParticle(Particle.SNOWFLAKE, center, 12, 0.48, 0.62, 0.48, 0.02);
                 }
             }
             default -> {

@@ -8,11 +8,12 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, probíhající event, skóre, čas a úkol ChatGames. Při nedostupném BetterHud se použije BossBar.
 - **Grinch na spawnu:** MythicMobs NPC s ModeEngine modelem, animací pozdravu a průběžným sledováním nejbližšího hráče. Kliknutí otevře GUI s volbami Úkoly a Tagy; obě stránky se napojí na příslušný plugin přes konzolové příkazy v konfiguraci.
 - **ChatGames:** globálně oznámené úkoly. První správná odpověď vyhrává, plugin oznámí vítěze a předá odměnu.
+- **Vánoční kosmetika:** chat tagy, čepice a trail efekty; několik ultimátních efektů je výhradně pro VIP.
 - **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
 - **Zimní svět:** při načítání chunků přepisuje 3D biomy na `SNOWY_PLAINS`, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
 - **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
 
-Podle zadání projekt neobsahuje bossy ani speciální bojové itemy.
+**The Illusioner:** vlastní boss souboj bez klientského módu, s úvodním dialogem, vstupním spouštěčem, dvěma fázemi a originálními iluzorními útoky.
 
 ## Požadavky
 
@@ -48,6 +49,10 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas event stop` | Ukončí event |
 | `/christmas chatgame start` | Spustí ChatGame |
 | `/christmas chatgame stop` | Zastaví ChatGame |
+| `/christmas cosmetics` | Otevře menu kosmetiky |
+| `/christmas boss illusioner set` | Nastaví vstupní místo bosse na aktuální pozici |
+| `/christmas boss illusioner start` | Spustí dialog a souboj ručně |
+| `/christmas boss illusioner stop` | Ukončí souboj |
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
@@ -58,6 +63,10 @@ Správcovské příkazy vyžadují `christmas.admin` (defaultně OP).
 ## Kosmetické pluginy
 
 TrailStudio je napojené přímo: vítězové eventů a ChatGames mohou trvale odemykat efekty. ChristmasFeatures používá vlastní Bukkit PermissionAttachment a ukládá odemknutí do trail-unlocks.yml, takže není nutný LuckPerms. Další tag/trail pluginy lze připojit přes konzolové command hooky s placeholdery `%player%`, `%uuid%`, `%display_name%`, `%event%`, `%score%`, `%rank%` a `%reward%`.
+
+## Kosmetické efekty
+
+Běžné efekty zahrnují Sněhovou spirálu, Polární záři, Hvězdný prach a Kometa zimy. VIP efekty zahrnují Nebeská křídla, Korunu prázdnoty, Ledového fénixe, Prismatického draka, Nebeskou bouři a Draka zatmění. VIP oprávnění `christmas.cosmetics.vip` se kontroluje při vybavení i při vykreslování efektu. Pro automatický vstupní dialog The Illusioner nastav místo příkazem `/christmas boss illusioner set`; boss se spouští při vstupu do radiusu v konfiguraci.
 
 ## Důležité poznámky
 
