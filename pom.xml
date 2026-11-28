@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.vanocni</groupId>
     <artifactId>christmas-features</artifactId>
-    <version>1.0.6</version>
+    <version>1.1.0</version>
     <name>ChristmasFeatures</name>
-    <description>Christmas events, ChatGames, native cosmetics and The Illusioner boss for Paper 1.21.10.</description>
+    <description>Christmas events, ChatGames, winter ambience and native cosmetics for Paper 1.21.10.</description>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
