@@ -1,10 +1,10 @@
 name: ChristmasFeatures
-version: 1.0.3
+version: 1.0.4
 main: cz.vanocni.features.ChristmasFeaturesPlugin
 api-version: '1.21'
 author: Server Team
 description: Christmas events, ChatGames, native cosmetics and The Illusioner boss for Paper 1.21.10.
-softdepend: [ModelEngine, MythicMobs, BetterHud, christmas-season, ChristmasGift, TrailStudio]
+softdepend: [ModelEngine, MythicMobs, BetterHud, PlaceholderAPI, christmas-season, ChristmasGift, TrailStudio]
 commands:
   christmas:
     description: Main command for ChristmasFeatures.
@@ -12,5 +12,8 @@ commands:
     aliases: [vanocni, xfeatures]
 permissions:
   christmas.admin:
-    description: Allows managing Christmas events and winter settings.
+    description: Allows managing Christmas events, bosses and winter settings.
     default: op
+  christmas.cosmetics.vip:
+    description: Unlocks the ultimate Christmas cosmetic effects.
+    default: false
