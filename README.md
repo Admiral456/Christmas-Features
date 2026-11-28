@@ -57,7 +57,7 @@ Správcovské příkazy vyžadují `christmas.admin` (defaultně OP).
 
 ## Kosmetické pluginy
 
-TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální odměna z bedny mohou trvale odemykat efekty. ChristmasFeatures používá vlastní Bukkit PermissionAttachment a ukládá odemknutí do trail-unlocks.yml, takže není nutný LuckPerms. Další tag/trail pluginy lze připojit přes konzolové command hooky s placeholdery `%player%`, `%uuid%`, `%display_name%`, `%event%`, `%score%`, `%rank%` a `%reward%`.
+TrailStudio je napojené přímo: vítězové eventů a ChatGames mohou trvale odemykat efekty. ChristmasFeatures používá vlastní Bukkit PermissionAttachment a ukládá odemknutí do trail-unlocks.yml, takže není nutný LuckPerms. Další tag/trail pluginy lze připojit přes konzolové command hooky s placeholdery `%player%`, `%uuid%`, `%display_name%`, `%event%`, `%score%`, `%rank%` a `%reward%`.
 
 ## Důležité poznámky
 
@@ -83,6 +83,8 @@ Viz [docs/ASSET_COMPATIBILITY.md](docs/ASSET_COMPATIBILITY.md). Cizí resource p
 See [docs/CHRISTMAS_MOBS_INTEGRATION.md](docs/CHRISTMAS_MOBS_INTEGRATION.md) for the Grinch spawn NPC, Grinch tag/quest menu hooks, and the Yeti/Frost Emperor mountain spawns.
 
 ## BetterHud integration
+
+BetterHud zobrazuje stav vánočních eventů a ChatGames v pravém HUD panelu; při nedostupnosti BetterHud se použije BossBar. Podrobnosti jsou v [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
 
 
 ## Grinch, Yeti and Frost Emperor
