@@ -530,8 +530,14 @@ def command_zip(args: argparse.Namespace) -> None:
 def command_merge(args: argparse.Namespace) -> None:
     base_path = Path(args.base)
     addon_path = Path(args.addon)
-    output = Path(args.output)
-    _ensure_output_is_separate(output, base_path, addon_path)
+    output_value = getattr(args, "output", None)
+    dry_run = bool(getattr(args, "dry_run", False))
+    output = Path(output_value) if output_value else None
+
+    if not dry_run and output is None:
+        raise GuardError("For a real merge, --output is required. Use --dry-run to preview without writing.")
+    if output is not None:
+        _ensure_output_is_separate(output, base_path, addon_path)
 
     base_files = read_pack(base_path)
     addon_files = read_pack(addon_path)
@@ -554,6 +560,20 @@ def command_merge(args: argparse.Namespace) -> None:
         strict_layout=False,
         validate_pngs=False,
     )
+
+    if dry_run:
+        print("DRY-RUN: kontrola a simulace sloučení proběhla bez zápisu souborů.")
+        print(f"Vstupní soubory serverového packu: {len(base_files)}")
+        print(f"Soubory ChristmasFeatures packu: {len(addon_files)}")
+        print(f"Očekávaný počet souborů výsledného packu: {len(merged)}")
+        for action in actions:
+            print(f"  {action}")
+        if output is not None:
+            print(f"Výstupní ZIP by byl vytvořen až při ostrém sloučení: {output}")
+        print("Žádný ZIP ani kontrolní součet nebyl vytvořen; vstupy zůstaly beze změny.")
+        return
+
+    assert output is not None
     digest = write_zip(merged, output)
     print(f"Sloučení dokončeno: {output}")
     for action in actions:
@@ -586,7 +606,12 @@ def main() -> int:
     )
     merge.add_argument("--base", required=True, help="Existing combined server pack (directory or ZIP).")
     merge.add_argument("--addon", required=True, help="ChristmasFeatures pack directory or ZIP.")
-    merge.add_argument("--output", required=True, help="New ZIP path; it must not already exist.")
+    merge.add_argument("--output", help="New ZIP path; required unless --dry-run is selected.")
+    merge.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Validate and preview the merge without writing a ZIP or checksum.",
+    )
     merge.set_defaults(func=command_merge)
 
     args = parser.parse_args()
