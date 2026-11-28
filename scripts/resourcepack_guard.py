@@ -146,6 +146,8 @@ def _model_refs(value: Any):
 
 
 def _resource_ref_target(kind: str, identifier: str) -> str | None:
+    if kind == "texture" and identifier.startswith("#"):
+        return None  # Texture variables are resolved through the model parent chain.
     if ":" in identifier:
         namespace, path = identifier.split(":", 1)
     else:
@@ -158,8 +160,6 @@ def _resource_ref_target(kind: str, identifier: str) -> str | None:
         raise GuardError(f"Invalid {kind} resource identifier: {identifier!r}")
     if namespace == "minecraft":
         return None  # Vanilla resources are supplied by the game or another pack.
-    if kind == "texture" and identifier.startswith("#"):
-        return None  # Texture variables are resolved through the model parent chain.
     if kind == "model":
         return f"assets/{namespace}/models/{path}.json"
     return f"assets/{namespace}/textures/{path}.png"
