@@ -7,7 +7,7 @@
     <artifactId>christmas-features</artifactId>
     <version>1.0.3</version>
     <name>ChristmasFeatures</name>
-    <description>Christmas events, ChatGames and winter biomes for Paper 1.21.10.</description>
+    <description>Christmas events, ChatGames, native cosmetics and The Illusioner boss for Paper 1.21.10.</description>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>

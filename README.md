@@ -89,7 +89,7 @@ BetterHud zobrazuje stav vánočních eventů a ChatGames v pravém HUD panelu; 
 
 ## Grinch, Yeti and Frost Emperor
 
-The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch menu's external tag and quest commands must be filled in after confirming which tag/quest plugin is installed.
+The Blockbench models and MythicMobs definitions are supplied as a separate import package. Install them into ModelEngine and MythicMobs using the instructions in `docs/CHRISTMAS_MOBS_INTEGRATION.md`. The Grinch's tag button opens the built-in ChristmasFeatures selector; only the quest button still needs an external quest-plugin command.
 
 ## TrailStudio integration
 

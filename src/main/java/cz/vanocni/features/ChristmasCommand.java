@@ -26,7 +26,8 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         }
         boolean publicGrinchOpen = args[0].equalsIgnoreCase("grinch")
                 && args.length >= 2 && args[1].equalsIgnoreCase("open");
-        if (!publicGrinchOpen && !sender.hasPermission("christmas.admin")) {
+        boolean publicCosmetics = args[0].equalsIgnoreCase("cosmetics") && args.length == 1;
+        if (!publicGrinchOpen && !publicCosmetics && !sender.hasPermission("christmas.admin")) {
             sender.sendMessage("§cNa tento příkaz nemáš oprávnění.");
             return true;
         }
@@ -47,6 +48,8 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
             case "event" -> handleEvent(sender, args);
             case "chatgame" -> handleChatGame(sender, args);
             case "trail" -> handleTrail(sender, args);
+            case "cosmetics" -> handleCosmetics(sender, args);
+            case "boss" -> handleBoss(sender, args);
             case "grinch" -> handleGrinch(sender, args);
             case "winter" -> {
                 if (args.length > 1 && args[1].equalsIgnoreCase("apply")) {
@@ -110,6 +113,60 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         else sender.sendMessage("§cOdemknutí se nepodařilo. Ověř TrailStudio a effect ID.");
     }
 
+    private void handleCosmetics(CommandSender sender, String[] args) {
+        if (args.length == 1) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("§ePoužití: /christmas cosmetics <hráč> [tag|trail|hat]");
+                return;
+            }
+            plugin.cosmetics().openMain(player);
+            return;
+        }
+
+        Player target = Bukkit.getPlayerExact(args[1]);
+        if (target == null) {
+            sender.sendMessage("§cHráč není online.");
+            return;
+        }
+        if (args.length >= 3) {
+            String category = args[2].toLowerCase(Locale.ROOT);
+            if (!List.of("tag", "trail", "hat").contains(category)) {
+                sender.sendMessage("§eKategorie: tag, trail, hat");
+                return;
+            }
+            plugin.cosmetics().openCategory(target, category);
+        } else {
+            plugin.cosmetics().openMain(target);
+        }
+    }
+
+    private void handleBoss(CommandSender sender, String[] args) {
+        if (args.length < 3 || !args[1].equalsIgnoreCase("illusioner")) {
+            sender.sendMessage("§ePoužití: /christmas boss illusioner set|start|stop");
+            return;
+        }
+        switch (args[2].toLowerCase(Locale.ROOT)) {
+            case "set" -> {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage("§cTento příkaz může použít pouze hráč ve hře.");
+                    return;
+                }
+                plugin.illusionerBoss().setSpawn(player);
+            }
+            case "start" -> {
+                Player initiator = sender instanceof Player player ? player : null;
+                boolean started = plugin.illusionerBoss().start(initiator);
+                sender.sendMessage(started ? "§aÚvodní sekvence The Illusioner byla spuštěna."
+                        : "§cBosse nelze spustit. Zkontroluj umístění a aktivní souboj.");
+            }
+            case "stop" -> {
+                plugin.illusionerBoss().stop();
+                sender.sendMessage("§aSouboj The Illusioner byl ukončen.");
+            }
+            default -> sender.sendMessage("§ePoužití: /christmas boss illusioner set|start|stop");
+        }
+    }
+
     private void handleGrinch(CommandSender sender, String[] args) {
         if (args.length < 2 || !args[1].equalsIgnoreCase("open")) {
             sender.sendMessage("§ePoužití: /christmas grinch open [hráč]");
@@ -135,7 +192,9 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage("§f/christmas event start gifts|ornaments §7— spustí event");
         sender.sendMessage("§f/christmas event stop §7— ukončí event");
         sender.sendMessage("§f/christmas chatgame start|stop §7— správa ChatGames");
+        sender.sendMessage("§f/christmas cosmetics §7— otevře tagy, trail efekty a čepice");
         sender.sendMessage("§f/christmas trail give <hráč> <effect-id> §7— odemkne TrailStudio kosmetiku");
+        sender.sendMessage("§f/christmas boss illusioner set|start|stop §7— správa bosse");
         sender.sendMessage("§f/christmas grinch open [hráč] §7— otevře Grinchovo menu");
         sender.sendMessage("§f/christmas winter apply §7— znovu aplikuje zimu na načtené chunky");
         sender.sendMessage("§f/christmas reload §7— načte konfiguraci znovu");
@@ -144,16 +203,24 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         List<String> suggestions = new ArrayList<>();
-        if (args.length == 1) return filter(List.of("help", "event", "chatgame", "trail", "grinch", "winter", "reload"), args[0]);
+        if (args.length == 1) return filter(List.of("help", "event", "chatgame", "cosmetics", "trail", "boss", "grinch", "winter", "reload"), args[0]);
         if (args.length == 2) {
             return switch (args[0].toLowerCase(Locale.ROOT)) {
                 case "event" -> filter(List.of("start", "stop"), args[1]);
                 case "chatgame" -> filter(List.of("start", "stop"), args[1]);
                 case "trail" -> filter(List.of("give"), args[1]);
+                case "boss" -> filter(List.of("illusioner"), args[1]);
+                case "cosmetics" -> Bukkit.getOnlinePlayers().stream().map(Player::getName).filter(name -> name.toLowerCase(Locale.ROOT).startsWith(args[1].toLowerCase(Locale.ROOT))).toList();
                 case "grinch" -> filter(List.of("open"), args[1]);
                 case "winter" -> filter(List.of("apply"), args[1]);
                 default -> suggestions;
             };
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("boss") && args[1].equalsIgnoreCase("illusioner")) {
+            return filter(List.of("set", "start", "stop"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("cosmetics")) {
+            return filter(List.of("tag", "trail", "hat"), args[2]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("event") && args[1].equalsIgnoreCase("start")) {
             return filter(List.of("gifts", "ornaments"), args[2]);

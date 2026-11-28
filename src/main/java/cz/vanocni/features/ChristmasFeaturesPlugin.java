@@ -14,14 +14,21 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private TrailStudioBridge trailStudioBridge;
     private BetterHudBridge betterHudBridge;
     private GrinchMenuManager grinchMenuManager;
+    private CosmeticsManager cosmeticsManager;
+    private IllusionerBossManager illusionerBossManager;
+    private ChristmasPlaceholderExpansion placeholderExpansion;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         if (getConfig().contains("chest")) {
             getConfig().set("chest", null);
-            saveConfig();
         }
+        // Migrate old installations whose Grinch tag hook was left blank.
+        if (getConfig().getString("grinch.menu.tags-command", "").isBlank()) {
+            getConfig().set("grinch.menu.tags-command", "christmas cosmetics %player% tag");
+        }
+        saveConfig();
 
         eventItemToken = new NamespacedKey(this, "christmas_event_item");
         winterAppliedToken = new NamespacedKey(this, "winter_biome_applied");
@@ -33,6 +40,8 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         trailStudioBridge = new TrailStudioBridge(this);
         betterHudBridge = new BetterHudBridge(this);
         grinchMenuManager = new GrinchMenuManager(this);
+        cosmeticsManager = new CosmeticsManager(this);
+        illusionerBossManager = new IllusionerBossManager(this);
 
         getServer().getPluginManager().registerEvents(winterManager, this);
         getServer().getPluginManager().registerEvents(eventManager, this);
@@ -40,6 +49,8 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(activityHud, this);
         getServer().getPluginManager().registerEvents(trailStudioBridge, this);
         getServer().getPluginManager().registerEvents(grinchMenuManager, this);
+        getServer().getPluginManager().registerEvents(cosmeticsManager, this);
+        getServer().getPluginManager().registerEvents(illusionerBossManager, this);
 
         ChristmasCommand command = new ChristmasCommand(this);
         if (getCommand("christmas") != null) {
@@ -50,6 +61,14 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         winterManager.start();
         eventManager.startScheduler();
         chatGameManager.startScheduler();
+        cosmeticsManager.start();
+        illusionerBossManager.startScheduler();
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            placeholderExpansion = new ChristmasPlaceholderExpansion(this);
+            if (!placeholderExpansion.register()) {
+                getLogger().warning("Christmas PlaceholderAPI expansion se nepodařilo zaregistrovat.");
+            }
+        }
         betterHudBridge.start();
         activityHud.start();
 
@@ -64,6 +83,9 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         if (betterHudBridge != null) betterHudBridge.shutdown();
         if (winterManager != null) winterManager.shutdown();
         if (trailStudioBridge != null) trailStudioBridge.shutdown();
+        if (cosmeticsManager != null) cosmeticsManager.shutdown();
+        if (illusionerBossManager != null) illusionerBossManager.shutdown();
+        if (placeholderExpansion != null && placeholderExpansion.isRegistered()) placeholderExpansion.unregister();
     }
 
     public NamespacedKey eventItemToken() {
@@ -96,5 +118,13 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
 
     public GrinchMenuManager grinchMenu() {
         return grinchMenuManager;
+    }
+
+    public CosmeticsManager cosmetics() {
+        return cosmeticsManager;
+    }
+
+    public IllusionerBossManager illusionerBoss() {
+        return illusionerBossManager;
     }
 }

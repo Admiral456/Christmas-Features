@@ -58,8 +58,24 @@ hud:
 # Use %player% as the placeholder for the player who clicked the Grinch.
 grinch:
   menu:
-    tags-command: ""
+    # The Grinch opens our own cosmetic tag selector for the player who clicked him.
+    tags-command: "christmas cosmetics %player% tag"
     quests-command: ""
+
+# The Illusioner is a native Minecraft Illusioner; no client mod is required.
+# Set the arena location with /christmas boss illusioner set while standing at the entrance.
+bosses:
+  illusioner:
+    trigger-on-entry: true
+    trigger-radius: 9.0
+    entry-cooldown-seconds: 300
+    spawn:
+      world: ""
+      x: 0.0
+      y: 0.0
+      z: 0.0
+      yaw: 0.0
+      pitch: 0.0
 
 # These are console commands executed by the server. Replace the examples with the actual
 # command syntax of the tags/cosmetics plugin installed on your server.

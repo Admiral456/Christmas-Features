@@ -3,7 +3,7 @@ version: 1.0.3
 main: cz.vanocni.features.ChristmasFeaturesPlugin
 api-version: '1.21'
 author: Server Team
-description: Christmas events, ChatGames, BetterHud HUD and TrailStudio cosmetics for Paper 1.21.10.
+description: Christmas events, ChatGames, native cosmetics and The Illusioner boss for Paper 1.21.10.
 softdepend: [ModelEngine, MythicMobs, BetterHud, christmas-season, ChristmasGift, TrailStudio]
 commands:
   christmas:

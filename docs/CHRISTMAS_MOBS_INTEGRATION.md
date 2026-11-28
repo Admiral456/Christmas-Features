@@ -32,16 +32,16 @@ Stand at the exact location where the Grinch should stand and run:
 
 The Grinch is a persistent, non-collidable `INTERACTION` NPC. Right-clicking him opens the ChristmasFeatures GUI. His model plays `greet` on interaction. Every 10 ticks, ModelEngine aims the `head` bone at the nearest player within 24 blocks; it follows that player as they move left, right or around him.
 
-The GUI has two destinations: **Grinchovy úkoly** and **Vánoční tagy**. Connect them to the server's installed plugins in `plugins/ChristmasFeatures/config.yml`:
+The GUI has two destinations: **Grinchovy úkoly** and **Vánoční tagy**. The tag button is connected by default to the built-in ChristmasFeatures cosmetic selector:
 
 ```yaml
 grinch:
   menu:
-    tags-command: "YOUR_TAG_PLUGIN_COMMAND %player%"
-    quests-command: "YOUR_QUEST_PLUGIN_COMMAND %player%"
+    tags-command: "christmas cosmetics %player% tag"
+    quests-command: ""
 ```
 
-Those values are intentionally blank in the default configuration. The exact commands depend on the actual tag and quest plugin installed on the server. The front menu works now; a page with no configured command explains that it has not been connected yet.
+ChristmasFeatures migrates an older blank `tags-command` to this default when the plugin starts. The quest page is intentionally left blank until the actual quest plugin and its command are confirmed. If you use another tag plugin instead, you can replace `tags-command` with its console command and keep `%player%` as the player placeholder.
 
 You can test the GUI without the NPC using `/christmas grinch open`.
 
