@@ -21,6 +21,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - Paper nebo kompatibilní Purpur 1.21.10
 - Java 21
 - Maven 3.9+ pro lokální sestavení
+- Python 3.9+ pouze pro kontroly a bezpečné sloučení resource packu
 
 ## Sestavení
 
@@ -28,14 +29,14 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 mvn clean verify
 ~~~
 
-Výsledný plugin bude target/ChristmasFeatures-1.21.10.jar. GitHub Actions po pushi nebo pull requestu provede sestavení a zveřejní JAR i ZIP resource packu jako workflow artifact.
+Výsledný plugin bude target/ChristmasFeatures-1.21.10.jar. GitHub Actions po pushi nebo pull requestu provede sestavení a zveřejní JAR, samostatný ZIP resource packu a jeho SHA-256 kontrolní součet jako workflow artifact.
 
 ## Instalace
 
 1. Vlož target/ChristmasFeatures-1.21.10.jar do složky plugins/.
 2. Spusť server. Starší konfigurace 1.1.0 se automaticky doplní o nové ChatGames úkoly a nastavení hledání dárků.
 3. Ověř název světa v winter.worlds a events.gifts.world.
-4. Nahraj resource pack přes HTTPS nebo ho nech hráče nainstalovat ručně.
+4. Resource pack nepoužívej jako náhradu již existujícího serverového packu. Před nasazením jej bezpečně sluč s kopií finálního serverového packu podle [návodu na kompatibilitu assetů](docs/ASSET_COMPATIBILITY.md).
 
 ## Příkazy
 
