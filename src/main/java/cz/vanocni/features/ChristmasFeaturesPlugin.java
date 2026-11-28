@@ -72,6 +72,11 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         eventManager.startScheduler();
         chatGameManager.startScheduler();
         cosmeticsManager.start();
+        if (getServer().getPluginManager().isPluginEnabled("LuckPerms")) {
+            getLogger().info("LuckPerms detected: VIP cosmetics require " + CosmeticsManager.VIP_PERMISSION + ".");
+        } else {
+            getLogger().info("LuckPerms not detected; VIP cosmetics still use Bukkit permissions and can be managed by another permissions plugin.");
+        }
         if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             placeholderExpansion = new ChristmasPlaceholderExpansion(this);
             if (!placeholderExpansion.register()) {
