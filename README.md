@@ -12,7 +12,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, probíhající event, skóre, čas a úkol ChatGames. Při nedostupnosti BetterHud se použije BossBar.
 - **Vánoční kosmetika:** 7 běžných a 9 VIP propracovaných částicových trailů, chat tagy, čepice a koruny. Pravým kliknutím v menu si lze zobrazit dočasný náhled bez vybavení. Nové traily zahrnují Polární lišku, Srdce z křišťálu, Sněžítko, Aurorového serafa, Astrálního strážce a Ledového leviatana.
 - **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
-- **Zimní svět:** při načítání chunků přepisuje 3D biomy na SNOWY_PLAINS, udržuje sněžení, brání tání sněhu/ledu a přidává decentní venkovní ledové třpytky kolem hráčů. Efekt je omezený počtem částic a nevykresluje se pod střechou, v jeskyních ani ve spectator režimu. Pokud biomy a počasí spravuje ChristmasSeason, třpytky z ChristmasFeatures zůstávají aktivní. Terén ani stavby se znovu negenerují.
+- **Zimní svět:** při načítání chunků převádí běžné 3D biomy na SNOWY_PLAINS, ale zachovává horské a větrné horské biomy uvedené v `winter.preserve-biomes`. Díky tomu zůstávají zachované horské oblasti a jejich biome-based spawn pravidla pro Yetiho. Udržuje sněžení, brání tání sněhu/ledu a přidává decentní venkovní ledové třpytky kolem hráčů. Efekt je omezený počtem částic a nevykresluje se pod střechou, v jeskyních ani ve spectator režimu. Pokud biomy a počasí spravuje ChristmasSeason, třpytky z ChristmasFeatures zůstávají aktivní. Terén ani stavby se znovu negenerují.
 - **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
 - **Stav systému:** /christmas status ověří běh eventů, počet úkolů, zimní správu a dostupnost integrací.
 
@@ -70,6 +70,7 @@ Správcovské příkazy vyžadují christmas.admin (defaultně OP). Grinchovo me
 - Hledání dárků se centruje na světový spawn, pokud není nastaveno events.gifts.center.x/y/z.
 - Hledání dárků se nespustí, pokud plugin bezpečně nerozmístí všech 10 samostatných předmětů. Minimální odstup mezi dárky a ozdobami lze upravit pomocí `events.gifts.min-distance-between-items` a `events.ornaments.min-distance-between-items`. Zimní třpytky lze vypnout přes `winter.ambience.enabled: false`.
 - Pokud je nainstalován ChristmasSeason, přebírá správu zimních biomů a počasí, aby se systémy nepřepisovaly.
+- `winter.preserve-biomes` určuje biomy, které ChristmasFeatures nesmí převést na SNOWY_PLAINS. Chybějící nastavení se doplní při migraci konfigurace, vlastní seznam se zachová. Biomy, které byly přepsány starší verzí pluginu, nelze zpětně obnovit bez původní zálohy světa.
 - TrailStudio je volitelný plugin. Odemčení se ukládají do plugins/ChristmasFeatures/trail-unlocks.yml, takže se neztratí při restartu. Bez TrailStudio se uloží a aktivují po jeho instalaci.
 - Frost Emperor – zimní boss – byl odstraněn z podporovaného nastavení. Již nainstalovanou externí MythicMobs definici a její random-spawn soubor je nutné odstranit ručně; viz docs/CHRISTMAS_MOBS_INTEGRATION.md.
 
