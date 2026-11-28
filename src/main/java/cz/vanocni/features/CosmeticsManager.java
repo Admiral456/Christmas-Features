@@ -14,6 +14,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -132,6 +133,10 @@ public final class CosmeticsManager implements Listener {
     }
 
     public void openCategory(Player player, String category) {
+        openCategory(player, category, 0);
+    }
+
+    private void openCategory(Player player, String category, int requestedPage) {
         List<Cosmetic> options = switch (category) {
             case "tag" -> TAGS;
             case "trail" -> TRAILS;
@@ -145,13 +150,18 @@ public final class CosmeticsManager implements Listener {
             default -> "§bKosmetika";
         };
 
-        MenuHolder holder = new MenuHolder(category);
-        Inventory inventory = Bukkit.createInventory(holder, 45, RewardCommands.component(title));
+        final int pageSize = 14;
+        int maxPage = Math.max(0, (options.size() - 1) / pageSize);
+        int page = Math.max(0, Math.min(requestedPage, maxPage));
+        MenuHolder holder = new MenuHolder(category, page);
+        Inventory inventory = Bukkit.createInventory(holder, 54,
+                RewardCommands.component(title + " §8(" + (page + 1) + "/" + (maxPage + 1) + ")"));
         holder.setInventory(inventory);
         fill(inventory);
 
-        int[] slots = {10, 12, 14, 16, 28, 30, 32};
-        for (int i = 0; i < options.size() && i < slots.length; i++) {
+        int[] slots = {10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25};
+        int start = page * pageSize;
+        for (int i = start; i < options.size() && i < start + pageSize; i++) {
             Cosmetic cosmetic = options.get(i);
             boolean locked = cosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION);
             String current = equipped(category, player.getUniqueId());
@@ -162,12 +172,22 @@ public final class CosmeticsManager implements Listener {
             lore.add(" ");
             lore.add(cosmetic.vipOnly() ? "§6✦ VIP kosmetika" : "§aDostupné všem hráčům");
             lore.add(status);
-            inventory.setItem(slots[i], menuItem(cosmetic.icon(), cosmetic.label(), lore, category, cosmetic.id()));
+            inventory.setItem(slots[i - start], menuItem(cosmetic.icon(), cosmetic.label(), lore, category, cosmetic.id()));
         }
 
-        inventory.setItem(34, menuItem(Material.BARRIER, "§cSundat / vypnout", List.of("§7Vypne vybraný tag nebo trail.", "§7U čepice obnoví původní helmu."), "clear", category));
-        inventory.setItem(40, menuItem(Material.ARROW, "§eZpět", List.of("§7Návrat do kosmetického menu."), "back", "main"));
-        inventory.setItem(44, menuItem(Material.BARRIER, "§cZavřít", List.of(), "close", "close"));
+        if (page > 0) {
+            inventory.setItem(45, menuItem(Material.ARROW, "§ePředchozí stránka",
+                    List.of("§7Zobrazí předchozí kosmetiku."), "prev", category));
+        }
+        inventory.setItem(48, menuItem(Material.BARRIER, "§cSundat / vypnout",
+                List.of("§7Vypne vybraný tag nebo trail.", "§7U čepice obnoví původní helmu."), "clear", category));
+        inventory.setItem(49, menuItem(Material.ARROW, "§eZpět",
+                List.of("§7Návrat do kosmetického menu."), "back", "main"));
+        inventory.setItem(50, menuItem(Material.BARRIER, "§cZavřít", List.of(), "close", "close"));
+        if (page < maxPage) {
+            inventory.setItem(53, menuItem(Material.ARROW, "§eDalší stránka",
+                    List.of("§7Zobrazí další kosmetiku."), "next", category));
+        }
         player.openInventory(inventory);
         player.playSound(player.getLocation(), "ui.button.click", 0.65f, 1.15f);
     }
@@ -189,6 +209,14 @@ public final class CosmeticsManager implements Listener {
             openMain(player);
             return;
         }
+        if (action.equals("prev")) {
+            openCategory(player, holder.category(), holder.page() - 1);
+            return;
+        }
+        if (action.equals("next")) {
+            openCategory(player, holder.category(), holder.page() + 1);
+            return;
+        }
         if (action.equals("open")) {
             openCategory(player, id);
             return;
@@ -207,7 +235,7 @@ public final class CosmeticsManager implements Listener {
             }
             save();
             player.sendMessage("§aKosmetika byla vypnuta.");
-            openCategory(player, id);
+            openCategory(player, id, holder.page());
             return;
         }
         if (!List.of("tag", "trail", "hat").contains(action)) return;
@@ -237,7 +265,7 @@ public final class CosmeticsManager implements Listener {
             }
         }
         player.playSound(player.getLocation(), "entity.experience_orb.pickup", 0.7f, 1.4f);
-        openCategory(player, action);
+        openCategory(player, action, holder.page());
     }
 
     private void equipHat(Player player, String id) {
@@ -355,7 +383,19 @@ public final class CosmeticsManager implements Listener {
                     continue;
                 }
                 if (!isCosmeticHat(player.getInventory().getHelmet())) {
+                    // Preserve any helmet inserted by another plugin before restoring the cosmetic.
+                    String playerPath = path(player);
+                    ItemStack replacement = player.getInventory().getHelmet();
+                    if (replacement != null && !replacement.getType().isAir()) {
+                        data.set(playerPath + ".original-helmet", replacement.clone());
+                        data.set(playerPath + ".had-original-helmet", true);
+                    } else {
+                        data.set(playerPath + ".original-helmet", null);
+                        data.set(playerPath + ".had-original-helmet", false);
+                    }
+                    data.set(playerPath + ".hat-captured", true);
                     player.getInventory().setHelmet(createHat(hat));
+                    save();
                 }
             }
         }
@@ -638,6 +678,19 @@ public final class CosmeticsManager implements Listener {
         }
     }
 
+    @EventHandler
+    public void onHatInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!isCosmeticHat(player.getInventory().getHelmet())) return;
+        for (int rawSlot : event.getRawSlots()) {
+            if (event.getView().getSlotType(rawSlot) == InventoryType.SlotType.ARMOR) {
+                event.setCancelled(true);
+                player.sendMessage("§7Nejprve si v kosmetickém menu sundej nasazenou čepici.");
+                return;
+            }
+        }
+    }
+
     public void shutdown() {
         if (particleTask != null) particleTask.cancel();
         save();
@@ -647,10 +700,20 @@ public final class CosmeticsManager implements Listener {
 
     private static final class MenuHolder implements InventoryHolder {
         private final String category;
+        private final int page;
         private Inventory inventory;
 
-        private MenuHolder(String category) {
+        private MenuHolder(String category, int page) {
             this.category = category;
+            this.page = page;
+        }
+
+        private String category() {
+            return category;
+        }
+
+        private int page() {
+            return page;
         }
 
         @Override
