@@ -36,7 +36,7 @@ Všechny efekty jsou vykreslované serverovými částicemi. Jsou tedy viditeln�
 | Astrální strážce | Tři rotující ochranné prstence a hvězdné body kolem hráče |
 | Ledový leviatan | Ledový had stoupající kolem těla a zakončený zářícími rohy |
 
-Nabídka obsahuje celkem **7 běžných a 9 VIP trailů**. Menu zobrazuje až 14 položek na stránce a automaticky nabídne další stránku.
+Nabídka obsahuje celkem **7 běžných a 9 VIP trailů**. Menu zobrazuje až 14 položek na stránce a automaticky nabídne další stránku. U každého trailu můžeš **pravým kliknutím zobrazit dočasný náhled**; levým kliknutím trail vybavíš. Náhled nemění uložený trail a po nastavené době se automaticky vrátí původní efekt.
 
 ## Chat tagy
 
@@ -96,7 +96,7 @@ Odebrání oprávnění ze skupiny:
 
 Nahraď \`vip\` skutečným názvem své LuckPerms skupiny. Pokud VIP hráč patří do jiné skupiny nebo dědí skupinu přes \`parent\`, přiděl node skupině, která má VIP členství skutečně reprezentovat.
 
-VIP položky jsou viditelné v menu, ale bez tohoto oprávnění je nelze nově vybavit ani používat. Při odebrání VIP se trail přestane vykreslovat, tag se skryje a VIP koruna se dočasně sundá. Výběr se nemaže: po opětovném přidělení permission se trail a koruna automaticky vrátí.
+VIP položky jsou viditelné v menu, ale bez tohoto oprávnění je nelze nově vybavit ani používat. Při odebrání VIP se trail přestane vykreslovat, tag se skryje a VIP koruna se dočasně sundá. Výběr se nemaže: po opětovném přidělení permission se trail a koruna automaticky vrátí. Jestliže si hráč během pozastavení koruny nasadí jinou helmu nebo ji sundá, plugin si zapamatuje aktuální stav a po odstranění kosmetiky jej obnoví.
 
 ## Kompatibilita
 
