@@ -48,7 +48,7 @@ chatgames:
       aliases: ["třicet dva", "tricet dva"]
     - question: "Kolik dní má měsíc prosinec?"
       answer: "31"
-      aliases: ["třicet jedna", "tr icet jedna"]
+      aliases: ["třicet jedna", "tricet jedna"]
     - question: "Jak se jmenuje sob s červeným nosem?"
       answer: "Rudolf"
       aliases: ["Rudolph"]

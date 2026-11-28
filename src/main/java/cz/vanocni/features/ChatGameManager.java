@@ -129,11 +129,11 @@ public final class ChatGameManager implements Listener {
         Player winner = Bukkit.getPlayer(winnerId);
         boolean vip = winner != null && winner.hasPermission(VIP_PERMISSION);
         String effect = plugin.getConfig().getString("cosmetics.chatgames.trailstudio-effect", "");
-        if (winner != null && effect != null && !effect.isBlank()) plugin.trailStudio().grant(winner, effect);
+        if (effect != null && !effect.isBlank()) plugin.trailStudio().grant(winnerId, effect);
 
         if (vip && winner != null) {
             String vipEffect = plugin.getConfig().getString("cosmetics.chatgames.vip-trailstudio-effect", "");
-            if (vipEffect != null && !vipEffect.isBlank()) plugin.trailStudio().grant(winner, vipEffect);
+            if (vipEffect != null && !vipEffect.isBlank()) plugin.trailStudio().grant(winnerId, vipEffect);
         }
 
         Map<String, String> placeholders = Map.of("answer", state.task().answer(), "rank", "1");
