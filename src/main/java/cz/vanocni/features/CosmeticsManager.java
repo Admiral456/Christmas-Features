@@ -62,26 +62,41 @@ public final class CosmeticsManager implements Listener {
     );
 
     private static final List<Cosmetic> TRAILS = List.of(
+            // Standard trails – all visible without a client-side mod or resource pack.
             new Cosmetic("snow_orbit", "Sněhová spirála", false, Material.SNOW_BLOCK,
-                    "Sněhové vločky se vinou kolem tvých kroků"),
+                    "Čtyři vločkové proudy obíhají kolem postavy a kreslí jemnou zimní spirálu"),
             new Cosmetic("aurora_ribbon", "Polární záře", false, Material.PRISMARINE_CRYSTALS,
-                    "Tyrkysovo-zelená světelná stuha"),
+                    "Dvě barevné stuhy tyrkysové, zelené a ledově modré světelné záře"),
             new Cosmetic("stardust", "Hvězdný prach", false, Material.NETHER_STAR,
-                    "Zlaté jiskry a hvězdné záblesky"),
-            new Cosmetic("celestial_wings", "Nebeská křídla", true, Material.PHANTOM_MEMBRANE,
-                    "Rozvíjející se světelná křídla za hráčem"),
-            new Cosmetic("void_crown", "Koruna prázdnoty", true, Material.DRAGON_BREATH,
-                    "Fialový orbitální prstenec nad hlavou"),
-            new Cosmetic("frost_phoenix", "Ledový fénix", true, Material.BLUE_ICE,
-                    "Ledové plamenné křídla a mrazivý výbuch"),
-            new Cosmetic("prismatic_dragon", "Prismatický drak", true, Material.END_CRYSTAL,
-                    "Vícebarevná dračí spirála kolem těla"),
+                    "Zlaté hvězdy a třpytivá stopa, která se rozsvítí při pohybu"),
             new Cosmetic("comet_wake", "Kometa zimy", false, Material.PRISMARINE_SHARD,
-                    "Ledová kometa a jiskřivá stopa za každým krokem"),
+                    "Jasná ledová hlava komety a dlouhý světelný ocas za hráčem"),
+            new Cosmetic("winter_fox", "Polární liška", false, Material.FOX_SPAWN_EGG,
+                    "Elegantní modrobílý ocas z polární záře a dvě jiskřící ouška"),
+            new Cosmetic("crystal_heart", "Srdce z křišťálu", false, Material.HEART_OF_THE_SEA,
+                    "Vznášející se krystalické srdce z ledových světelných bodů"),
+            new Cosmetic("snow_globe", "Sněžítko", false, Material.SNOWBALL,
+                    "Jemná kulová bariéra s poletujícími vločkami uvnitř"),
+
+            // VIP trails – larger silhouettes, multiple animated layers and richer colour.
+            new Cosmetic("celestial_wings", "Nebeská křídla", true, Material.PHANTOM_MEMBRANE,
+                    "Zlatá rozevírací křídla s vykreslenými pery a jiskřivou hranou"),
+            new Cosmetic("void_crown", "Koruna prázdnoty", true, Material.DRAGON_BREATH,
+                    "Dvojitá fialová koruna z portálových run a temných jisker"),
+            new Cosmetic("frost_phoenix", "Ledový fénix", true, Material.BLUE_ICE,
+                    "Velká ledová křídla, plamenná koruna a pravidelné mrazivé výbuchy"),
+            new Cosmetic("prismatic_dragon", "Prismatický drak", true, Material.END_CRYSTAL,
+                    "Dvě propletené duhové dračí spirály s krystalovými záblesky"),
             new Cosmetic("celestial_tempest", "Nebeská bouře", true, Material.NETHER_STAR,
-                    "VIP světelná koruna a hvězdné oblouky kolem těla"),
+                    "Zlatá koruna a dvě protínající se orbitální bouře kolem těla"),
             new Cosmetic("eclipse_dragon", "Drak zatmění", true, Material.DRAGON_EGG,
-                    "Ultimátní VIP temná aura s ledovými křídly")
+                    "Temná dračí křídla, dvojitá zatměná aura a fialové portálové částice"),
+            new Cosmetic("aurora_seraph", "Aurorový seraf", true, Material.ELYTRA,
+                    "Rozsáhlá polární křídla a zlatá svatozář nad hlavou"),
+            new Cosmetic("astral_guardian", "Astrální strážce", true, Material.END_CRYSTAL,
+                    "Tři rotující ochranné prstence a hvězdné body kolem hráče"),
+            new Cosmetic("frost_leviathan", "Ledový leviatan", true, Material.PRISMARINE,
+                    "Obří ledový had stoupající kolem těla s mrazivými rohy")
     );
 
     private static final List<Cosmetic> HATS = List.of(
@@ -400,9 +415,11 @@ public final class CosmeticsManager implements Listener {
     }
 
     private void renderTrail(Player player, String id) {
-        Location base = player.getLocation();
+        Location base = player.getLocation().add(0, 0.10, 0);
         World world = base.getWorld();
-        if (world == null) return;
+        if (world == null || player.isInvisible()
+                || player.getGameMode() == org.bukkit.GameMode.SPECTATOR) return;
+
         Vector direction = base.getDirection().setY(0);
         if (direction.lengthSquared() < 0.001) direction = new Vector(0, 0, 1);
         direction.normalize();
@@ -412,136 +429,321 @@ public final class CosmeticsManager implements Listener {
 
         switch (id) {
             case "snow_orbit" -> {
-                for (int i = 0; i < 3; i++) {
-                    double angle = animationTick * 0.11 + i * Math.PI * 2.0 / 3.0;
-                    Location point = base.clone().add(Math.cos(angle) * 0.34,
-                            0.16 + (Math.sin(angle * 1.4) + 1.0) * 0.28,
-                            Math.sin(angle) * 0.34);
+                for (int i = 0; i < 4; i++) {
+                    double angle = animationTick * 0.105 + i * Math.PI / 2.0;
+                    Location point = base.clone().add(Math.cos(angle) * 0.38,
+                            0.18 + (Math.sin(angle * 1.35) + 1.0) * 0.30,
+                            Math.sin(angle) * 0.38);
                     world.spawnParticle(Particle.SNOWFLAKE, point, 0);
-                    if (i == 0) world.spawnParticle(Particle.END_ROD, point.clone().add(0, 0.08, 0), 0);
+                    if (i % 2 == 0) dust(world, point.clone().add(0, 0.08, 0),
+                            Color.fromRGB(205, 239, 255), 0.9f);
+                    if (i == 0) world.spawnParticle(Particle.END_ROD, point, 0);
                 }
-                if (moving) world.spawnParticle(Particle.SNOWFLAKE, base.clone().add(0, 0.12, 0), 2, 0.18, 0.02, 0.18, 0.01);
+                if (moving) {
+                    Location heel = base.clone().subtract(direction.clone().multiply(0.35));
+                    world.spawnParticle(Particle.SNOWFLAKE, heel, 3, 0.18, 0.06, 0.18, 0.01);
+                }
             }
             case "aurora_ribbon" -> {
-                for (int i = 0; i < 5; i++) {
-                    double angle = animationTick * 0.075 + i * 0.95;
-                    Location point = base.clone().add(Math.cos(angle) * 0.35,
-                            0.15 + i * 0.18,
-                            Math.sin(angle) * 0.35);
-                    dust(world, point, Color.fromRGB(65, 245, 190), 1.05f);
-                    if (i % 2 == 0) dust(world, point.clone().add(0.03, 0.04, 0), Color.fromRGB(85, 180, 255), 0.8f);
+                for (int i = 0; i < 8; i++) {
+                    double t = i / 7.0;
+                    double angle = animationTick * 0.055 + t * Math.PI * 1.55;
+                    double radius = 0.34 + Math.sin(t * Math.PI) * 0.10;
+                    Location first = base.clone().add(Math.cos(angle) * radius,
+                            0.12 + t * 1.55, Math.sin(angle) * radius);
+                    Location second = base.clone().add(Math.cos(angle + 1.25) * radius * 0.82,
+                            0.12 + t * 1.55, Math.sin(angle + 1.25) * radius * 0.82);
+                    Color primary = t < 0.5 ? Color.fromRGB(50, 245, 180) : Color.fromRGB(75, 190, 255);
+                    Color secondary = t < 0.5 ? Color.fromRGB(80, 190, 255) : Color.fromRGB(175, 255, 220);
+                    dust(world, first, primary, 1.15f);
+                    dust(world, second, secondary, 0.9f);
+                    if (i % 3 == 0) world.spawnParticle(Particle.END_ROD, first, 0);
                 }
             }
             case "stardust" -> {
-                if (moving || animationTick % 12L == 0L) {
-                    Location point = base.clone().subtract(direction.clone().multiply(0.42)).add(0, 0.18, 0);
-                    world.spawnParticle(Particle.END_ROD, point, 0);
-                    world.spawnParticle(Particle.FIREWORK, point.clone().add(0, 0.22, 0), 0);
-                    if (animationTick % 20L == 0L) world.spawnParticle(Particle.TOTEM_OF_UNDYING, point, 5, 0.22, 0.25, 0.22, 0.02);
-                }
-            }
-            case "celestial_wings" -> renderWings(player, right, direction, Color.fromRGB(255, 226, 130), false);
-            case "frost_phoenix" -> {
-                renderWings(player, right, direction, Color.fromRGB(105, 220, 255), true);
-                if (animationTick % 20L == 0L) {
-                    world.spawnParticle(Particle.SNOWFLAKE, base.clone().add(0, 1.25, 0), 18, 0.55, 0.45, 0.55, 0.025);
-                    world.spawnParticle(Particle.SOUL, base.clone().add(0, 1.0, 0), 8, 0.4, 0.35, 0.4, 0.01);
-                }
-            }
-            case "void_crown" -> {
-                Location center = base.clone().add(0, 2.08, 0);
-                for (int i = 0; i < 10; i++) {
-                    double angle = animationTick * 0.085 + i * Math.PI * 2.0 / 10.0;
-                    Location point = center.clone().add(Math.cos(angle) * 0.42, Math.sin(angle * 2.0) * 0.08,
-                            Math.sin(angle) * 0.42);
-                    world.spawnParticle(Particle.PORTAL, point, 0);
-                    if (i % 2 == 0) world.spawnParticle(Particle.ENCHANT, point.clone().add(0, 0.05, 0), 0);
-                }
-            }
-            case "prismatic_dragon" -> {
-                for (int i = 0; i < 8; i++) {
-                    double angle = animationTick * 0.12 + i * 0.8;
-                    double y = 0.15 + (i / 7.0) * 1.65;
-                    Location point = base.clone().add(Math.cos(angle) * 0.43, y, Math.sin(angle) * 0.43);
-                    Color color = switch (i % 4) {
-                        case 0 -> Color.fromRGB(80, 235, 255);
-                        case 1 -> Color.fromRGB(170, 95, 255);
-                        case 2 -> Color.fromRGB(255, 105, 190);
-                        default -> Color.fromRGB(255, 215, 90);
-                    };
-                    dust(world, point, color, 1.15f);
-                    if (i % 2 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                if (moving || animationTick % 8L == 0L) {
+                    Location tail = base.clone().subtract(direction.clone().multiply(0.42)).add(0, 0.22, 0);
+                    for (int i = 0; i < 6; i++) {
+                        double t = i / 5.0;
+                        Location point = tail.clone().subtract(direction.clone().multiply(t * 0.95))
+                                .add(0, Math.sin(animationTick * 0.09 + i * 0.8) * 0.12, 0);
+                        dust(world, point, i % 2 == 0 ? Color.fromRGB(255, 225, 135)
+                                : Color.fromRGB(255, 250, 220), 1.0f - (float) t * 0.35f);
+                        if (i % 2 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                    }
+                    if (animationTick % 20L == 0L) {
+                        world.spawnParticle(Particle.TOTEM_OF_UNDYING, tail, 5, 0.24, 0.28, 0.24, 0.02);
+                        world.spawnParticle(Particle.FIREWORK, tail.clone().add(0, 0.25, 0), 0);
+                    }
                 }
             }
             case "comet_wake" -> {
-                Location tail = base.clone().subtract(direction.clone().multiply(0.55)).add(0, 0.22, 0);
-                for (int i = 0; i < 5; i++) {
-                    double t = i / 4.0;
-                    Location point = tail.clone().subtract(direction.clone().multiply(t * 0.8))
-                            .add(0, Math.sin(animationTick * 0.12 + i * 0.7) * 0.14, 0);
-                    dust(world, point, Color.fromRGB(105, 220, 255), 1.0f - (float) t * 0.35f);
+                Location tail = base.clone().subtract(direction.clone().multiply(0.58)).add(0, 0.30, 0);
+                for (int i = 0; i < 7; i++) {
+                    double t = i / 6.0;
+                    Location point = tail.clone().subtract(direction.clone().multiply(t * 1.2))
+                            .add(0, Math.sin(animationTick * 0.11 + i * 0.65) * 0.13, 0);
+                    dust(world, point, i < 2 ? Color.fromRGB(210, 248, 255)
+                            : Color.fromRGB(75, 190, 255), 1.35f - (float) t * 0.48f);
                     if (i % 2 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
                 }
-                if (moving) {
-                    world.spawnParticle(Particle.FIREWORK, tail, 1, 0.08, 0.05, 0.08, 0.01);
-                    world.spawnParticle(Particle.END_ROD, tail, 0);
+                world.spawnParticle(Particle.END_ROD, tail.clone().add(0, 0.08, 0), 0);
+                if (moving && animationTick % 8L == 0L) {
+                    world.spawnParticle(Particle.FIREWORK, tail, 2, 0.08, 0.06, 0.08, 0.01);
+                }
+            }
+            case "winter_fox" -> {
+                // A flowing spectral tail, with a small pair of ears above the head.
+                for (int i = 0; i < 9; i++) {
+                    double t = i / 8.0;
+                    double sway = Math.sin(animationTick * 0.105 + t * 2.6) * (0.08 + t * 0.16);
+                    Location point = base.clone()
+                            .subtract(direction.clone().multiply(0.20 + t * 0.95))
+                            .add(right.clone().multiply(sway))
+                            .add(0, 0.12 + t * 0.36 + Math.sin(animationTick * 0.12 + t * 2.0) * 0.16, 0);
+                    dust(world, point, t > 0.72 ? Color.fromRGB(230, 250, 255)
+                            : Color.fromRGB(90, 205, 255), 1.15f - (float) t * 0.3f);
+                    if (i % 2 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
+                }
+                for (int side : new int[]{-1, 1}) {
+                    Location ear = base.clone().add(right.clone().multiply(side * 0.16)).add(0, 1.72, 0);
+                    dust(world, ear, Color.fromRGB(185, 245, 255), 1.2f);
+                    world.spawnParticle(Particle.END_ROD, ear, 0);
+                }
+            }
+            case "crystal_heart" -> {
+                // A heart-shaped crystal emblem floating in front of the player.
+                Location center = base.clone().add(direction.clone().multiply(0.55)).add(0, 1.02, 0);
+                for (int i = 0; i < 18; i++) {
+                    double angle = i * Math.PI * 2.0 / 18.0;
+                    double sin = Math.sin(angle);
+                    double x = 16.0 * sin * sin * sin;
+                    double y = 13.0 * Math.cos(angle) - 5.0 * Math.cos(2.0 * angle)
+                            - 2.0 * Math.cos(3.0 * angle) - Math.cos(4.0 * angle);
+                    Location point = center.clone().add(right.clone().multiply(x * 0.026))
+                            .add(0, y * 0.026, 0);
+                    dust(world, point, i % 3 == 0 ? Color.fromRGB(220, 250, 255)
+                            : Color.fromRGB(95, 205, 255), 1.15f);
+                    if (i % 3 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
+                }
+                if (animationTick % 16L == 0L) {
+                    world.spawnParticle(Particle.END_ROD, center, 2, 0.14, 0.18, 0.08, 0.01);
+                }
+            }
+            case "snow_globe" -> {
+                Location center = base.clone().add(0, 0.95, 0);
+                for (int ring = 0; ring < 2; ring++) {
+                    double y = ring == 0 ? -0.42 : 0.42;
+                    double radius = ring == 0 ? 0.48 : 0.42;
+                    for (int i = 0; i < 7; i++) {
+                        double angle = animationTick * 0.045 + i * Math.PI * 2.0 / 7.0 + ring * 0.35;
+                        Location point = center.clone().add(Math.cos(angle) * radius, y,
+                                Math.sin(angle) * radius);
+                        dust(world, point, Color.fromRGB(150, 225, 255), 0.9f);
+                    }
+                }
+                if (animationTick % 8L == 0L) {
+                    world.spawnParticle(Particle.SNOWFLAKE, center, 4, 0.28, 0.42, 0.28, 0.01);
+                }
+                world.spawnParticle(Particle.END_ROD, center.clone().add(0, 0.48, 0), 0);
+            }
+            case "celestial_wings" -> {
+                renderWings(player, right, direction, Color.fromRGB(255, 221, 130), false, 1.0);
+                if (animationTick % 8L == 0L) {
+                    world.spawnParticle(Particle.END_ROD, base.clone().add(0, 1.1, 0), 2, 0.55, 0.55, 0.35, 0.01);
+                }
+            }
+            case "void_crown" -> {
+                Location crown = base.clone().add(0, 2.08, 0);
+                for (int i = 0; i < 12; i++) {
+                    double angle = animationTick * 0.075 + i * Math.PI * 2.0 / 12.0;
+                    Location outer = crown.clone().add(Math.cos(angle) * 0.48,
+                            Math.sin(angle * 2.0) * 0.08, Math.sin(angle) * 0.48);
+                    dust(world, outer, Color.fromRGB(155, 90, 255), 1.15f);
+                    if (i % 3 == 0) world.spawnParticle(Particle.REVERSE_PORTAL, outer, 0);
+                    Location inner = crown.clone().add(Math.cos(-angle * 1.2) * 0.29,
+                            0.12 + Math.sin(angle) * 0.05, Math.sin(-angle * 1.2) * 0.29);
+                    world.spawnParticle(Particle.PORTAL, inner, 0);
+                }
+                if (animationTick % 16L == 0L) {
+                    world.spawnParticle(Particle.ENCHANT, crown, 8, 0.38, 0.12, 0.38, 0.12);
+                }
+            }
+            case "frost_phoenix" -> {
+                renderWings(player, right, direction, Color.fromRGB(105, 220, 255), true, 1.1);
+                Location crest = base.clone().add(0, 2.05, 0);
+                for (int i = 0; i < 7; i++) {
+                    double t = i / 6.0;
+                    Location point = crest.clone().add(right.clone().multiply((t - 0.5) * 0.72))
+                            .add(0, Math.sin(t * Math.PI) * 0.20, 0);
+                    dust(world, point, Color.fromRGB(215, 250, 255), 1.15f);
+                }
+                if (animationTick % 20L == 0L) {
+                    world.spawnParticle(Particle.SNOWFLAKE, base.clone().add(0, 1.2, 0), 16, 0.55, 0.55, 0.55, 0.02);
+                    world.spawnParticle(Particle.SOUL, base.clone().add(0, 1.0, 0), 6, 0.38, 0.45, 0.38, 0.01);
+                }
+            }
+            case "prismatic_dragon" -> {
+                for (int strand = 0; strand < 2; strand++) {
+                    for (int i = 0; i < 9; i++) {
+                        double t = i / 8.0;
+                        double angle = animationTick * 0.095 + t * Math.PI * 3.0 + strand * Math.PI;
+                        double radius = 0.32 + t * 0.20;
+                        Location point = base.clone().add(Math.cos(angle) * radius,
+                                0.12 + t * 1.62, Math.sin(angle) * radius);
+                        Color color = switch ((i + strand * 2) % 4) {
+                            case 0 -> Color.fromRGB(80, 235, 255);
+                            case 1 -> Color.fromRGB(170, 105, 255);
+                            case 2 -> Color.fromRGB(255, 120, 205);
+                            default -> Color.fromRGB(255, 220, 105);
+                        };
+                        dust(world, point, color, 1.2f);
+                        if (i % 4 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                    }
                 }
             }
             case "celestial_tempest" -> {
                 Location crown = base.clone().add(0, 2.12, 0);
                 for (int i = 0; i < 12; i++) {
-                    double angle = animationTick * 0.09 + i * Math.PI * 2.0 / 12.0;
-                    Location point = crown.clone().add(Math.cos(angle) * 0.48,
-                            Math.sin(angle * 2.0) * 0.10, Math.sin(angle) * 0.48);
-                    dust(world, point, i % 2 == 0 ? Color.fromRGB(255, 230, 150)
-                            : Color.fromRGB(130, 205, 255), 1.15f);
+                    double angle = animationTick * 0.075 + i * Math.PI * 2.0 / 12.0;
+                    Location point = crown.clone().add(Math.cos(angle) * 0.50,
+                            Math.sin(angle * 2.0) * 0.09, Math.sin(angle) * 0.50);
+                    dust(world, point, i % 2 == 0 ? Color.fromRGB(255, 225, 145)
+                            : Color.fromRGB(115, 205, 255), 1.2f);
                     if (i % 3 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
                 }
-                for (int i = 0; i < 8; i++) {
-                    double t = i / 7.0;
-                    double angle = animationTick * 0.07 + t * Math.PI * 2.0;
-                    Location point = base.clone().add(Math.cos(angle) * (0.28 + t * 0.42),
-                            0.35 + t * 1.35, Math.sin(angle) * (0.28 + t * 0.42));
-                    dust(world, point, Color.fromRGB(180, 130, 255), 0.95f);
+                for (int ring = 0; ring < 2; ring++) {
+                    for (int i = 0; i < 7; i++) {
+                        double t = i / 6.0;
+                        double angle = animationTick * (ring == 0 ? 0.055 : -0.065)
+                                + t * Math.PI * 2.0;
+                        Location point = base.clone().add(
+                                Math.cos(angle) * (0.38 + ring * 0.16),
+                                0.35 + t * 1.30,
+                                Math.sin(angle) * (0.38 + ring * 0.16));
+                        dust(world, point, ring == 0 ? Color.fromRGB(175, 115, 255)
+                                : Color.fromRGB(95, 220, 255), 0.95f);
+                    }
                 }
             }
             case "eclipse_dragon" -> {
-                renderWings(player, right, direction, Color.fromRGB(160, 105, 255), true);
-                Location center = base.clone().add(0, 1.05, 0);
+                renderWings(player, right, direction, Color.fromRGB(150, 95, 245), true, 1.08);
+                Location center = base.clone().add(0, 1.08, 0);
                 for (int i = 0; i < 10; i++) {
-                    double angle = animationTick * 0.10 + i * Math.PI * 2.0 / 10.0;
-                    Location point = center.clone().add(Math.cos(angle) * 0.62,
-                            Math.sin(angle * 1.5) * 0.48, Math.sin(angle) * 0.62);
-                    dust(world, point, i % 2 == 0 ? Color.fromRGB(105, 75, 210)
-                            : Color.fromRGB(90, 225, 255), 1.25f);
+                    double angle = animationTick * 0.085 + i * Math.PI * 2.0 / 10.0;
+                    Location point = center.clone().add(Math.cos(angle) * 0.64,
+                            Math.sin(angle * 1.5) * 0.43, Math.sin(angle) * 0.64);
+                    dust(world, point, i % 2 == 0 ? Color.fromRGB(100, 65, 205)
+                            : Color.fromRGB(85, 220, 255), 1.3f);
                     if (i % 2 == 0) world.spawnParticle(Particle.REVERSE_PORTAL, point, 0);
                 }
-                if (animationTick % 16L == 0L) {
-                    world.spawnParticle(Particle.SOUL, center, 8, 0.42, 0.55, 0.42, 0.015);
-                    world.spawnParticle(Particle.SNOWFLAKE, center, 12, 0.48, 0.62, 0.48, 0.02);
+                if (animationTick % 20L == 0L) {
+                    world.spawnParticle(Particle.SOUL, center, 7, 0.40, 0.45, 0.40, 0.015);
                 }
             }
-            default -> {
+            case "aurora_seraph" -> {
+                renderWings(player, right, direction, Color.fromRGB(100, 235, 220), false, 1.18);
+                Location halo = base.clone().add(0, 2.18, 0);
+                for (int i = 0; i < 12; i++) {
+                    double angle = animationTick * 0.055 + i * Math.PI * 2.0 / 12.0;
+                    Location point = halo.clone().add(Math.cos(angle) * 0.42, 0,
+                            Math.sin(angle) * 0.42);
+                    dust(world, point, Color.fromRGB(255, 224, 135), 1.2f);
+                    if (i % 3 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                }
+                for (int side : new int[]{-1, 1}) {
+                    Location feather = base.clone().add(right.clone().multiply(side * 0.92)).add(0, 1.48, 0);
+                    dust(world, feather, Color.fromRGB(255, 240, 190), 1.3f);
+                }
             }
+            case "astral_guardian" -> {
+                Location center = base.clone().add(0, 1.0, 0);
+                for (int ring = 0; ring < 3; ring++) {
+                    for (int i = 0; i < 8; i++) {
+                        double angle = animationTick * (ring == 1 ? -0.07 : 0.06)
+                                + i * Math.PI * 2.0 / 8.0 + ring * 0.65;
+                        Location point;
+                        if (ring == 0) {
+                            point = center.clone().add(Math.cos(angle) * 0.72, 0,
+                                    Math.sin(angle) * 0.72);
+                        } else if (ring == 1) {
+                            point = center.clone().add(right.clone().multiply(Math.cos(angle) * 0.58))
+                                    .add(0, Math.sin(angle) * 0.78, 0)
+                                    .add(direction.clone().multiply(0.12));
+                        } else {
+                            point = center.clone().add(direction.clone().multiply(Math.cos(angle) * 0.58))
+                                    .add(0, Math.sin(angle) * 0.78, 0)
+                                    .add(right.clone().multiply(-0.12));
+                        }
+                        Color color = ring == 0 ? Color.fromRGB(95, 215, 255)
+                                : ring == 1 ? Color.fromRGB(185, 130, 255) : Color.fromRGB(255, 220, 130);
+                        dust(world, point, color, 1.1f);
+                        if (i % 4 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
+                    }
+                }
+                if (animationTick % 16L == 0L) {
+                    world.spawnParticle(Particle.TOTEM_OF_UNDYING, center, 5, 0.38, 0.55, 0.38, 0.01);
+                }
+            }
+            case "frost_leviathan" -> {
+                for (int i = 0; i < 12; i++) {
+                    double t = i / 11.0;
+                    double angle = animationTick * 0.085 + t * Math.PI * 3.15;
+                    double radius = 0.25 + Math.sin(t * Math.PI) * 0.42;
+                    Location point = base.clone().add(Math.cos(angle) * radius,
+                            0.08 + t * 1.75, Math.sin(angle) * radius);
+                    dust(world, point, i % 3 == 0 ? Color.fromRGB(225, 250, 255)
+                            : Color.fromRGB(75, 190, 255), 1.25f - (float) t * 0.18f);
+                    if (i % 3 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
+                }
+                Location crown = base.clone().add(0, 1.85, 0);
+                for (int side : new int[]{-1, 1}) {
+                    Location horn = crown.clone().add(right.clone().multiply(side * 0.20))
+                            .add(0, 0.20 + Math.sin(animationTick * 0.10) * 0.05, 0);
+                    dust(world, horn, Color.fromRGB(215, 250, 255), 1.35f);
+                    world.spawnParticle(Particle.END_ROD, horn, 0);
+                }
+                if (animationTick % 20L == 0L) {
+                    world.spawnParticle(Particle.SOUL, base.clone().add(0, 0.85, 0), 5, 0.28, 0.65, 0.28, 0.01);
+                }
+            }
+            default -> { }
         }
     }
 
-    private void renderWings(Player player, Vector right, Vector direction, Color color, boolean icy) {
+    private void renderWings(Player player, Vector right, Vector direction,
+                             Color color, boolean icy, double scale) {
         Location base = player.getLocation();
         World world = base.getWorld();
         if (world == null) return;
-        Vector back = direction.clone().multiply(-0.38);
+        Vector back = direction.clone().multiply(-0.48);
         for (int side : new int[]{-1, 1}) {
-            for (int i = 0; i <= 6; i++) {
-                double progress = i / 6.0;
-                double spread = 0.22 + progress * 0.72;
-                double height = 0.52 + Math.sin(progress * Math.PI) * 0.92;
-                double wave = Math.sin(animationTick * 0.18 + progress * Math.PI) * 0.08;
-                Location point = base.clone().add(back).add(right.clone().multiply(side * spread))
+            // Outer arch of each wing.
+            for (int i = 0; i <= 7; i++) {
+                double progress = i / 7.0;
+                double spread = (0.18 + progress * 0.92) * scale;
+                double height = (0.42 + Math.sin(progress * Math.PI) * 1.02) * scale;
+                double wave = Math.sin(animationTick * 0.16 + progress * Math.PI) * 0.08;
+                Location point = base.clone().add(back)
+                        .add(right.clone().multiply(side * spread))
                         .add(0, height + wave, 0);
-                dust(world, point, color, 1.1f);
+                dust(world, point, color, 1.18f);
                 if (i % 2 == 0) {
                     world.spawnParticle(icy ? Particle.SNOWFLAKE : Particle.END_ROD, point, 0);
+                }
+            }
+            // Two feather veins give the wing a visible silhouette instead of a bare line.
+            for (int feather = 0; feather < 2; feather++) {
+                double startSpread = (0.22 + feather * 0.22) * scale;
+                double endSpread = (0.70 + feather * 0.22) * scale;
+                double startHeight = (0.72 - feather * 0.08) * scale;
+                double endHeight = (0.24 + feather * 0.16) * scale;
+                for (int step = 0; step <= 2; step++) {
+                    double t = step / 2.0;
+                    Location point = base.clone().add(back.clone().multiply(0.88))
+                            .add(right.clone().multiply(side * (startSpread + (endSpread - startSpread) * t)))
+                            .add(0, startHeight + (endHeight - startHeight) * t, 0);
+                    dust(world, point, color, 0.92f);
                 }
             }
         }
