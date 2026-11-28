@@ -752,6 +752,11 @@ public final class CosmeticsManager implements Listener {
         }
     }
 
+    private void dust(World world, Location location, Color color, float size) {
+        world.spawnParticle(Particle.DUST, location.getX(), location.getY(), location.getZ(),
+                0, 0, 0, 0, 0, new Particle.DustOptions(color, size));
+    }
+
     private ItemStack createHat(String id) {
         Material material = switch (id) {
             case "frost_crown" -> Material.DIAMOND_HELMET;
