@@ -2,7 +2,12 @@ package cz.vanocni.features;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Color;
+import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.bukkit.GameMode;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -21,6 +26,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.Random;
 
 /** Applies a cold 3-D biome to loaded and newly loaded chunks without regenerating terrain. */
 public final class WinterManager implements Listener {
@@ -28,8 +34,10 @@ public final class WinterManager implements Listener {
     private final Queue<ChunkRef> queue = new ArrayDeque<>();
     private final Set<String> queued = new HashSet<>();
     private final Map<UUID, WeatherState> originalWeather = new HashMap<>();
+    private final Random random = new Random();
     private BukkitTask workerTask;
     private BukkitTask weatherTask;
+    private BukkitTask ambienceTask;
 
     public WinterManager(ChristmasFeaturesPlugin plugin) {
         this.plugin = plugin;
@@ -74,6 +82,16 @@ public final class WinterManager implements Listener {
         if (weatherTask == null || weatherTask.isCancelled()) {
             weatherTask = Bukkit.getScheduler().runTaskTimer(plugin, this::applyWeather, 1200L, 1200L);
         }
+        if (ambienceTask != null) {
+            ambienceTask.cancel();
+            ambienceTask = null;
+        }
+        if (plugin.getConfig().getBoolean("winter.ambience.enabled", true)) {
+            long interval = Math.max(10L, Math.min(200L,
+                    plugin.getConfig().getLong("winter.ambience.interval-ticks", 40L)));
+            ambienceTask = Bukkit.getScheduler().runTaskTimer(plugin, this::spawnAmbientSparkles,
+                    interval, interval);
+        }
     }
 
     /** True when the dedicated ChristmasSeason plugin owns winter biomes and weather. */
@@ -96,6 +114,10 @@ public final class WinterManager implements Listener {
         if (weatherTask != null) {
             weatherTask.cancel();
             weatherTask = null;
+        }
+        if (ambienceTask != null) {
+            ambienceTask.cancel();
+            ambienceTask = null;
         }
     }
 
@@ -128,6 +150,46 @@ public final class WinterManager implements Listener {
         List<String> worlds = plugin.getConfig().getStringList("winter.worlds");
         if (worlds.isEmpty()) return world.getEnvironment() == World.Environment.NORMAL;
         return worlds.stream().anyMatch(name -> name.equalsIgnoreCase(world.getName()));
+    }
+
+    /**
+     * Adds a small number of cold sparkles around outdoor players. This is purely
+     * visual: it never changes blocks, biomes, weather or player state.
+     */
+    private void spawnAmbientSparkles() {
+        if (!plugin.getConfig().getBoolean("winter.enabled", true)
+                || !plugin.getConfig().getBoolean("winter.ambience.enabled", true)) return;
+
+        int particleCount = Math.max(0, Math.min(6,
+                plugin.getConfig().getInt("winter.ambience.particles-per-player", 2)));
+        if (particleCount == 0) return;
+        double radius = Math.max(2.0, Math.min(24.0,
+                plugin.getConfig().getDouble("winter.ambience.radius", 8.0)));
+        Particle.DustOptions frost = new Particle.DustOptions(Color.fromRGB(175, 225, 255), 0.75f);
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            World world = player.getWorld();
+            if (!isWinterWorld(world) || player.isDead() || player.isInvisible()
+                    || player.getGameMode() == GameMode.SPECTATOR) continue;
+
+            Location base = player.getLocation();
+            // Keep the subtle effect outdoors; avoid sparkling through roofs and caves.
+            if (world.getHighestBlockYAt(base.getBlockX(), base.getBlockZ()) > base.getBlockY() + 1) continue;
+
+            for (int i = 0; i < particleCount; i++) {
+                double angle = random.nextDouble() * Math.PI * 2.0;
+                double distance = Math.sqrt(random.nextDouble()) * radius;
+                Location point = base.clone().add(Math.cos(angle) * distance,
+                        0.35 + random.nextDouble() * 1.8, Math.sin(angle) * distance);
+                world.spawnParticle(Particle.SNOWFLAKE, point, 1, 0.025, 0.045, 0.025, 0.001);
+                if (random.nextDouble() < 0.35) {
+                    world.spawnParticle(Particle.DUST, point, 0, 0, 0, 0, 0, frost);
+                }
+                if (random.nextDouble() < 0.12) {
+                    world.spawnParticle(Particle.END_ROD, point, 0);
+                }
+            }
+        }
     }
 
     private void queueLoadedChunks(boolean force) {
