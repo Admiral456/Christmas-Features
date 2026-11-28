@@ -32,6 +32,9 @@ jobs:
       - name: Validate resource pack
         run: python scripts/resourcepack_guard.py validate resourcepack
 
+      - name: Verify Java item and resource-pack contract
+        run: python scripts/check_item_contract.py
+
       - name: Test resource pack guard
         run: python -m unittest discover -s scripts/tests -v
 

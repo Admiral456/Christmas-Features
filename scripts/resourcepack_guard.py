@@ -146,6 +146,8 @@ def _model_refs(value: Any):
 
 
 def _resource_ref_target(kind: str, identifier: str) -> str | None:
+    if kind == "texture" and identifier.startswith("#"):
+        return None  # Texture variables are resolved through the model parent chain.
     if ":" in identifier:
         namespace, path = identifier.split(":", 1)
     else:
@@ -227,7 +229,6 @@ def validate_pack(
         )
 
     case_paths: dict[str, str] = {}
-    namespaces: set[str] = set()
     json_documents: dict[str, Any] = {}
     vanilla_overrides: list[str] = []
 
@@ -250,7 +251,6 @@ def validate_pack(
             or any(part in ("", ".", "..") for part in resource_path.split("/"))
         ):
             raise GuardError(f"{label}: invalid Minecraft resource path: {path}")
-        namespaces.add(namespace)
 
         if namespace == "minecraft":
             vanilla_overrides.append(path)
@@ -293,10 +293,7 @@ def validate_pack(
     for path, document in json_documents.items():
         for kind, identifier in _model_refs(document):
             target = _resource_ref_target(kind, identifier)
-            if target and target not in files and (
-                identifier.startswith(f"{OWN_NAMESPACE}:")
-                or target.split("/")[1] in namespaces
-            ):
+            if target and target not in files:
                 raise GuardError(
                     f"{label}: missing {kind} referenced by {path}: "
                     f"{identifier} (expected {target})"
