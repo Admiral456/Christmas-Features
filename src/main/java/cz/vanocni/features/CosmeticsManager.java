@@ -50,6 +50,7 @@ public final class CosmeticsManager implements Listener {
     private final Map<UUID, TrailPreview> trailPreviews = new HashMap<>();
     private BukkitTask particleTask;
     private long animationTick;
+    private long particleIntervalTicks = 4L;
 
     private static final List<Cosmetic> TAGS = List.of(
             new Cosmetic("winter_wanderer", "❄ Zimní poutník", false, Material.SNOWBALL,
@@ -129,7 +130,22 @@ public final class CosmeticsManager implements Listener {
 
     public void start() {
         for (Player player : Bukkit.getOnlinePlayers()) applySaved(player);
-        particleTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tickTrails, 2L, 4L);
+        refresh();
+    }
+
+    /**
+     * Rebuild the trail task after a config reload without touching equipped cosmetics.
+     * Higher intervals reduce particle work; lower intervals produce smoother animation.
+     */
+    public void refresh() {
+        if (particleTask != null) {
+            particleTask.cancel();
+            particleTask = null;
+        }
+        particleIntervalTicks = Math.max(2L, Math.min(10L,
+                plugin.getConfig().getLong("cosmetics.trails.interval-ticks", 4L)));
+        particleTask = Bukkit.getScheduler().runTaskTimer(plugin, this::tickTrails,
+                2L, particleIntervalTicks);
     }
 
     public void openMain(Player player) {
@@ -412,9 +428,10 @@ public final class CosmeticsManager implements Listener {
     }
 
     private void tickTrails() {
-        animationTick += 4L;
+        animationTick += particleIntervalTicks;
         long now = System.currentTimeMillis();
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!player.isValid() || player.isDead()) continue;
             UUID uuid = player.getUniqueId();
             TrailPreview preview = trailPreviews.get(uuid);
             String id;
@@ -434,7 +451,7 @@ public final class CosmeticsManager implements Listener {
             }
             renderTrail(player, id);
         }
-        if (animationTick % 20L == 0L) {
+        if (crossedAnimationInterval(20L)) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 String hat = equipped("hat", player.getUniqueId());
                 Cosmetic cosmetic = find("hat", hat);
@@ -463,6 +480,16 @@ public final class CosmeticsManager implements Listener {
                 }
             }
         }
+    }
+
+    /**
+     * Returns true once when the animation clock crosses an interval boundary.
+     * This keeps occasional sparkles and hat validation stable when the task
+     * is throttled to an interval that is not a divisor of 8, 12, 16 or 20.
+     */
+    private boolean crossedAnimationInterval(long intervalTicks) {
+        long previousTick = animationTick - particleIntervalTicks;
+        return previousTick / intervalTicks < animationTick / intervalTicks;
     }
 
     private void renderTrail(Player player, String id) {
@@ -512,7 +539,7 @@ public final class CosmeticsManager implements Listener {
                 }
             }
             case "stardust" -> {
-                if (moving || animationTick % 8L == 0L) {
+                if (moving || crossedAnimationInterval(8L)) {
                     Location tail = base.clone().subtract(direction.clone().multiply(0.42)).add(0, 0.22, 0);
                     for (int i = 0; i < 6; i++) {
                         double t = i / 5.0;
@@ -522,7 +549,7 @@ public final class CosmeticsManager implements Listener {
                                 : Color.fromRGB(255, 250, 220), 1.0f - (float) t * 0.35f);
                         if (i % 2 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
                     }
-                    if (animationTick % 20L == 0L) {
+                    if (crossedAnimationInterval(20L)) {
                         world.spawnParticle(Particle.TOTEM_OF_UNDYING, tail, 5, 0.24, 0.28, 0.24, 0.02);
                         world.spawnParticle(Particle.FIREWORK, tail.clone().add(0, 0.25, 0), 0);
                     }
@@ -539,7 +566,7 @@ public final class CosmeticsManager implements Listener {
                     if (i % 2 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
                 }
                 world.spawnParticle(Particle.END_ROD, tail.clone().add(0, 0.08, 0), 0);
-                if (moving && animationTick % 8L == 0L) {
+                if (moving && crossedAnimationInterval(8L)) {
                     world.spawnParticle(Particle.FIREWORK, tail, 2, 0.08, 0.06, 0.08, 0.01);
                 }
             }
@@ -577,7 +604,7 @@ public final class CosmeticsManager implements Listener {
                             : Color.fromRGB(95, 205, 255), 1.15f);
                     if (i % 3 == 0) world.spawnParticle(Particle.SNOWFLAKE, point, 0);
                 }
-                if (animationTick % 16L == 0L) {
+                if (crossedAnimationInterval(16L)) {
                     world.spawnParticle(Particle.END_ROD, center, 2, 0.14, 0.18, 0.08, 0.01);
                 }
             }
@@ -593,14 +620,14 @@ public final class CosmeticsManager implements Listener {
                         dust(world, point, Color.fromRGB(150, 225, 255), 0.9f);
                     }
                 }
-                if (animationTick % 8L == 0L) {
+                if (crossedAnimationInterval(8L)) {
                     world.spawnParticle(Particle.SNOWFLAKE, center, 4, 0.28, 0.42, 0.28, 0.01);
                 }
                 world.spawnParticle(Particle.END_ROD, center.clone().add(0, 0.48, 0), 0);
             }
             case "celestial_wings" -> {
                 renderWings(player, right, direction, Color.fromRGB(255, 221, 130), false, 1.0);
-                if (animationTick % 8L == 0L) {
+                if (crossedAnimationInterval(8L)) {
                     world.spawnParticle(Particle.END_ROD, base.clone().add(0, 1.1, 0), 2, 0.55, 0.55, 0.35, 0.01);
                 }
             }
@@ -616,7 +643,7 @@ public final class CosmeticsManager implements Listener {
                             0.12 + Math.sin(angle) * 0.05, Math.sin(-angle * 1.2) * 0.29);
                     world.spawnParticle(Particle.PORTAL, inner, 0);
                 }
-                if (animationTick % 16L == 0L) {
+                if (crossedAnimationInterval(16L)) {
                     world.spawnParticle(Particle.ENCHANT, crown, 8, 0.38, 0.12, 0.38, 0.12);
                 }
             }
@@ -629,7 +656,7 @@ public final class CosmeticsManager implements Listener {
                             .add(0, Math.sin(t * Math.PI) * 0.20, 0);
                     dust(world, point, Color.fromRGB(215, 250, 255), 1.15f);
                 }
-                if (animationTick % 20L == 0L) {
+                if (crossedAnimationInterval(20L)) {
                     world.spawnParticle(Particle.SNOWFLAKE, base.clone().add(0, 1.2, 0), 16, 0.55, 0.55, 0.55, 0.02);
                     world.spawnParticle(Particle.SOUL, base.clone().add(0, 1.0, 0), 6, 0.38, 0.45, 0.38, 0.01);
                 }
@@ -688,7 +715,7 @@ public final class CosmeticsManager implements Listener {
                             : Color.fromRGB(85, 220, 255), 1.3f);
                     if (i % 2 == 0) world.spawnParticle(Particle.REVERSE_PORTAL, point, 0);
                 }
-                if (animationTick % 20L == 0L) {
+                if (crossedAnimationInterval(20L)) {
                     world.spawnParticle(Particle.SOUL, center, 7, 0.40, 0.45, 0.40, 0.015);
                 }
             }
@@ -732,7 +759,7 @@ public final class CosmeticsManager implements Listener {
                         if (i % 4 == 0) world.spawnParticle(Particle.END_ROD, point, 0);
                     }
                 }
-                if (animationTick % 16L == 0L) {
+                if (crossedAnimationInterval(16L)) {
                     world.spawnParticle(Particle.TOTEM_OF_UNDYING, center, 5, 0.38, 0.55, 0.38, 0.01);
                 }
             }
@@ -754,7 +781,7 @@ public final class CosmeticsManager implements Listener {
                     dust(world, horn, Color.fromRGB(215, 250, 255), 1.35f);
                     world.spawnParticle(Particle.END_ROD, horn, 0);
                 }
-                if (animationTick % 20L == 0L) {
+                if (crossedAnimationInterval(20L)) {
                     world.spawnParticle(Particle.SOUL, base.clone().add(0, 0.85, 0), 5, 0.28, 0.65, 0.28, 0.01);
                 }
             }
@@ -798,7 +825,7 @@ public final class CosmeticsManager implements Listener {
                 }
             }
         }
-        if (icy && animationTick % 12L == 0L) {
+        if (icy && crossedAnimationInterval(12L)) {
             world.spawnParticle(Particle.SOUL, base.clone().add(0, 1.0, 0), 2, 0.35, 0.3, 0.35, 0.01);
         }
     }

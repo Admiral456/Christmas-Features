@@ -107,6 +107,11 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     private void migrateConfig() {
         boolean changed = false;
 
+        if (!getConfig().contains("cosmetics.trails.interval-ticks")) {
+            getConfig().set("cosmetics.trails.interval-ticks", 4);
+            changed = true;
+        }
+
         if (!getConfig().contains("winter.preserve-biomes")) {
             getConfig().set("winter.preserve-biomes", DEFAULT_PRESERVED_WINTER_BIOMES);
             changed = true;

@@ -145,6 +145,8 @@ grinch:
 
 cosmetics:
   trails:
+    # Particle updates: 2 = smoother/more demanding, 10 = lighter.
+    interval-ticks: 4
     preview-seconds: 8
   events:
     gifts:

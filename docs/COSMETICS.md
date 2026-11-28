@@ -8,7 +8,7 @@ Hráči otevřou menu příkazem \`/christmas cosmetics\`. Grinchovo menu otevř
 
 ## Trail efekty
 
-Všechny efekty jsou vykreslované serverovými částicemi. Jsou tedy viditelné ostatním hráčům v okolí a nevyžadují OptiFine, EMF ani klientský mod. Animace se aktualizují každé čtyři tick-y; neviditelné hráče a hráče ve spectator režimu plugin nevykresluje.
+Všechny efekty jsou vykreslované serverovými částicemi. Jsou tedy viditelné ostatním hráčům v okolí a nevyžadují OptiFine, EMF ani klientský mod. Rychlost vykreslování nastavuje `cosmetics.trails.interval-ticks` (2–10, výchozí 4): nižší hodnota dává plynulejší animaci za cenu více částicových aktualizací, vyšší hodnota snižuje zátěž při větším počtu hráčů. Hodnota se načte i při `/christmas reload`. Mrtvé, neplatné, neviditelné a spectator hráče plugin nevykresluje.
 
 ### Dostupné všem hráčům
 
@@ -103,3 +103,21 @@ VIP položky jsou viditelné v menu, ale bez tohoto oprávnění je nelze nově 
 - Paper/Purpur 1.21.10, Java 21.
 - PlaceholderAPI je volitelný soft dependency; bez něj funguje menu, čepice a trail částice. Pouze chat placeholder \`%christmas_tag%\` vyžaduje PlaceholderAPI.
 - MythicMobs a ModelEngine zůstávají volitelné pro Grinch a ostatní modelové integrace.
+
+
+## Výkon a nastavení vykreslování
+
+V `config.yml` lze interval nastavit například takto:
+
+```yaml
+cosmetics:
+  trails:
+    interval-ticks: 4
+    preview-seconds: 8
+```
+
+- `2`: nejplynulejší vykreslování, vyšší částicová zátěž.
+- `4`: doporučený výchozí kompromis.
+- `6–10`: méně aktualizací a nižší zátěž při větším počtu současně aktivních trailů.
+
+Plugin hodnotu bezpečně omezí na rozsah 2–10. Po změně není nutné restartovat server; stačí `/christmas reload`.
