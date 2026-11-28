@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -77,8 +78,44 @@ public final class IllusionerBossManager implements Listener {
     }
 
     public void startScheduler() {
+        purgeStaleEncounterEntities();
         if (triggerTask != null) triggerTask.cancel();
         triggerTask = Bukkit.getScheduler().runTaskTimer(plugin, this::checkEntryTrigger, 20L, 20L);
+    }
+
+    private void purgeStaleEncounterEntities() {
+        int removed = 0;
+        for (World world : Bukkit.getWorlds()) {
+            for (Entity entity : world.getEntities()) {
+                if (isEncounterEntity(entity)) {
+                    entity.remove();
+                    removed++;
+                }
+            }
+        }
+        if (removed > 0) {
+            plugin.getLogger().warning("Po startu bylo odstraněno " + removed
+                    + " osiřelých entit The Illusioner z předchozího běhu.");
+        }
+    }
+
+    private boolean isEncounterEntity(Entity entity) {
+        return entity.getPersistentDataContainer().has(bossKey, PersistentDataType.BYTE)
+                || entity.getPersistentDataContainer().has(minionKey, PersistentDataType.BYTE);
+    }
+
+    @EventHandler
+    public void onChunkLoad(ChunkLoadEvent event) {
+        // Also remove legacy persistent boss/minion entities from chunks that load later.
+        int chunkX = event.getChunk().getX();
+        int chunkZ = event.getChunk().getZ();
+        World world = event.getWorld();
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            if (!world.isChunkLoaded(chunkX, chunkZ)) return;
+            for (Entity entity : world.getChunkAt(chunkX, chunkZ).getEntities()) {
+                if (isEncounterEntity(entity)) entity.remove();
+            }
+        });
     }
 
     private void checkEntryTrigger() {
@@ -209,7 +246,8 @@ public final class IllusionerBossManager implements Listener {
         boss = illusioner;
         boss.setCustomName("§5§lTHE ILLUSIONER");
         boss.setCustomNameVisible(true);
-        boss.setPersistent(true);
+        // The encounter is runtime-only; a crash/restart must not leave a permanent boss in the arena.
+        boss.setPersistent(false);
         boss.setRemoveWhenFarAway(false);
         boss.setCanPickupItems(false);
         boss.setGlowing(true);
