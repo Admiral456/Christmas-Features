@@ -12,8 +12,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
 - **Zimní svět:** při načítání chunků přepisuje 3D biomy na `SNOWY_PLAINS`, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
 - **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
-
-**The Illusioner:** vlastní boss souboj bez klientského módu, s úvodním dialogem, vstupním spouštěčem, dvěma fázemi a originálními iluzorními útoky.
+- **Stav systému:** příkaz `/christmas status` ověří běh eventů, ChatGames, zimní správy a dostupnost integrací.
 
 ## Požadavky
 
@@ -50,9 +49,7 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas chatgame start` | Spustí ChatGame |
 | `/christmas chatgame stop` | Zastaví ChatGame |
 | `/christmas cosmetics` | Otevře menu kosmetiky |
-| `/christmas boss illusioner set` | Nastaví vstupní místo bosse na aktuální pozici |
-| `/christmas boss illusioner start` | Spustí dialog a souboj ručně |
-| `/christmas boss illusioner stop` | Ukončí souboj |
+| `/christmas status` | Zobrazí stav hlavních systémů a integrací |
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
@@ -66,7 +63,7 @@ TrailStudio je napojené přímo: vítězové eventů a ChatGames mohou trvale o
 
 ## Kosmetické efekty
 
-Běžné efekty zahrnují Sněhovou spirálu, Polární záři, Hvězdný prach a Kometa zimy. VIP efekty zahrnují Nebeská křídla, Korunu prázdnoty, Ledového fénixe, Prismatického draka, Nebeskou bouři a Draka zatmění. VIP oprávnění `christmas.cosmetics.vip` se kontroluje při vybavení i při vykreslování efektu. Pro automatický vstupní dialog The Illusioner nastav místo příkazem `/christmas boss illusioner set`; boss se spouští při vstupu do radiusu v konfiguraci.
+Běžné efekty zahrnují Sněhovou spirálu, Polární záři, Hvězdný prach a Kometa zimy. VIP efekty zahrnují Nebeská křídla, Korunu prázdnoty, Ledového fénixe, Prismatického draka, Nebeskou bouři a Draka zatmění. VIP oprávnění `christmas.cosmetics.vip` se kontroluje při vybavení i při vykreslování efektu.
 
 ## Důležité poznámky
 

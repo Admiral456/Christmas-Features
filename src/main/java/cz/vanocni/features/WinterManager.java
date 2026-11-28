@@ -16,6 +16,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -25,6 +27,7 @@ public final class WinterManager implements Listener {
     private final ChristmasFeaturesPlugin plugin;
     private final Queue<ChunkRef> queue = new ArrayDeque<>();
     private final Set<String> queued = new HashSet<>();
+    private final Map<UUID, WeatherState> originalWeather = new HashMap<>();
     private BukkitTask workerTask;
     private BukkitTask weatherTask;
 
@@ -34,17 +37,31 @@ public final class WinterManager implements Listener {
 
     public void start() {
         if (isManagedExternally()) {
+            stopTasks();
+            restoreWeather();
             plugin.getLogger().info("ChristmasSeason je aktivní; správu zimních biomů a počasí přebírá ChristmasSeason.");
             return;
         }
-        if (!plugin.getConfig().getBoolean("winter.enabled", true)) return;
+        if (!plugin.getConfig().getBoolean("winter.enabled", true)) {
+            stopTasks();
+            restoreWeather();
+            return;
+        }
         applyWeather();
         queueLoadedChunks(false);
         ensureTasks();
     }
 
     public void refresh() {
-        if (isManagedExternally() || !plugin.getConfig().getBoolean("winter.enabled", true)) return;
+        if (isManagedExternally() || !plugin.getConfig().getBoolean("winter.enabled", true)) {
+            stopTasks();
+            restoreWeather();
+            queue.clear();
+            queued.clear();
+            return;
+        }
+        queue.clear();
+        queued.clear();
         queueLoadedChunks(true);
         applyWeather();
         ensureTasks();
@@ -65,10 +82,21 @@ public final class WinterManager implements Listener {
     }
 
     public void shutdown() {
-        if (workerTask != null) workerTask.cancel();
-        if (weatherTask != null) weatherTask.cancel();
+        stopTasks();
         queue.clear();
         queued.clear();
+        restoreWeather();
+    }
+
+    private void stopTasks() {
+        if (workerTask != null) {
+            workerTask.cancel();
+            workerTask = null;
+        }
+        if (weatherTask != null) {
+            weatherTask.cancel();
+            weatherTask = null;
+        }
     }
 
     @EventHandler
@@ -158,16 +186,54 @@ public final class WinterManager implements Listener {
     }
 
     private void applyWeather() {
-        if (!plugin.getConfig().getBoolean("winter.enabled", true)) return;
-        if (!plugin.getConfig().getBoolean("winter.force-snow-weather", true)) return;
+        if (!plugin.getConfig().getBoolean("winter.enabled", true)
+                || !plugin.getConfig().getBoolean("winter.force-snow-weather", true)
+                || isManagedExternally()) {
+            restoreWeather();
+            return;
+        }
+
         for (World world : Bukkit.getWorlds()) {
             if (!isWinterWorld(world)) continue;
+            originalWeather.computeIfAbsent(world.getUID(), ignored -> new WeatherState(
+                    world.hasStorm(), world.isThundering(), world.getWeatherDuration(),
+                    world.getThunderDuration(), System.currentTimeMillis()));
             if (!world.hasStorm()) world.setStorm(true);
             if (world.isThundering()) world.setThundering(false);
             world.setWeatherDuration(1_000_000);
             world.setThunderDuration(1_000_000);
         }
+
+        // If a world was removed from winter.worlds while the plugin was running,
+        // restore its previous weather instead of leaving a permanent snow storm.
+        for (UUID worldId : new HashSet<>(originalWeather.keySet())) {
+            World world = Bukkit.getWorld(worldId);
+            if (world != null && isWinterWorld(world)) continue;
+            WeatherState state = originalWeather.remove(worldId);
+            if (world != null) restoreWeather(world, state);
+        }
     }
+
+    private void restoreWeather() {
+        for (Map.Entry<UUID, WeatherState> entry : new HashMap<>(originalWeather).entrySet()) {
+            World world = Bukkit.getWorld(entry.getKey());
+            if (world != null) restoreWeather(world, entry.getValue());
+        }
+        originalWeather.clear();
+    }
+
+    private void restoreWeather(World world, WeatherState state) {
+        long elapsedTicks = Math.max(0L, (System.currentTimeMillis() - state.capturedAtMillis()) / 50L);
+        int weatherDuration = (int) Math.max(0L, state.weatherDuration() - elapsedTicks);
+        int thunderDuration = (int) Math.max(0L, state.thunderDuration() - elapsedTicks);
+        world.setStorm(state.storm());
+        world.setThundering(state.storm() && state.thundering());
+        world.setWeatherDuration(weatherDuration);
+        world.setThunderDuration(thunderDuration);
+    }
+
+    private record WeatherState(boolean storm, boolean thundering, int weatherDuration,
+                                int thunderDuration, long capturedAtMillis) { }
 
     private record ChunkRef(UUID worldId, int x, int z, String id) { }
 }
