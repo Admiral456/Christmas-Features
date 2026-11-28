@@ -46,3 +46,42 @@ Proto se nemají všechny chest packy skládat bez pravidel priority. Pokud bude
 ## Verze resource packu
 
 Java Edition 1.21.9–1.21.10 používá resource-pack format **69**. Pack format popisuje strukturu resource packu, nikoliv přímo verzi pluginu nebo serveru. Nízký pack format se proto nedá bezpečně „opravit“ jen přepsáním čísla, pokud pack obsahuje staré nebo přesunuté cesty a modelová schémata.
+
+## Bezpečné slučování ChristmasFeatures s hlavním serverovým packem
+
+ChristmasFeatures obsahuje dvě cílené definice ve vanilla namespace:
+
+- `assets/minecraft/items/paper.json` pro dárek (CustomModelData **12022**)
+- `assets/minecraft/items/amethyst_shard.json` pro ozdobu (CustomModelData **12023**)
+
+Tyto soubory nejsou samostatné textury v odděleném namespace: nahrazují definici daného vanilla předmětu. Při prostém rozbalení ZIPu přes existující serverový pack by se mohly ztratit modely, které do stejných položek přidaly jiné packy.
+
+V repozitáři je proto `scripts/resourcepack_guard.py`. Nástroj:
+
+- kontroluje JSON, formát packu 69, cesty a odkazy na vlastní modely/textury;
+- ověřuje integritu PNG a CRC vytvořeného ZIPu;
+- povoluje pouze dvě výše uvedené vanilla položky, ostatní pluginové assety musí být v namespace `christmasfeatures`;
+- při slučování zachová původní `pack.mcmeta` i jeho popis a formát;
+- u `paper.json` a `amethyst_shard.json` přidá naše prahy do existujícího `range_dispatch`, případně zachová celý původní model jako fallback;
+- při duplicitním CustomModelData nebo neznámé kolizi skončí chybou. Nepoužívá automatické přepisování ani volbu „vítězného“ packu.
+
+### Kontrola samotného pluginového packu
+
+```bash
+python scripts/resourcepack_guard.py validate resourcepack
+python -m unittest discover -s scripts/tests -v
+```
+
+### Slučování do kopie finálního serverového packu
+
+Nejprve si stáhni nebo zkopíruj skutečný výsledný serverový pack, který už obsahuje assety všech aktivních pluginů (například ItemsAdder, Oraxen, ModelEngine a BetterHud). Pracuj s kopií, nikoliv se složkou pluginu nebo jediným produkčním souborem.
+
+```bash
+python scripts/resourcepack_guard.py merge --base ./server-pack-copy.zip --addon ./resourcepack --output ./dist/ChristmasFeatures-Merged-1.21.10.zip
+```
+
+Výstupní ZIP je nový soubor a vedle něj vznikne `.sha256` kontrolní součet. Vstupní packy se nemění. Pokud nástroj narazí na neznámou kolizi nebo konflikt prahů, nic nepřepíše a vyžádá ruční kontrolu.
+
+**Důležité:** výstup se automaticky nenahrává na server a nemění URL serverového resource packu. Před změnou produkční URL jej otestuj na kopii serveru s reálnými pluginy a klientem. Samotný úspěšný GitHub Actions build potvrzuje kontrolu souborů a sestavení, nikoliv kompatibilitu s konkrétní instalací serveru.
+
+Resource packy generované pluginy nikdy neupravuj přímo. Vždy pracuj s kopií finálního sloučeného packu a zachovej původní vstupy i možnost návratu.
