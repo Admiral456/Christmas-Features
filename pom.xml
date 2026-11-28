@@ -5,15 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.vanocni</groupId>
     <artifactId>christmas-features</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
     <name>ChristmasFeatures</name>
     <description>Christmas events, ChatGames, winter ambience and native cosmetics for Paper 1.21.10.</description>
-
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
     <repositories>
         <repository>
             <id>papermc</id>
@@ -24,7 +22,6 @@
             <url>https://repo.helpch.at/releases/</url>
         </repository>
     </repositories>
-
     <dependencies>
         <dependency>
             <groupId>io.github.toxicity188</groupId>
@@ -45,7 +42,6 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
     <build>
         <finalName>ChristmasFeatures-1.21.10</finalName>
         <plugins>

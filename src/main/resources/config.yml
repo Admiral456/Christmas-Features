@@ -1,5 +1,5 @@
 # ChristmasFeatures - Paper/Purpur 1.21.10
-# All worlds listed here are converted progressively as their chunks load.
+# Winter conversion only touches chunks as they are loaded. Keep a backup before large biome operations.
 
 winter:
   enabled: true
@@ -9,18 +9,18 @@ winter:
   force-snow-weather: true
   chunks-per-tick: 1
 
-# The event centre defaults to the configured world's world spawn.
-# You can set center.x/y/z in each event to override it.
+# Event centre defaults to the configured world's world spawn.
+# The 45-block radius has approximately twice the area of the former 32-block radius.
 events:
   auto-start:
     enabled: true
     interval-minutes: 90
   gifts:
     world: world
-    duration-seconds: 300
-    spawn-count: 18
-    radius: 32
-    target-score: 5
+    duration-seconds: 600
+    spawn-count: 10
+    radius: 45
+    target-score: 10
   ornaments:
     world: world
     duration-seconds: 300
@@ -28,55 +28,118 @@ events:
     radius: 32
     target-score: 5
 
-# ChatGames run automatically and can also be started with /christmas chatgame start.
 chatgames:
   auto-start:
     enabled: true
     interval-minutes: 20
-  duration-seconds: 60
+  duration-seconds: 75
   tasks:
-    - question: "Kolik je 12 × 8? Napiš výsledek do chatu."
-      answer: "96"
-      aliases: ["96"]
-    - question: "Napiš do chatu heslo SANTACLAUS."
-      answer: "SANTACLAUS"
-      aliases: ["santaclaus"]
-    - question: "Kolik stran má klasická kostka?"
-      answer: "6"
-      aliases: ["šest", "sest"]
-    - question: "Napiš název zimního bloku: SNOW BLOCK."
-      answer: "snow block"
-      aliases: ["snow_block", "snowblock"]
+    - question: "Kolik je 17 × 6? Napiš jen číslo."
+      answer: "102"
+      aliases: ["sto dva"]
+    - question: "Kolik je 144 ÷ 12? Napiš jen číslo."
+      answer: "12"
+      aliases: ["dvanáct", "dvanact"]
+    - question: "Kolik je 9 × 9? Napiš jen číslo."
+      answer: "81"
+      aliases: ["osmdesát jedna", "osmdesat jedna"]
+    - question: "Pokračuj v řadě: 2, 4, 8, 16, ?"
+      answer: "32"
+      aliases: ["třicet dva", "tricet dva"]
+    - question: "Kolik dní má měsíc prosinec?"
+      answer: "31"
+      aliases: ["třicet jedna", "tr icet jedna"]
+    - question: "Jak se jmenuje sob s červeným nosem?"
+      answer: "Rudolf"
+      aliases: ["Rudolph"]
+    - question: "Kolik okének má běžný adventní kalendář?"
+      answer: "24"
+      aliases: ["dvacet čtyři", "dvacet ctyri"]
+    - question: "Jakou barvu má Grinch?"
+      answer: "zelenou"
+      aliases: ["zelená", "zeleny", "zelené"]
+    - question: "Jak se jmenuje blok, ze kterého se staví Nether portál?"
+      answer: "obsidian"
+      aliases: ["obsidián"]
+    - question: "Který mob v Minecraftu při přiblížení exploduje?"
+      answer: "Creeper"
+      aliases: []
+    - question: "Jak se jmenuje boss v dimenzi End?"
+      answer: "Ender drak"
+      aliases: ["ender dragon", "drak endu"]
+    - question: "Kolik očí Enderu může být potřeba k naplnění portálu?"
+      answer: "12"
+      aliases: ["dvanáct", "dvanact"]
+    - question: "Jak se jmenuje předmět potřebný k aktivaci End portálu?"
+      answer: "oko enderu"
+      aliases: ["eye of ender", "oko endu"]
+    - question: "Kolik nohou má pavouk?"
+      answer: "8"
+      aliases: ["osm"]
+    - question: "Jak se jmenuje dimenze s pevnostmi a Blaze?"
+      answer: "Nether"
+      aliases: ["podsvětí", "podsveti"]
+    - question: "Kolik je 250 minus 75?"
+      answer: "175"
+      aliases: ["sto sedmdesát pět", "sto sedmdesat pet"]
+    - question: "Kolik je 7 na druhou?"
+      answer: "49"
+      aliases: ["čtyřicet devět", "ctyricet devet"]
+    - question: "Který den v prosinci se slaví Štědrý den? Napiš den v měsíci."
+      answer: "24"
+      aliases: ["dvacet čtyři", "dvacet ctyri", "24.12", "24. prosince"]
+    - question: "Která ryba bývá tradiční českou štědrovečerní večeří?"
+      answer: "kapr"
+      aliases: []
+    - question: "Jak se jmenuje tradiční české vánoční pečivo z kynutého těsta?"
+      answer: "vánočka"
+      aliases: ["vanocka"]
+    - question: "Jak se jmenuje zelený vánoční bručoun, který krade dárky?"
+      answer: "Grinch"
+      aliases: []
+    - question: "Který měsíc následuje po listopadu?"
+      answer: "prosinec"
+      aliases: ["december"]
+    - question: "Kolik je 15 × 4?"
+      answer: "60"
+      aliases: ["šedesát", "sedesat"]
+    - question: "Jaký předmět v Minecraftu potřebuješ k očarování nástrojů?"
+      answer: "lapis lazuli"
+      aliases: ["lapis"]
+    - question: "Který mob v Minecraftu střílí šípy?"
+      answer: "kostlivec"
+      aliases: ["skeleton"]
+    - question: "Jak se jmenuje rostlina s červenými listy známá jako vánoční hvězda?"
+      answer: "vánoční hvězda"
+      aliases: ["vanocni hvezda", "poinsettia"]
 
-# BetterHud displays the event panel in the player's right-side HUD.
 hud:
   mode: BETTERHUD
   fallback-mode: BOSSBAR
 
-# The Grinch NPC opens this menu when a player right-clicks it.
-# Set these to the actual console commands of the tag and quest plugins on this server.
-# Use %player% as the placeholder for the player who clicked the Grinch.
 grinch:
   menu:
-    # The Grinch opens our own cosmetic tag selector for the player who clicked him.
     tags-command: "christmas cosmetics %player% tag"
     quests-command: ""
+    gift-start-cooldown-seconds: 1800
+    chatgame-start-cooldown-seconds: 900
 
-
-# These are console commands executed by the server. Replace the examples with the actual
-# command syntax of the tags/cosmetics plugin installed on your server.
 cosmetics:
   events:
     gifts:
       trailstudio-effect: trail-aurora-braid
       first-place-commands:
-        - "give %player% diamond 3"
-      # Example integration command: "YOUR_TAG_PLUGIN_COMMAND %player% christmas_winner"
+        - "give %player% diamond 10"
     ornaments:
       trailstudio-effect: burst-frost-flower
       first-place-commands:
         - "give %player% emerald 5"
   chatgames:
     trailstudio-effect: wings-ice-dragon
+    vip-trailstudio-effect: aura-astral-star
     winner-commands:
       - "give %player% emerald 3"
+      - "experience add %player% 12 points"
+    vip-winner-commands:
+      - "give %player% emerald 2"
+      - "give %player% gold_ingot 2"
