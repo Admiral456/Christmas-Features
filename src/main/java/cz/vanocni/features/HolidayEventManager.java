@@ -1,6 +1,7 @@
 package cz.vanocni.features;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -10,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -44,7 +46,32 @@ public final class HolidayEventManager implements Listener {
     }
 
     public void startScheduler() {
+        cleanupOrphanedLoadedItems();
         scheduleAutoStart();
+    }
+
+    private void cleanupOrphanedLoadedItems() {
+        int removed = 0;
+        for (World world : Bukkit.getWorlds()) {
+            for (Chunk chunk : world.getLoadedChunks()) {
+                for (org.bukkit.entity.Entity entity : chunk.getEntities()) {
+                    if (entity instanceof Item item && hasEventToken(item)) {
+                        item.remove();
+                        removed++;
+                    }
+                }
+            }
+        }
+        if (removed > 0) {
+            plugin.getLogger().info("Bylo odstraněno " + removed
+                    + " osiřelých vánočních eventových předmětů z načtených chunků.");
+        }
+    }
+
+    private boolean hasEventToken(Item item) {
+        ItemMeta meta = item.getItemStack().getItemMeta();
+        return meta != null && meta.getPersistentDataContainer()
+                .has(plugin.eventItemToken(), PersistentDataType.STRING);
     }
 
     public void scheduleAutoStart() {
@@ -169,6 +196,11 @@ public final class HolidayEventManager implements Listener {
             String eventId = meta.getPersistentDataContainer().get(plugin.eventItemToken(), PersistentDataType.STRING);
             if (eventId != null && (active == null || !eventId.equals(active.eventId()))) entity.remove();
         }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onInventoryPickup(InventoryPickupItemEvent event) {
+        if (hasEventToken(event.getItem())) event.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
