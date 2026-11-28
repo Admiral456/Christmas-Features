@@ -6,6 +6,18 @@ winter:
   worlds:
     - world
   biome: SNOWY_PLAINS
+  # These original mountain biomes are left untouched for terrain identity and mob spawn rules.
+  preserve-biomes:
+    - MEADOW
+    - GROVE
+    - SNOWY_SLOPES
+    - FROZEN_PEAKS
+    - JAGGED_PEAKS
+    - STONY_PEAKS
+    - WINDSWEPT_HILLS
+    - WINDSWEPT_GRAVELLY_HILLS
+    - WINDSWEPT_FOREST
+    - WINDSWEPT_SAVANNA
   force-snow-weather: true
   chunks-per-tick: 1
   ambience:
