@@ -1,6 +1,7 @@
 package cz.vanocni.features;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,6 +33,7 @@ public final class TrailStudioBridge implements Listener {
     private final File dataFile;
     private final YamlConfiguration data;
     private final Map<UUID, PermissionAttachment> attachments = new HashMap<>();
+    private boolean dataLoadFailed;
 
     public TrailStudioBridge(ChristmasFeaturesPlugin plugin) {
         this.plugin = plugin;
@@ -39,7 +41,24 @@ public final class TrailStudioBridge implements Listener {
         if (!plugin.getDataFolder().exists() && !plugin.getDataFolder().mkdirs()) {
             plugin.getLogger().warning("Nelze vytvořit složku pluginu pro TrailStudio unlock data.");
         }
-        this.data = YamlConfiguration.loadConfiguration(dataFile);
+        this.data = loadDataSafely();
+    }
+
+    private YamlConfiguration loadDataSafely() {
+        YamlConfiguration loaded = new YamlConfiguration();
+        if (!dataFile.isFile()) return loaded;
+        try {
+            loaded.load(dataFile);
+        } catch (IOException | InvalidConfigurationException exception) {
+            dataLoadFailed = true;
+            File backup = plugin.backupInvalidYaml(dataFile);
+            String backupInfo = backup == null
+                    ? "Původní soubor zůstal nedotčen; zálohu se nepodařilo vytvořit."
+                    : "Vytvořena záloha " + backup.getName() + ".";
+            plugin.getLogger().severe("Soubor trail-unlocks.yml obsahuje neplatný YAML: "
+                    + exception.getMessage() + ". Nová odemknutí se nebudou zapisovat. " + backupInfo);
+        }
+        return loaded;
     }
 
     public boolean isAvailable() {
@@ -62,6 +81,12 @@ public final class TrailStudioBridge implements Listener {
         }
 
         Player onlinePlayer = Bukkit.getPlayer(playerId);
+        if (dataLoadFailed) {
+            if (onlinePlayer != null) {
+                onlinePlayer.sendMessage("§cTrailStudio odemknutí nelze bezpečně uložit. trail-unlocks.yml je poškozený a musí být opraven ze zálohy.");
+            }
+            return false;
+        }
         if (isAvailable() && !isEffectConfigured(effectId)) {
             plugin.getLogger().warning("TrailStudio neobsahuje efekt '" + effectId
                     + "'. Přidej jej do plugins/TrailStudio/effects.yml nebo oprav cosmetics konfiguraci.");
@@ -158,6 +183,7 @@ public final class TrailStudioBridge implements Listener {
     }
 
     private void save() {
+        if (dataLoadFailed) return;
         try {
             data.save(dataFile);
         } catch (IOException exception) {
