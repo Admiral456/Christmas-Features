@@ -25,12 +25,15 @@ Tag se zobrazí v chatu přes PlaceholderAPI placeholder `%christmas_tag%`. Při
 | Sněhová spirála | všichni | vločky obíhají kolem hráče |
 | Polární záře | všichni | tyrkysová a modrá světelná stuha |
 | Hvězdný prach | všichni | zlaté hvězdné jiskry |
+| Kometa zimy | všichni | ledová kometa a světelná stopa za hráčem |
 | Nebeská křídla | VIP | animovaný obrys světelných křídel |
 | Koruna prázdnoty | VIP | fialový portálový prstenec nad hlavou |
 | Ledový fénix | VIP | ledová křídla, duše a mrazivé výboje |
 | Prismatický drak | VIP | vícebarevná spirála s end-rod jiskrami |
+| Nebeská bouře | VIP | zlatá a modrá koruna s fialovými oblouky |
+| Drak zatmění | VIP | temně fialová aura, ledová křídla a portálové částice |
 
-Trail efekty jsou serverové částice. Jejich vzhled proto všichni hráči vidí bez instalace OptiFine, EMF nebo jiného klientského módu. VIP efekty používají více částic než běžné efekty; při velmi vysokém počtu současně online hráčů lze snížit frekvenci v další úpravě.
+Trail efekty jsou serverové částice. Menu zobrazí až 14 položek na stránce a automaticky nabídne další stránku, pokud bude efektů více. Jejich vzhled proto všichni hráči vidí bez instalace OptiFine, EMF nebo jiného klientského módu. VIP efekty používají více částic než běžné efekty; při velmi vysokém počtu současně online hráčů lze snížit frekvenci v další úpravě.
 
 ### Čepice a koruny
 
