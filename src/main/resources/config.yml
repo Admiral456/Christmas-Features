@@ -61,67 +61,6 @@ grinch:
     tags-command: ""
     quests-command: ""
 
-chest:
-  enabled: true
-  # Set the block in-game with /christmas chest set while looking at a chest or barrel.
-  location:
-    world: ""
-    x: 0
-    y: 0
-    z: 0
-  # A real item is guaranteed even when the selected reward is cosmetic-only or a command fails.
-  fallback-reward:
-    material: GOLD_INGOT
-    amount: 3
-    name: "§6Vánoční jistota"
-    lore:
-      - "§7Základní fyzická odměna z vánoční bedny."
-  rewards:
-    - weight: 45
-      name: "§6Vánoční balíček"
-      material: GOLD_INGOT
-      amount: 12
-      lore:
-        - "§7Odměna z vánoční bedny"
-    - weight: 30
-      name: "§bLedový krystal"
-      material: AMETHYST_SHARD
-      amount: 8
-      lore:
-        - "§7Odměna z vánoční bedny"
-    - weight: 15
-      name: "§aSněhová odměna"
-      material: DIAMOND
-      amount: 2
-      lore:
-        - "§7Odměna z vánoční bedny"
-    - weight: 8
-      name: "§2Smaragdový balíček"
-      material: EMERALD
-      amount: 5
-      lore:
-        - "§7Vzácnější vánoční nález"
-    - weight: 3
-      name: "§6Zlaté vánoční jablko"
-      material: ENCHANTED_GOLDEN_APPLE
-      amount: 1
-      lore:
-        - "§7Velmi vzácná odměna z vánoční bedny"
-    - weight: 2
-      name: "§5Netheritový úlomek"
-      material: NETHERITE_SCRAP
-      amount: 1
-      lore:
-        - "§7Mimořádně vzácná surovina"
-    # Cosmetic-only rewards still include the configured physical fallback item.
-    - weight: 3
-      name: "§dVánoční hvězdná aura"
-      material: NONE
-      lore:
-        - "§7Trvalé odemknutí kosmetiky v TrailStudio."
-      trailstudio-effect: aura-astral-star
-      commands: []
-
 # These are console commands executed by the server. Replace the examples with the actual
 # command syntax of the tags/cosmetics plugin installed on your server.
 cosmetics:
@@ -129,16 +68,13 @@ cosmetics:
     gifts:
       trailstudio-effect: trail-aurora-braid
       first-place-commands:
-        - "christmas key give %player% 1"
         - "give %player% diamond 3"
       # Example integration command: "YOUR_TAG_PLUGIN_COMMAND %player% christmas_winner"
     ornaments:
       trailstudio-effect: burst-frost-flower
       first-place-commands:
-        - "christmas key give %player% 1"
         - "give %player% emerald 5"
   chatgames:
     trailstudio-effect: wings-ice-dragon
     winner-commands:
-      - "christmas key give %player% 1"
       - "give %player% emerald 3"

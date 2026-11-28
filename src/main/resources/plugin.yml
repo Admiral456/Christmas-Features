@@ -1,9 +1,9 @@
 name: ChristmasFeatures
-version: 1.0.2
+version: 1.0.3
 main: cz.vanocni.features.ChristmasFeaturesPlugin
 api-version: '1.21'
 author: Server Team
-description: Christmas events, key chest, ChatGames, BetterHud HUD and TrailStudio cosmetics for Paper 1.21.10.
+description: Christmas events, ChatGames, BetterHud HUD and TrailStudio cosmetics for Paper 1.21.10.
 softdepend: [ModelEngine, MythicMobs, BetterHud, christmas-season, ChristmasGift, TrailStudio]
 commands:
   christmas:
@@ -12,5 +12,5 @@ commands:
     aliases: [vanocni, xfeatures]
 permissions:
   christmas.admin:
-    description: Allows managing Christmas events, key chest and winter settings.
+    description: Allows managing Christmas events and winter settings.
     default: op

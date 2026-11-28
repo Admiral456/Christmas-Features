@@ -61,7 +61,7 @@ Use the actual name of your overworld if it is not world.
 - playerBubble keeps extending winter biomes around active players as they explore.
 - instantSnow.enabled with freezeWater: true places initial snow and freezes still water when chunks are converted.
 - snowstorm.mode: manual avoids the default auto snowstorm pauses.
-- gifts.enabled: false prevents ChristmasSeason's random gift chests competing with the ChristmasFeatures spawn chest that requires a key.
+- gifts.enabled controls ChristmasSeason's own random gift chests; leave it false unless you explicitly want to use that separate gift system.
 - decoration.enabled: true keeps the separate decorative drops available.
 
 coverage: 0.8 puts snow on 80% of eligible surface columns when converted. Test this on a backup first: it can add snow to exposed player-built surfaces too. Exclude protected spawn/build areas through biome.exclude.areas or WorldGuard region exclusions if needed.

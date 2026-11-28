@@ -35,7 +35,6 @@ public final class BetterHudApiBridge {
         addString(strings, "christmas_chatgame_active", HudSnapshot::chatGameActive);
         addString(strings, "christmas_chatgame_question", HudSnapshot::chatGameQuestion);
         addString(strings, "christmas_chatgame_time", HudSnapshot::chatGameTime);
-        addString(strings, "christmas_key_count", HudSnapshot::keyCount);
 
         registered = true;
         refresh(plugin);
@@ -67,7 +66,6 @@ public final class BetterHudApiBridge {
             String eventTime = eventActive ? TimeFormat.mmss(plugin.events().remainingSeconds()) : "";
             String chatQuestion = chatGameActive ? plugin.chatGames().hudQuestionText() : "";
             String chatTime = chatGameActive ? TimeFormat.mmss(plugin.chatGames().remainingSeconds()) : "";
-            String keyCount = Integer.toString(plugin.keyChest().countKeys(player));
 
             next.put(player.getUniqueId(), new HudSnapshot(
                     Boolean.toString(eventActive),
@@ -76,8 +74,7 @@ public final class BetterHudApiBridge {
                     eventTime,
                     Boolean.toString(chatGameActive),
                     chatQuestion,
-                    chatTime,
-                    keyCount
+                    chatTime
             ));
         });
         snapshots = Map.copyOf(next);
@@ -103,8 +100,7 @@ public final class BetterHudApiBridge {
             String eventTime,
             String chatGameActive,
             String chatGameQuestion,
-            String chatGameTime,
-            String keyCount
+            String chatGameTime
     ) {
     }
 }

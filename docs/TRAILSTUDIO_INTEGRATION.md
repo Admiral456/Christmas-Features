@@ -23,7 +23,7 @@ The uploaded 1.0.3 JAR is not the latest public listing we found: the [Spigot re
 | burst-frost-flower | burst | Frost-flower celebration | Permission |
 | aura-astral-star | aura | Star aura | Permission |
 
-The first four are already available to players who have trailstudio.use. The remaining four are used as permanent Christmas reward unlocks by ChristmasFeatures.
+The first four are already available to players who have trailstudio.use. ChristmasFeatures uses three of the remaining effects as permanent event and ChatGame rewards; `aura-astral-star` remains in TrailStudio's catalogue but is no longer granted by this plugin.
 
 ## How the integration works
 
@@ -44,9 +44,6 @@ If TrailStudio is not installed yet, unlock IDs are saved and can be applied aft
 - Winning the gift-hunt event unlocks trail-aurora-braid.
 - Winning the ornament-hunt event unlocks burst-frost-flower.
 - Winning a Christmas ChatGame unlocks wings-ice-dragon.
-- The Christmas key chest has a low-weight cosmetic reward that unlocks aura-astral-star.
-
-The chest's weight 3 is a relative weight, not a 3% fixed chance. With the default reward weights 45, 30, 15 and 3, its chance is 3/93 (about 3.23%).
 
 ## Commands
 

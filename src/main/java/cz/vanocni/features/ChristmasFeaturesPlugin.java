@@ -4,14 +4,12 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ChristmasFeaturesPlugin extends JavaPlugin {
-    private NamespacedKey keyToken;
     private NamespacedKey eventItemToken;
     private NamespacedKey winterAppliedToken;
 
     private WinterManager winterManager;
     private HolidayEventManager eventManager;
     private ChatGameManager chatGameManager;
-    private KeyChestManager keyChestManager;
     private ActivityHud activityHud;
     private TrailStudioBridge trailStudioBridge;
     private BetterHudBridge betterHudBridge;
@@ -20,15 +18,17 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        if (getConfig().contains("chest")) {
+            getConfig().set("chest", null);
+            saveConfig();
+        }
 
-        keyToken = new NamespacedKey(this, "christmas_key");
         eventItemToken = new NamespacedKey(this, "christmas_event_item");
         winterAppliedToken = new NamespacedKey(this, "winter_biome_applied");
 
         winterManager = new WinterManager(this);
         eventManager = new HolidayEventManager(this);
         chatGameManager = new ChatGameManager(this);
-        keyChestManager = new KeyChestManager(this);
         activityHud = new ActivityHud(this, eventManager, chatGameManager);
         trailStudioBridge = new TrailStudioBridge(this);
         betterHudBridge = new BetterHudBridge(this);
@@ -37,7 +37,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         getServer().getPluginManager().registerEvents(winterManager, this);
         getServer().getPluginManager().registerEvents(eventManager, this);
         getServer().getPluginManager().registerEvents(chatGameManager, this);
-        getServer().getPluginManager().registerEvents(keyChestManager, this);
         getServer().getPluginManager().registerEvents(activityHud, this);
         getServer().getPluginManager().registerEvents(trailStudioBridge, this);
         getServer().getPluginManager().registerEvents(grinchMenuManager, this);
@@ -67,10 +66,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         if (trailStudioBridge != null) trailStudioBridge.shutdown();
     }
 
-    public NamespacedKey keyToken() {
-        return keyToken;
-    }
-
     public NamespacedKey eventItemToken() {
         return eventItemToken;
     }
@@ -89,10 +84,6 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
 
     public ChatGameManager chatGames() {
         return chatGameManager;
-    }
-
-    public KeyChestManager keyChest() {
-        return keyChestManager;
     }
 
     public TrailStudioBridge trailStudio() {

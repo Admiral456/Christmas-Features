@@ -9,16 +9,9 @@ christmas_features_info_v2:
       outline: true
     2:
       name: christmas_font_v2
-      pattern: "<#FFD77A>Klíče: <white>[christmas_key_count]"
-      x: 0
-      y: 13
-      align: right
-      outline: true
-    3:
-      name: christmas_font_v2
       pattern: "<#A8E8FF>Sbírej dárky a ozdoby!"
       x: 0
-      y: 26
+      y: 13
       align: right
       outline: true
 

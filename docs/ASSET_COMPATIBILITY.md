@@ -12,7 +12,7 @@ Cíl serveru: **Paper/Purpur 1.21.10**. Soubory byly lokálně zkontrolovány ja
 | `Consistent Christmas Chests.zip` | Textury a modely všech variant truhel | Starší pack metadata; překrývá se s CHRISHMAS PACK i SimpleChristmasChests | Nepoužívat společně s jiným chest packem |
 | `ChristmasPack_26.3_v3.3.zip` | Velký vánoční vanilla overhaul, 642 PNG, 138 JSON, OptiFine properties a několik CEM modelů | Je to sestavení pro 26.3, nikoliv pro 1.21.10 | Nedowngradovat ručně. Autor vydal samostatný `ChristmasPack_1.21.10_v3.2.zip` |
 | `Christmas mobs.zip` | Vánoční vzhled téměř všech mobů; 84 souborů modelů `.jem` a textury | Existuje vydání pro 1.21.10, ale vyžaduje klientské EMF + ETF | Nehodí se pro hráče s čistým vanilla klientem. Nejde o serverový plugin |
-| `ChristmasGift-1.4.0.jar` | Dárkové itemy, ruleta, Common–Mythic odměny, combo bonusy, příkazové rewardy | Plugin metadata uvádí API 1.21; vydavatel uvádí Paper 1.21–1.21.11 a Purpur jako pravděpodobně kompatibilní | Volitelný doplněk pro dárkové itemy; fyzickou bednu na klíč nenahrazuje |
+| `ChristmasGift-1.4.0.jar` | Dárkové itemy, ruleta, Common–Mythic odměny, combo bonusy, příkazové rewardy | Plugin metadata uvádí API 1.21; vydavatel uvádí Paper 1.21–1.21.11 a Purpur jako pravděpodobně kompatibilní | Volitelný samostatný doplněk pro dárkové itemy, ruletu a odměny |
 | `ChristmasSeason-2.5.0.jar` | Zimní biomy se SQLite snapshoty, sněhové bouře, dekorace, dárky, Wichtel, elfové, sněhuláci a adventní kalendář | Metadata uvádí minimum API 1.21.3; dokumentace autora výslovně uvádí test na Paper 1.21.10 a kompatibilitu s Purpur | Doporučený doplněk pro svět a atmosféru. ChristmasFeatures při jeho načtení vypne vlastní WinterManager |
 
 ## Důležité překryvy resource packů
@@ -32,8 +32,8 @@ Proto se nemají všechny chest packy skládat bez pravidel priority. Pokud bude
 
 ## Doporučená sestava
 
-1. **ChristmasSeason 2.5.0** pro zimní svět a atmosféru. Nastavit snapshoty, zálohování a okamžité zamrzání vody/sněžení; random gifts vypnout, pokud má být jedinou otevíratelnou bednou naše klíčová bedna.
-2. **ChristmasFeatures** pro soutěžní eventy, ChatGames a fyzickou spawn bednu otevíratelnou pouze naším vánočním klíčem.
+1. **ChristmasSeason 2.5.0** pro zimní svět a atmosféru. Nastavit snapshoty, zálohování a okamžité zamrzání vody/sněžení; jeho vlastní náhodné dárky zapnout pouze tehdy, pokud je na serveru chceš používat.
+2. **ChristmasFeatures** pro soutěžní eventy, ChatGames a odměny s napojením na vánoční kosmetiku.
 3. **SimpleChristmasChests** jako volitelná textura běžných truhel, až po testu na 1.21.10.
 4. **BetterHud** je vhodný další krok pro propracovaný animovaný event HUD. Podporuje Paper/Purpur, verzi pluginu 1.20.4–1.21.11, animace a automatické generování resource packu.
 5. **Christmas mobs** zatím nenasazovat hráčům bez EMF+ETF. Pro čistý vanilla klient by bylo potřeba moby předělat na serverové modely/entitní prezentace, například přes kompatibilní modelový plugin.

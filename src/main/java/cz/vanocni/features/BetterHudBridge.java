@@ -78,10 +78,55 @@ public final class BetterHudBridge {
         // administrator customizations or leaving players stuck on an old layout.
         copyIfMissing("betterhud/v2/texts/christmas-font-v2.yml",
                 dataFolder.resolve("texts/christmas-font-v2.yml"));
-        copyIfMissing("betterhud/v2/layouts/christmas-layout-v2.yml",
-                dataFolder.resolve("layouts/christmas-layout-v2.yml"));
+        Path layoutPath = dataFolder.resolve("layouts/christmas-layout-v2.yml");
+        copyIfMissing("betterhud/v2/layouts/christmas-layout-v2.yml", layoutPath);
+        removeKeyCountLayoutEntry(layoutPath);
         copyIfMissing("betterhud/v2/huds/christmas-hud-v2.yml",
                 dataFolder.resolve("huds/christmas-hud-v2.yml"));
+    }
+
+    /** Removes the retired Christmas key counter from an already-installed BetterHud layout. */
+    private void removeKeyCountLayoutEntry(Path layoutPath) throws IOException {
+        if (!Files.exists(layoutPath)) return;
+        java.util.List<String> lines = new java.util.ArrayList<>(Files.readAllLines(layoutPath, StandardCharsets.UTF_8));
+        int infoIndex = lines.indexOf("christmas_features_info_v2:");
+        if (infoIndex < 0) return;
+
+        boolean removedKeyEntry = false;
+        boolean changed = false;
+        for (int i = infoIndex + 1; i < lines.size(); i++) {
+            String line = lines.get(i);
+            if (!line.isEmpty() && !Character.isWhitespace(line.charAt(0))) break;
+            if (!line.matches("    \\d+:")) continue;
+
+            int end = i + 1;
+            while (end < lines.size()) {
+                String candidate = lines.get(end);
+                if (candidate.matches("    \\d+:") || (!candidate.isEmpty() && !Character.isWhitespace(candidate.charAt(0)))) break;
+                end++;
+            }
+            boolean keyEntry = lines.subList(i, end).stream().anyMatch(value -> value.contains("christmas_key_count"));
+            if (keyEntry) {
+                lines.subList(i, end).clear();
+                removedKeyEntry = true;
+                changed = true;
+                i--;
+                continue;
+            }
+            if (removedKeyEntry && line.equals("    3:")) {
+                lines.set(i, "    2:");
+                for (int j = i + 1; j < end; j++) {
+                    if (lines.get(j).trim().equals("y: 26")) {
+                        lines.set(j, lines.get(j).replace("y: 26", "y: 13"));
+                        break;
+                    }
+                }
+                changed = true;
+                removedKeyEntry = false;
+            }
+            i = end - 1;
+        }
+        if (changed) Files.writeString(layoutPath, String.join("\n", lines) + "\n", StandardCharsets.UTF_8);
     }
 
     private void copyIfMissing(String resource, Path target) throws IOException {
@@ -132,7 +177,7 @@ public final class BetterHudBridge {
         }
 
         Pattern legacyEntry = Pattern.compile(
-                "(?m)^[ \\t]*-[ \\t]*" + Pattern.quote(LEGACY_HUD_ID) + "[ \\t]*(?:\\r?\\n|$)");
+                "(?m)^[ \\t]*-[ \\t]*" + Pattern.quote(LEGACY_HUD_ID) + "[ \\t]*(?:\\r?\n|$)");
         String updated = legacyEntry.matcher(yaml).replaceAll("");
 
         Pattern activeEntry = Pattern.compile("(?m)^[ \\t]*-[ \\t]*" + Pattern.quote(HUD_ID) + "[ \\t]*$");

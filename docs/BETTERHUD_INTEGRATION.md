@@ -4,7 +4,6 @@ ChristmasFeatures has an optional direct integration with BetterHud. It register
 
 - `[christmas_event_active]`, `[christmas_event_name]`, `[christmas_event_score]`, `[christmas_event_time]`
 - `[christmas_chatgame_active]`, `[christmas_chatgame_question]`, `[christmas_chatgame_time]`
-- `[christmas_key_count]` (the player's own valid Christmas keys in their inventory)
 
 ## Safe upgrade behavior
 

@@ -5,14 +5,12 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 ## Funkce
 
 - **Hledání dárků a ozdob:** soutěžní eventy s rozmístěnými sběratelskými předměty. První hráč, který splní cíl, vyhrává; při vypršení limitu rozhoduje nejvyšší skóre.
-- **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, počet klíčů hráče, probíhající event, skóre, čas a úkol ChatGames. Při nedostupném BetterHud se použije BossBar.
+- **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, probíhající event, skóre, čas a úkol ChatGames. Při nedostupném BetterHud se použije BossBar.
 - **Grinch na spawnu:** MythicMobs NPC s ModeEngine modelem, animací pozdravu a průběžným sledováním nejbližšího hráče. Kliknutí otevře GUI s volbami Úkoly a Tagy; obě stránky se napojí na příslušný plugin přes konzolové příkazy v konfiguraci.
-- **Vánoční bedna:** nastaví se na existující truhlu nebo sud na spawnu. Otevření vyžaduje speciální vánoční klíč s PDC identifikací.
-- **Vánoční klíč a odměny:** klíče získávají vítězové eventů a ChatGames. Bedna losuje vážené odměny; každé otevření garantuje skutečný předmět. Kosmetické nebo neplatné odměny mají fyzickou záložní odměnu a při plném inventáři se předmět položí na zem.
 - **ChatGames:** globálně oznámené úkoly. První správná odpověď vyhrává, plugin oznámí vítěze a předá odměnu.
+- **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
 - **Zimní svět:** při načítání chunků přepisuje 3D biomy na `SNOWY_PLAINS`, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
-- **Resource pack:** vlastní item modely/textury vánočního klíče, dárku a ozdoby.
-- Přesný výchozí loot table, váhy, šance a pravidla záložní fyzické odměny jsou popsány v [docs/KEY_CHEST_LOOT.md](docs/KEY_CHEST_LOOT.md).
+- **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
 
 Podle zadání projekt neobsahuje bossy ani speciální bojové itemy.
 
@@ -38,8 +36,7 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 1. Vlož `target/ChristmasFeatures-1.21.10.jar` do složky `plugins/`.
 2. Spusť server, aby vznikla konfigurace, a uprav `plugins/ChristmasFeatures/config.yml`.
 3. Nastav správný název světa v sekci `winter.worlds` a v nastavení světů eventů.
-4. Polož prázdnou truhlu nebo sud na požadované místo spawnu. Dívej se na blok a použij `/christmas chest set`.
-5. Nahraj ZIP resource pack na HTTPS úložiště a nastav ho hráčům jako serverový resource pack, nebo ho nech hráče nainstalovat ručně.
+4. Nahraj ZIP resource pack na HTTPS úložiště a nastav ho hráčům jako serverový resource pack, nebo ho nech hráče nainstalovat ručně.
 
 ## Příkazy
 
@@ -51,10 +48,8 @@ GitHub Actions workflow po pushi nebo pull requestu na `main` provede sestavení
 | `/christmas event stop` | Ukončí event |
 | `/christmas chatgame start` | Spustí ChatGame |
 | `/christmas chatgame stop` | Zastaví ChatGame |
-| `/christmas key give <hráč> [počet]` | Vydá vánoční klíč |
 | `/christmas trail give <hráč> <effect-id>` | Trvale odemkne TrailStudio efekt |
 | `/christmas grinch open [hráč]` | Otevře Grinchovo menu s odkazy na úkoly a tagy |
-| `/christmas chest set` | Nastaví zamčenou bednu na bloku, na který se díváš |
 | `/christmas winter apply` | Znovu aplikuje zimu na načtené chunky |
 | `/christmas reload` | Znovu načte konfiguraci |
 
@@ -75,8 +70,8 @@ TrailStudio je napojené přímo: vítězové eventů, ChatGames a speciální o
 ## Doporučená integrace s dodanými pluginy
 
 - **ChristmasSeason 2.5.0**: doporučeno pro zimní biomy, sněhové bouře, dekorace, adventní kalendář a vánoční moby. Je-li plugin načten, ChristmasFeatures automaticky vypne svůj jednodušší WinterManager, aby se dva systémy nepřepisovaly. Zimní systém spusť a nastav přes `/xmas on`, `/xmas biome convert-all <radius> <world> confirm` a `/xmas reload`. ChristmasSeason ukládá původní biomy do SQLite snapshotů; před hromadnou konverzí přesto zazálohuj svět.
-- **ChristmasGift 1.4.0**: volitelný systém dárkových itemů s ruletou a váženými Common–Mythic odměnami. Nenahrazuje fyzickou bednu vyžadující klíč v ChristmasFeatures. Pokud používáš zároveň ChristmasSeason, nepoužívej alias `/xmasgift` z ChristmasGift; příkazy `/christmasgift` a `/cgift` zůstávají dostupné.
-- V konfiguraci ChristmasSeason vypni `gifts.enabled`, pokud nechceš další volně otevíratelné dárkové truhly vedle naší klíčové bedny.
+- **ChristmasGift 1.4.0**: volitelný samostatný systém dárkových itemů s ruletou a váženými Common–Mythic odměnami. Pokud používáš zároveň ChristmasSeason, nepoužívej alias `/xmasgift` z ChristmasGift; příkazy `/christmasgift` a `/cgift` zůstávají dostupné.
+- V konfiguraci ChristmasSeason vypni `gifts.enabled`, podle toho, zda chceš používat jeho vlastní náhodné dárkové truhly.
 - Vlastní příkazy ChristmasFeatures nepoužívají alias `/xmas`, aby nekolidovaly s ChristmasSeason.
 
 ## Přehled dodaných assetů
@@ -89,7 +84,6 @@ See [docs/CHRISTMAS_MOBS_INTEGRATION.md](docs/CHRISTMAS_MOBS_INTEGRATION.md) for
 
 ## BetterHud integration
 
-BetterHud integration registers live event, ChatGame and player key-count placeholders. It installs versioned assets, safely migrates only the ChristmasFeatures HUD entry, and keeps other HUD entries and admin customizations. See [docs/BETTERHUD_INTEGRATION.md](docs/BETTERHUD_INTEGRATION.md).
 
 ## Grinch, Yeti and Frost Emperor
 
@@ -97,7 +91,7 @@ The Blockbench models and MythicMobs definitions are supplied as a separate impo
 
 ## TrailStudio integration
 
-TrailStudio is an optional separate plugin. ChristmasFeatures can permanently unlock its effects from event, ChatGame and key-chest rewards using Bukkit permission attachments; LuckPerms is not required. See docs/TRAILSTUDIO_INTEGRATION.md for the reviewed effect IDs and setup.
+TrailStudio is an optional separate plugin. ChristmasFeatures can permanently unlock its effects from event and ChatGame rewards using Bukkit permission attachments; LuckPerms is not required. See docs/TRAILSTUDIO_INTEGRATION.md for the reviewed effect IDs and setup.
 
 ## ChristmasSeason setup
 
