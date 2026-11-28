@@ -100,7 +100,8 @@ public final class HolidayEventManager implements Listener {
             return false;
         }
 
-        int count = Math.max(1, plugin.getConfig().getInt(path + ".spawn-count", 12));
+        // Guard against accidental extreme values in server configuration.
+        int count = Math.min(128, Math.max(1, plugin.getConfig().getInt(path + ".spawn-count", 12)));
         int radius = Math.max(5, plugin.getConfig().getInt(path + ".radius", 28));
         int duration = Math.max(30, plugin.getConfig().getInt(path + ".duration-seconds", 300));
         int target = Math.max(1, plugin.getConfig().getInt(path + ".target-score", 5));
@@ -110,7 +111,8 @@ public final class HolidayEventManager implements Listener {
         playerNames.clear();
         eventItems.clear();
         String eventId = UUID.randomUUID().toString();
-        active = new EventState(type, eventId, System.currentTimeMillis() + duration * 1000L, target, world);
+        long endsAtMillis = System.currentTimeMillis() + duration * 1000L;
+        active = new EventState(type, eventId, endsAtMillis, target, world);
 
         int spawned = 0;
         for (int i = 0; i < count; i++) {
@@ -129,7 +131,14 @@ public final class HolidayEventManager implements Listener {
 
         if (spawned == 0) {
             active = null;
+            plugin.getLogger().warning("Vánoční event nebyl spuštěn: nepodařilo se najít bezpečné místo pro žádný předmět.");
             return false;
+        }
+        if (spawned < target) {
+            plugin.getLogger().warning("Event rozmístil pouze " + spawned + " z " + count
+                    + " předmětů. Výherní limit byl upraven z " + target + " na " + spawned + ".");
+            target = spawned;
+            active = new EventState(type, eventId, endsAtMillis, target, world);
         }
 
         String label = displayName(type);
@@ -182,6 +191,9 @@ public final class HolidayEventManager implements Listener {
             meta.setCustomModelData(12023);
         }
         meta.getPersistentDataContainer().set(plugin.eventItemToken(), PersistentDataType.STRING, eventId);
+        // Distinct metadata prevents nearby collectibles from merging into a single stack.
+        meta.getPersistentDataContainer().set(plugin.eventItemUniqueToken(), PersistentDataType.STRING,
+                UUID.randomUUID().toString());
         stack.setItemMeta(meta);
         return stack;
     }
