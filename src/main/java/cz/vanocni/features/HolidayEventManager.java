@@ -2,8 +2,10 @@ package cz.vanocni.features;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -17,7 +19,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitTask;
-import net.kyori.adventure.text.Component;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -40,6 +41,7 @@ public final class HolidayEventManager implements Listener {
     private EventState active;
     private BukkitTask autoTask;
     private BukkitTask endTask;
+    private BukkitTask visualTask;
 
     public HolidayEventManager(ChristmasFeaturesPlugin plugin) {
         this.plugin = plugin;
@@ -105,6 +107,9 @@ public final class HolidayEventManager implements Listener {
         int radius = Math.min(128, Math.max(5, plugin.getConfig().getInt(path + ".radius", 28)));
         int duration = Math.max(30, plugin.getConfig().getInt(path + ".duration-seconds", 300));
         int target = Math.max(1, plugin.getConfig().getInt(path + ".target-score", 5));
+        double minDistance = Math.max(0.0, Math.min(32.0,
+                plugin.getConfig().getDouble(path + ".min-distance-between-items",
+                        type.equals("gifts") ? 9.0 : 7.0)));
         Location center = resolveCenter(world, path);
 
         scores.clear();
@@ -116,9 +121,11 @@ public final class HolidayEventManager implements Listener {
 
         int spawned = 0;
         Set<Long> usedColumns = new HashSet<>();
+        List<Location> placedLocations = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            Location location = findSafeLocation(world, center, radius, usedColumns);
+            Location location = findSafeLocation(world, center, radius, usedColumns, placedLocations, minDistance);
             if (location == null) continue;
+            placedLocations.add(location);
             ItemStack stack = createEventItem(type, eventId);
             Item item = world.dropItem(location, stack);
             item.setPickupDelay(0);
@@ -153,6 +160,8 @@ public final class HolidayEventManager implements Listener {
             active = new EventState(type, eventId, endsAtMillis, target, world);
         }
 
+        visualTask = Bukkit.getScheduler().runTaskTimer(plugin, this::animateEventItems, 5L, 10L);
+
         String label = displayName(type);
         Bukkit.broadcastMessage("§b§l✦ VÁNOČNÍ EVENT ✦ §f" + label + " právě začíná!");
         Bukkit.broadcastMessage("§7Najdi a seber co nejvíce předmětů. První hráč s §e" + target
@@ -175,21 +184,58 @@ public final class HolidayEventManager implements Listener {
         return world.getSpawnLocation();
     }
 
-    private Location findSafeLocation(World world, Location center, int radius, Set<Long> usedColumns) {
-        for (int attempt = 0; attempt < 100; attempt++) {
-            int x = center.getBlockX() + random.nextInt(radius * 2 + 1) - radius;
-            int z = center.getBlockZ() + random.nextInt(radius * 2 + 1) - radius;
+    private Location findSafeLocation(World world, Location center, int radius, Set<Long> usedColumns,
+                                          List<Location> placedLocations, double minDistance) {
+        // Uniform sampling inside a circle prevents the search area from having empty square corners.
+        for (int attempt = 0; attempt < 240; attempt++) {
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            double distance = Math.sqrt(random.nextDouble()) * radius;
+            int x = center.getBlockX() + (int) Math.round(Math.cos(angle) * distance);
+            int z = center.getBlockZ() + (int) Math.round(Math.sin(angle) * distance);
             long columnKey = (((long) x) << 32) ^ (z & 0xffffffffL);
             if (usedColumns.contains(columnKey)) continue;
+
             int y = world.getHighestBlockYAt(x, z);
-            if (y < world.getMinHeight() || y + 1 >= world.getMaxHeight()) continue;
+            if (y < world.getMinHeight() || y + 2 >= world.getMaxHeight()) continue;
             if (!world.getBlockAt(x, y, z).getType().isSolid()) continue;
-            if (!world.getBlockAt(x, y + 1, z).isEmpty()) continue;
-            if (!world.getBlockAt(x, y + 1, z).isPassable()) continue;
+
+            // Both the feet and head space must be passable, so gifts never spawn under low ceilings.
+            org.bukkit.block.Block feet = world.getBlockAt(x, y + 1, z);
+            org.bukkit.block.Block head = world.getBlockAt(x, y + 2, z);
+            if (!feet.isPassable() || feet.isLiquid() || !head.isPassable() || head.isLiquid()) continue;
+
+            boolean crowded = placedLocations.stream().anyMatch(existing -> {
+                double dx = existing.getX() - (x + 0.5);
+                double dz = existing.getZ() - (z + 0.5);
+                return dx * dx + dz * dz < minDistance * minDistance;
+            });
+            if (crowded) continue;
+
             usedColumns.add(columnKey);
             return new Location(world, x + 0.5, y + 1.2, z + 0.5);
         }
         return null;
+    }
+
+    private void animateEventItems() {
+        if (active == null) return;
+        Color accent = active.type().equals("gifts")
+                ? Color.fromRGB(255, 95, 105) : Color.fromRGB(115, 220, 255);
+        int animated = 0;
+        for (UUID entityId : new HashSet<>(eventItems)) {
+            if (animated >= 64) break;
+            org.bukkit.entity.Entity entity = Bukkit.getEntity(entityId);
+            if (!(entity instanceof Item item) || !item.isValid() || item.isDead()) continue;
+            Location point = item.getLocation().add(0, 0.28, 0);
+            World world = point.getWorld();
+            if (world == null) continue;
+
+            world.spawnParticle(Particle.END_ROD, point, 0);
+            world.spawnParticle(Particle.DUST, point.getX(), point.getY(), point.getZ(),
+                    0, 0, 0, 0, 0, new Particle.DustOptions(accent, 0.9f));
+            world.spawnParticle(Particle.SNOWFLAKE, point, 1, 0.08, 0.10, 0.08, 0.005);
+            animated++;
+        }
     }
 
     private ItemStack createEventItem(String type, String eventId) {
@@ -246,13 +292,22 @@ public final class HolidayEventManager implements Listener {
         }
 
         event.setCancelled(true);
+        Location pickupLocation = item.getLocation();
+        World pickupWorld = pickupLocation.getWorld();
+        if (pickupWorld != null) {
+            pickupWorld.spawnParticle(Particle.FIREWORK, pickupLocation, 1, 0.12, 0.18, 0.12, 0.01);
+            pickupWorld.spawnParticle(Particle.SNOWFLAKE, pickupLocation, 10, 0.28, 0.28, 0.28, 0.02);
+            pickupWorld.spawnParticle(Particle.END_ROD, pickupLocation, 5, 0.20, 0.22, 0.20, 0.01);
+        }
         item.remove();
         eventItems.remove(item.getUniqueId());
         int score = scores.merge(player.getUniqueId(), 1, Integer::sum);
         playerNames.put(player.getUniqueId(), player.getName());
         player.playSound(player.getLocation(), org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, 0.65f, 1.5f);
+        player.sendActionBar(RewardCommands.component("§b✦ " + displayName(active.type()) + " §8| §f"
+                + score + "/" + active.targetScore() + " §8| §7Zbývá předmětů: §f" + eventItems.size()));
         Bukkit.broadcastMessage("§b[ Vánoční event ] §f" + player.getName() + " §7našel předmět! (§e" + score
-                + "§7/" + active.targetScore() + ")");
+                + "§7/" + active.targetScore() + "§7) • Zbývá: §b" + eventItems.size());
 
         if (score >= active.targetScore()) {
             finishWithWinner(player.getUniqueId(), player.getName(), score);
@@ -294,7 +349,14 @@ public final class HolidayEventManager implements Listener {
 
     private void finish(String message, UUID winner, boolean announce) {
         if (active == null) return;
-        if (endTask != null) endTask.cancel();
+        if (endTask != null) {
+            endTask.cancel();
+            endTask = null;
+        }
+        if (visualTask != null) {
+            visualTask.cancel();
+            visualTask = null;
+        }
         for (UUID entityId : new HashSet<>(eventItems)) {
             org.bukkit.entity.Entity entity = Bukkit.getEntity(entityId);
             if (entity != null) entity.remove();
