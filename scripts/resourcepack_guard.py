@@ -150,7 +150,11 @@ def _resource_ref_target(kind: str, identifier: str) -> str | None:
         namespace, path = identifier.split(":", 1)
     else:
         namespace, path = "minecraft", identifier
-    if not NAMESPACE_RE.fullmatch(namespace) or not RESOURCE_PATH_RE.fullmatch(path):
+    if (
+        not NAMESPACE_RE.fullmatch(namespace)
+        or not RESOURCE_PATH_RE.fullmatch(path)
+        or any(part in ("", ".", "..") for part in path.split("/"))
+    ):
         raise GuardError(f"Invalid {kind} resource identifier: {identifier!r}")
     if namespace == "minecraft":
         return None  # Vanilla resources are supplied by the game or another pack.
@@ -240,7 +244,11 @@ def validate_pack(
             raise GuardError(f"{label}: invalid asset path: {path}")
         namespace = parts[1]
         resource_path = "/".join(parts[2:])
-        if not NAMESPACE_RE.fullmatch(namespace) or not RESOURCE_PATH_RE.fullmatch(resource_path):
+        if (
+            not NAMESPACE_RE.fullmatch(namespace)
+            or not RESOURCE_PATH_RE.fullmatch(resource_path)
+            or any(part in ("", ".", "..") for part in resource_path.split("/"))
+        ):
             raise GuardError(f"{label}: invalid Minecraft resource path: {path}")
         namespaces.add(namespace)
 
@@ -367,7 +375,13 @@ def _merge_item_definition(base_data: bytes, addon_data: bytes, path: str) -> by
 
     new_entries = addon_model["entries"]
     for entry in new_entries:
-        if not isinstance(entry, dict) or not isinstance(entry.get("threshold"), (int, float)):
+        if (
+            not isinstance(entry, dict)
+            or not isinstance(entry.get("threshold"), (int, float))
+            or isinstance(entry.get("threshold"), bool)
+            or not isinstance(entry.get("model"), dict)
+            or not math.isfinite(float(entry["threshold"]))
+        ):
             raise GuardError(f"Invalid ChristmasFeatures item entry in {path}.")
 
     if (
@@ -388,8 +402,9 @@ def _merge_item_definition(base_data: bytes, addon_data: bytes, path: str) -> by
                 not isinstance(threshold, (int, float))
                 or isinstance(threshold, bool)
                 or not math.isfinite(float(threshold))
+                or not isinstance(entry.get("model"), dict)
             ):
-                raise GuardError(f"Existing item definition has an invalid threshold: {path}")
+                raise GuardError(f"Existing item definition has an invalid entry: {path}")
             numeric = float(threshold)
             if numeric in seen:
                 raise GuardError(
@@ -462,7 +477,8 @@ def _ensure_output_is_separate(output: Path, *inputs: Path) -> None:
 def write_zip(files: dict[str, bytes], output: Path) -> str:
     output = output.expanduser()
     output.parent.mkdir(parents=True, exist_ok=True)
-    _ensure_output_is_separate(output, output.parent / "__never_used_input__")
+    if output.exists():
+        raise GuardError(f"Refusing to overwrite existing output: {output}")
     with zipfile.ZipFile(output, "x", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         for path, data in sorted(files.items()):
             archive.writestr(path, data)
