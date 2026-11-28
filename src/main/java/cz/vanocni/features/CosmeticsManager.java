@@ -387,15 +387,13 @@ public final class CosmeticsManager implements Listener {
                     String playerPath = path(player);
                     ItemStack replacement = player.getInventory().getHelmet();
                     if (replacement != null && !replacement.getType().isAir()) {
+                        // Keep the most recent real helmet so unequipping the cosmetic restores it.
                         data.set(playerPath + ".original-helmet", replacement.clone());
                         data.set(playerPath + ".had-original-helmet", true);
-                    } else {
-                        data.set(playerPath + ".original-helmet", null);
-                        data.set(playerPath + ".had-original-helmet", false);
+                        data.set(playerPath + ".hat-captured", true);
+                        save();
                     }
-                    data.set(playerPath + ".hat-captured", true);
                     player.getInventory().setHelmet(createHat(hat));
-                    save();
                 }
             }
         }
