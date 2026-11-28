@@ -17,6 +17,19 @@ import java.util.Map;
 import java.util.Set;
 
 public final class ChristmasFeaturesPlugin extends JavaPlugin {
+    private static final List<String> DEFAULT_PRESERVED_WINTER_BIOMES = List.of(
+            "MEADOW",
+            "GROVE",
+            "SNOWY_SLOPES",
+            "FROZEN_PEAKS",
+            "JAGGED_PEAKS",
+            "STONY_PEAKS",
+            "WINDSWEPT_HILLS",
+            "WINDSWEPT_GRAVELLY_HILLS",
+            "WINDSWEPT_FOREST",
+            "WINDSWEPT_SAVANNA"
+    );
+
     private NamespacedKey eventItemToken;
     private NamespacedKey eventItemUniqueToken;
     private NamespacedKey winterAppliedToken;
@@ -93,6 +106,11 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
      */
     private void migrateConfig() {
         boolean changed = false;
+
+        if (!getConfig().contains("winter.preserve-biomes")) {
+            getConfig().set("winter.preserve-biomes", DEFAULT_PRESERVED_WINTER_BIOMES);
+            changed = true;
+        }
 
         if (getConfig().getInt("events.gifts.spawn-count", 18) == 18) {
             getConfig().set("events.gifts.spawn-count", 10);
