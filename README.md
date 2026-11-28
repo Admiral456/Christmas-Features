@@ -69,6 +69,7 @@ Správcovské příkazy vyžadují christmas.admin (defaultně OP). Grinchovo me
 - Při staré konfiguraci se výchozí původní hodnoty hledání dárků (18 kusů, 5 minut, poloměr 32 a cíl 5) převedou na nové nastavení (10 kusů, 10 minut, poloměr 45 a cíl 10). Ostatní vlastní nastavení se zachovají.
 - Hledání dárků se centruje na světový spawn, pokud není nastaveno events.gifts.center.x/y/z.
 - Hledání dárků se nespustí, pokud plugin bezpečně nerozmístí všech 10 samostatných předmětů. Minimální odstup mezi dárky a ozdobami lze upravit pomocí `events.gifts.min-distance-between-items` a `events.ornaments.min-distance-between-items`. Zimní třpytky lze vypnout přes `winter.ambience.enabled: false`.
+- Starší sekce konfigurace `bosses.frost_emperor`, `bosses.winter_boss`, `bosses.illusioner` a `chest` aktuální verze nepoužívá, ale při startu je nemaže. Plugin pouze vypíše upozornění; případné ruční odstranění proveď až po záloze a kontrole obsahu.
 - Pokud je nainstalován ChristmasSeason, přebírá správu zimních biomů a počasí, aby se systémy nepřepisovaly.
 - `winter.preserve-biomes` určuje biomy, které ChristmasFeatures nesmí převést na SNOWY_PLAINS. Chybějící nastavení se doplní při migraci konfigurace, vlastní seznam se zachová. Biomy, které byly přepsány starší verzí pluginu, nelze zpětně obnovit bez původní zálohy světa.
 - TrailStudio je volitelný plugin. Odemčení se ukládají do plugins/ChristmasFeatures/trail-unlocks.yml, takže se neztratí při restartu. Bez TrailStudio se uloží a aktivují po jeho instalaci.
