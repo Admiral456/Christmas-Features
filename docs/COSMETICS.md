@@ -68,13 +68,35 @@ Permission node:
 
 \`christmas.cosmetics.vip\`
 
-Oprávnění má ve výchozím stavu \`false\`. Jestliže se tvoje LuckPerms skupina jmenuje \`vip\`, přiděl jí ho:
+Všechny VIP traily, VIP tagy a VIP koruny používají tento jeden permission node. Plugin kontroluje oprávnění přes Bukkit API (\`Player.hasPermission()\`), které LuckPerms automaticky obsluhuje. Není potřeba instalovat LuckPerms API ani nic dalšího nastavovat v konfiguraci pluginu. LuckPerms je uveden jako volitelná závislost, aby se načetl před ChristmasFeatures.
+
+Jestliže se tvoje LuckPerms skupina jmenuje \`vip\`, přiděl jí oprávnění:
 
 ~~~text
 /lp group vip permission set christmas.cosmetics.vip true
 ~~~
 
-Hráč si může vybrat běžné i VIP položky v jednom menu. Zamčené VIP položky jsou viditelné, ale bez oprávnění je nelze vybavit. Pokud hráč o VIP oprávnění přijde, VIP trail/čepice se vypne a VIP tag se přestane zobrazovat.
+Pro jednoho hráče můžeš použít:
+
+~~~text
+/lp user JMENO permission set christmas.cosmetics.vip true
+~~~
+
+Ověření konkrétního hráče:
+
+~~~text
+/lp user JMENO permission check christmas.cosmetics.vip
+~~~
+
+Odebrání oprávnění ze skupiny:
+
+~~~text
+/lp group vip permission unset christmas.cosmetics.vip
+~~~
+
+Nahraď \`vip\` skutečným názvem své LuckPerms skupiny. Pokud VIP hráč patří do jiné skupiny nebo dědí skupinu přes \`parent\`, přiděl node skupině, která má VIP členství skutečně reprezentovat.
+
+VIP položky jsou viditelné v menu, ale bez tohoto oprávnění je nelze nově vybavit ani používat. Při odebrání VIP se trail přestane vykreslovat, tag se skryje a VIP koruna se dočasně sundá. Výběr se nemaže: po opětovném přidělení permission se trail a koruna automaticky vrátí.
 
 ## Kompatibilita
 

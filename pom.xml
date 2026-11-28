@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.vanocni</groupId>
     <artifactId>christmas-features</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
     <name>ChristmasFeatures</name>
     <description>Christmas events, ChatGames, winter ambience and native cosmetics for Paper 1.21.10.</description>
     <properties>

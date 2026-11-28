@@ -304,15 +304,32 @@ public final class CosmeticsManager implements Listener {
     }
 
     public void clearHat(Player player) {
+        restoreOriginalHat(player, true);
+    }
+
+    /**
+     * Temporarily removes a VIP hat while its permission is missing without
+     * deleting the player's cosmetic selection. The hat is restored when the
+     * LuckPerms permission is granted again.
+     */
+    private void suspendHat(Player player) {
+        if (isCosmeticHat(player.getInventory().getHelmet())) {
+            restoreOriginalHat(player, false);
+        }
+    }
+
+    private void restoreOriginalHat(Player player, boolean forgetSelection) {
         String path = path(player);
         if (data.getBoolean(path + ".hat-captured", false)) {
             ItemStack original = data.getItemStack(path + ".original-helmet");
             player.getInventory().setHelmet(data.getBoolean(path + ".had-original-helmet", false) ? original : null);
         }
-        data.set(path + ".hat", null);
-        data.set(path + ".hat-captured", null);
-        data.set(path + ".had-original-helmet", null);
-        data.set(path + ".original-helmet", null);
+        if (forgetSelection) {
+            data.set(path + ".hat", null);
+            data.set(path + ".hat-captured", null);
+            data.set(path + ".had-original-helmet", null);
+            data.set(path + ".original-helmet", null);
+        }
         save();
     }
 
@@ -340,22 +357,12 @@ public final class CosmeticsManager implements Listener {
 
     private void applySaved(Player player) {
         String path = path(player);
-        String trail = data.getString(path + ".trail", "");
-        Cosmetic trailCosmetic = find("trail", trail);
-        if (trailCosmetic != null && trailCosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION)) {
-            data.set(path + ".trail", null);
-        }
-
-        String tag = data.getString(path + ".tag", "");
-        Cosmetic tagCosmetic = find("tag", tag);
-        if (tagCosmetic != null && tagCosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION)) {
-            data.set(path + ".tag", null);
-        }
+        // Trail and tag selections remain stored; their render/placeholder checks hide locked VIP items.
 
         String hat = data.getString(path + ".hat", "");
         Cosmetic hatCosmetic = find("hat", hat);
         if (hatCosmetic != null && hatCosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION)) {
-            clearHat(player);
+            suspendHat(player);
         } else if (hatCosmetic != null) {
             if (!data.getBoolean(path + ".hat-captured", false)) {
                 ItemStack current = player.getInventory().getHelmet();
@@ -382,8 +389,8 @@ public final class CosmeticsManager implements Listener {
             Cosmetic cosmetic = find("trail", id);
             if (cosmetic == null) continue;
             if (cosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION)) {
-                data.set(path(player) + ".trail", null);
-                save();
+                // Do not render or erase the choice: it becomes active again
+                // automatically when LuckPerms restores the VIP permission.
                 continue;
             }
             renderTrail(player, id);
@@ -394,7 +401,7 @@ public final class CosmeticsManager implements Listener {
                 Cosmetic cosmetic = find("hat", hat);
                 if (cosmetic == null) continue;
                 if (cosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION)) {
-                    clearHat(player);
+                    suspendHat(player);
                     continue;
                 }
                 if (!isCosmeticHat(player.getInventory().getHelmet())) {
