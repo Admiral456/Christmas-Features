@@ -4,7 +4,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 
 ## Funkce
 
-- **Hledání dárků:** 10 ukrytých dárků na 10 minut v oblasti s přibližně dvojnásobnou plochou oproti předchozímu nastavení. Výhra dává 10 diamantů a trvale odemyká TrailStudio efekt trail-aurora-braid (Polární stuha).
+- **Hledání dárků:** 10 ukrytých dárků na 10 minut v kruhové oblasti. Dárky mají bezpečný prostor nad sebou a drží nastavený odstup, takže neleží v jedné hromadě. Předměty jemně jiskří a při sebrání se spustí částicový efekt i osobní ukazatel postupu. Výhra dává 10 diamantů a trvale odemyká TrailStudio efekt trail-aurora-braid (Polární stuha).
 - **Hledání ozdob:** samostatný soutěžní event s vlastní konfigurací a odměnou.
 - **Grinch NPC:** /christmas npc spawn umístí Grinche na aktuální pozici hráče. S importovanými modely ModelEngine + MythicMobs použije 3D model; bez nich vytvoří persistentní vestavěné NPC, které pravým kliknutím otevře vánoční GUI.
 - **Grinchovo GUI:** obsahuje hledání dárků, ChatGames, kosmetické tagy a trail efekty. Hledání dárků i ChatGame lze spustit přímo z menu.
@@ -12,7 +12,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, probíhající event, skóre, čas a úkol ChatGames. Při nedostupnosti BetterHud se použije BossBar.
 - **Vánoční kosmetika:** 7 běžných a 9 VIP propracovaných částicových trailů, chat tagy, čepice a koruny. Pravým kliknutím v menu si lze zobrazit dočasný náhled bez vybavení. Nové traily zahrnují Polární lišku, Srdce z křišťálu, Sněžítko, Aurorového serafa, Astrálního strážce a Ledového leviatana.
 - **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
-- **Zimní svět:** při načítání chunků přepisuje 3D biomy na SNOWY_PLAINS, udržuje sněžení a brání tání sněhu/ledu. Terén ani stavby se negenerují znovu.
+- **Zimní svět:** při načítání chunků přepisuje 3D biomy na SNOWY_PLAINS, udržuje sněžení, brání tání sněhu/ledu a přidává decentní venkovní ledové třpytky kolem hráčů. Efekt je omezený počtem částic a nevykresluje se pod střechou, v jeskyních ani ve spectator režimu. Terén ani stavby se negenerují znovu.
 - **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
 - **Stav systému:** /christmas status ověří běh eventů, počet úkolů, zimní správu a dostupnost integrací.
 
@@ -67,7 +67,7 @@ Správcovské příkazy vyžadují christmas.admin (defaultně OP). Grinchovo me
 
 - Při staré konfiguraci se výchozí původní hodnoty hledání dárků (18 kusů, 5 minut, poloměr 32 a cíl 5) převedou na nové nastavení (10 kusů, 10 minut, poloměr 45 a cíl 10). Ostatní vlastní nastavení se zachovají.
 - Hledání dárků se centruje na světový spawn, pokud není nastaveno events.gifts.center.x/y/z.
-- Hledání dárků se nespustí, pokud plugin bezpečně nerozmístí všech 10 samostatných předmětů.
+- Hledání dárků se nespustí, pokud plugin bezpečně nerozmístí všech 10 samostatných předmětů. Minimální odstup mezi dárky a ozdobami lze upravit pomocí `events.gifts.min-distance-between-items` a `events.ornaments.min-distance-between-items`. Zimní třpytky lze vypnout přes `winter.ambience.enabled: false`.
 - Pokud je nainstalován ChristmasSeason, přebírá správu zimních biomů a počasí, aby se systémy nepřepisovaly.
 - TrailStudio je volitelný plugin. Odemčení se ukládají do plugins/ChristmasFeatures/trail-unlocks.yml, takže se neztratí při restartu. Bez TrailStudio se uloží a aktivují po jeho instalaci.
 - Frost Emperor – zimní boss – byl odstraněn z podporovaného nastavení. Již nainstalovanou externí MythicMobs definici a její random-spawn soubor je nutné odstranit ručně; viz docs/CHRISTMAS_MOBS_INTEGRATION.md.
