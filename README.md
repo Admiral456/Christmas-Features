@@ -12,7 +12,7 @@ Samostatný vánoční plugin pro Paper/Purpur 1.21.10. Projekt cílí na Javu 2
 - **BetterHud panel:** pravý HUD zobrazuje vánoční sezónu, probíhající event, skóre, čas a úkol ChatGames. Při nedostupnosti BetterHud se použije BossBar.
 - **Vánoční kosmetika:** 7 běžných a 9 VIP propracovaných částicových trailů, chat tagy, čepice a koruny. Pravým kliknutím v menu si lze zobrazit dočasný náhled bez vybavení. Nové traily zahrnují Polární lišku, Srdce z křišťálu, Sněžítko, Aurorového serafa, Astrálního strážce a Ledového leviatana.
 - **TrailStudio kosmetika:** vítězové eventů a ChatGames mohou trvale odemykat částicové efekty.
-- **Zimní svět:** při načítání chunků přepisuje 3D biomy na SNOWY_PLAINS, udržuje sněžení, brání tání sněhu/ledu a přidává decentní venkovní ledové třpytky kolem hráčů. Efekt je omezený počtem částic a nevykresluje se pod střechou, v jeskyních ani ve spectator režimu. Terén ani stavby se negenerují znovu.
+- **Zimní svět:** při načítání chunků přepisuje 3D biomy na SNOWY_PLAINS, udržuje sněžení, brání tání sněhu/ledu a přidává decentní venkovní ledové třpytky kolem hráčů. Efekt je omezený počtem částic a nevykresluje se pod střechou, v jeskyních ani ve spectator režimu. Pokud biomy a počasí spravuje ChristmasSeason, třpytky z ChristmasFeatures zůstávají aktivní. Terén ani stavby se znovu negenerují.
 - **Resource pack:** vlastní item modely/textury vánočního dárku a ozdoby.
 - **Stav systému:** /christmas status ověří běh eventů, počet úkolů, zimní správu a dostupnost integrací.
 

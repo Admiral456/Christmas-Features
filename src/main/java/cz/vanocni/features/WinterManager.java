@@ -47,7 +47,8 @@ public final class WinterManager implements Listener {
         if (isManagedExternally()) {
             stopTasks();
             restoreWeather();
-            plugin.getLogger().info("ChristmasSeason je aktivní; správu zimních biomů a počasí přebírá ChristmasSeason.");
+            startAmbienceTask();
+            plugin.getLogger().info("ChristmasSeason je aktivní; správu zimních biomů a počasí přebírá ChristmasSeason. Vánoční třpytky zůstávají aktivní.");
             return;
         }
         if (!plugin.getConfig().getBoolean("winter.enabled", true)) {
@@ -66,6 +67,9 @@ public final class WinterManager implements Listener {
             restoreWeather();
             queue.clear();
             queued.clear();
+            if (isManagedExternally() && plugin.getConfig().getBoolean("winter.enabled", true)) {
+                startAmbienceTask();
+            }
             return;
         }
         queue.clear();
@@ -82,16 +86,20 @@ public final class WinterManager implements Listener {
         if (weatherTask == null || weatherTask.isCancelled()) {
             weatherTask = Bukkit.getScheduler().runTaskTimer(plugin, this::applyWeather, 1200L, 1200L);
         }
+        startAmbienceTask();
+    }
+
+    private void startAmbienceTask() {
         if (ambienceTask != null) {
             ambienceTask.cancel();
             ambienceTask = null;
         }
-        if (plugin.getConfig().getBoolean("winter.ambience.enabled", true)) {
-            long interval = Math.max(10L, Math.min(200L,
-                    plugin.getConfig().getLong("winter.ambience.interval-ticks", 40L)));
-            ambienceTask = Bukkit.getScheduler().runTaskTimer(plugin, this::spawnAmbientSparkles,
-                    interval, interval);
-        }
+        if (!plugin.getConfig().getBoolean("winter.enabled", true)
+                || !plugin.getConfig().getBoolean("winter.ambience.enabled", true)) return;
+        long interval = Math.max(10L, Math.min(200L,
+                plugin.getConfig().getLong("winter.ambience.interval-ticks", 40L)));
+        ambienceTask = Bukkit.getScheduler().runTaskTimer(plugin, this::spawnAmbientSparkles,
+                interval, interval);
     }
 
     /** True when the dedicated ChristmasSeason plugin owns winter biomes and weather. */
@@ -145,7 +153,10 @@ public final class WinterManager implements Listener {
     }
 
     public boolean isWinterWorld(World world) {
-        if (isManagedExternally()) return false;
+        return !isManagedExternally() && isConfiguredWinterWorld(world);
+    }
+
+    private boolean isConfiguredWinterWorld(World world) {
         if (world == null || !plugin.getConfig().getBoolean("winter.enabled", true)) return false;
         List<String> worlds = plugin.getConfig().getStringList("winter.worlds");
         if (worlds.isEmpty()) return world.getEnvironment() == World.Environment.NORMAL;
@@ -169,7 +180,7 @@ public final class WinterManager implements Listener {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             World world = player.getWorld();
-            if (!isWinterWorld(world) || player.isDead() || player.isInvisible()
+            if (!isConfiguredWinterWorld(world) || player.isDead() || player.isInvisible()
                     || player.getGameMode() == GameMode.SPECTATOR) continue;
 
             Location base = player.getLocation();
