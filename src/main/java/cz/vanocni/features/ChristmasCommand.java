@@ -41,6 +41,7 @@ public final class ChristmasCommand implements CommandExecutor, TabCompleter {
                 plugin.chatGames().reloadTasks();
                 plugin.chatGames().scheduleAutoStart();
                 plugin.winter().refresh();
+                plugin.cosmetics().refresh();
                 plugin.getLogger().info("Konfigurace ChristmasFeatures byla znovu načtena.");
                 sender.sendMessage("§aChristmasFeatures: konfigurace byla znovu načtena.");
                 if (plugin.winter().isManagedExternally()) {
