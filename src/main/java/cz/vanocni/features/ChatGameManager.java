@@ -117,7 +117,7 @@ public final class ChatGameManager implements Listener {
     }
 
     private void expire(GameState state) {
-        if (active != state || state.claimed().get()) return;
+        if (active != state || !state.claimed().compareAndSet(false, true)) return;
         Bukkit.broadcastMessage("§7Čas na vánoční úkol vypršel. Nikdo neodpověděl správně.");
         active = null;
     }
@@ -125,6 +125,7 @@ public final class ChatGameManager implements Listener {
     public void stop(String reason, boolean announce) {
         GameState state = active;
         if (state == null) return;
+        state.claimed().set(true);
         if (endTask != null) endTask.cancel();
         active = null;
         if (announce) Bukkit.broadcastMessage("§d[ ChatGame ] §7" + reason);
