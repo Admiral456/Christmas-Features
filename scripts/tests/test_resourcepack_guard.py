@@ -148,6 +148,41 @@ class ResourcePackGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(guard.GuardError, "threshold collision"):
             guard.merge_pack_files(base, addon)
 
+    def test_missing_non_vanilla_namespace_reference_is_rejected(self):
+        files = {
+            "pack.mcmeta": metadata(),
+            "assets/example/models/item/sample.json": encoded({
+                "parent": "missing_namespace:item/base",
+            }),
+        }
+        with self.assertRaisesRegex(guard.GuardError, "missing model referenced"):
+            guard.validate_pack(
+                files,
+                label="test pack",
+                strict_layout=False,
+                validate_pngs=False,
+            )
+
+    def test_texture_variable_reference_is_not_treated_as_missing_file(self):
+        files = {
+            "pack.mcmeta": metadata(),
+            "assets/example/models/item/parent.json": encoded({
+                "textures": {"layer0": "example:item/texture"},
+            }),
+            "assets/example/models/item/child.json": encoded({
+                "parent": "example:item/parent",
+                "textures": {"layer0": "#layer0"},
+            }),
+            "assets/example/textures/item/texture.png": b"not validated in this test",
+        }
+        report = guard.validate_pack(
+            files,
+            label="test pack",
+            strict_layout=False,
+            validate_pngs=False,
+        )
+        self.assertEqual(report["files"], 4)
+
     def test_archive_path_traversal_is_rejected(self):
         import tempfile
         import zipfile
