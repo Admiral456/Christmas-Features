@@ -243,12 +243,16 @@ public final class WinterManager implements Listener {
 
     private void applyBiome(Chunk chunk) {
         String configured = plugin.getConfig().getString("winter.biome", "SNOWY_PLAINS");
-        Biome winterBiome;
-        try {
-            winterBiome = Biome.valueOf(configured.toUpperCase());
-        } catch (IllegalArgumentException exception) {
+        var biomeRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME);
+        NamespacedKey configuredKey = parseBiomeKey(configured);
+        Biome winterBiome = configuredKey == null ? null : biomeRegistry.get(configuredKey);
+        if (winterBiome == null) {
             plugin.getLogger().warning("Neznámý biome " + configured + ", používám SNOWY_PLAINS.");
-            winterBiome = Biome.SNOWY_PLAINS;
+            winterBiome = biomeRegistry.get(NamespacedKey.minecraft("snowy_plains"));
+        }
+        if (winterBiome == null) {
+            plugin.getLogger().severe("Biome minecraft:snowy_plains není dostupný; zimní konverze chunku byla přeskočena.");
+            return;
         }
 
         World world = chunk.getWorld();
@@ -270,6 +274,18 @@ public final class WinterManager implements Listener {
         }
     }
 
+    private NamespacedKey parseBiomeKey(String configuredName) {
+        if (configuredName == null || configuredName.isBlank()) return null;
+        String normalized = configuredName.trim().toLowerCase(Locale.ROOT);
+        try {
+            return normalized.contains(":")
+                    ? NamespacedKey.fromString(normalized)
+                    : NamespacedKey.minecraft(normalized);
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
     private Set<Biome> getPreservedBiomes() {
         List<String> configured = plugin.getConfig().getStringList("winter.preserve-biomes")
                 .stream()
@@ -281,10 +297,7 @@ public final class WinterManager implements Listener {
         Set<Biome> resolved = new HashSet<>();
         var biomeRegistry = RegistryAccess.registryAccess().getRegistry(RegistryKey.BIOME);
         for (String configuredName : configured) {
-            String normalized = configuredName.toLowerCase(Locale.ROOT);
-            NamespacedKey key = normalized.contains(":")
-                    ? NamespacedKey.fromString(normalized)
-                    : NamespacedKey.minecraft(normalized);
+            NamespacedKey key = parseBiomeKey(configuredName);
             if (key == null) {
                 plugin.getLogger().warning("Neplatný klíč chráněného biomu: " + configuredName);
                 continue;
