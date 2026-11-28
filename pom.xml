@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cz.vanocni</groupId>
     <artifactId>christmas-features</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <name>ChristmasFeatures</name>
     <description>Christmas events, ChatGames, native cosmetics and The Illusioner boss for Paper 1.21.10.</description>
 
