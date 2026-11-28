@@ -357,14 +357,7 @@ public final class CosmeticsManager implements Listener {
 
     private void applySaved(Player player) {
         String path = path(player);
-        String trail = data.getString(path + ".trail", "");
-        Cosmetic trailCosmetic = find("trail", trail);
-        // Keep the selected VIP trail stored while locked. tickTrails() hides it
-        // until LuckPerms grants the permission again.
-
-        String tag = data.getString(path + ".tag", "");
-        Cosmetic tagCosmetic = find("tag", tag);
-        // tagPlaceholder() hides a VIP tag while the permission is missing.
+        // Trail and tag selections remain stored; their render/placeholder checks hide locked VIP items.
 
         String hat = data.getString(path + ".hat", "");
         Cosmetic hatCosmetic = find("hat", hat);
