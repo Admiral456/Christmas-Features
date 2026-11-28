@@ -69,4 +69,8 @@ The Frost Emperor winter boss is no longer part of the ChristmasFeatures setup. 
 
 ## Preserve actual mountains
 
-If ChristmasSeason is used for winter biome conversion, do not convert the mountain biome IDs used by the Yeti random-spawn configuration to SNOWY_PLAINS. Keep the mountain range excluded from biome conversion or update the Yeti's biome filters after checking them in-game.
+ChristmasFeatures can preserve the original mountain biome IDs while converting other biomes to SNOWY_PLAINS. The default `winter.preserve-biomes` list includes meadow, grove, snowy slopes, frozen/jagged/stony peaks and windswept mountain variants. This keeps the biome IDs required by the Yeti random-spawn filters instead of flattening the whole region to SNOWY_PLAINS.
+
+If ChristmasSeason is enabled, it owns biome conversion and ChristmasFeatures does not overwrite its biomes; configure the corresponding exclusion list in ChristmasSeason separately. Do not copy the ChristmasFeatures setting into a different plugin unless that plugin supports the same key names.
+
+Important: chunks that an older ChristmasFeatures version already converted have no stored snapshot of their original biome values. This update prevents future conversions from overwriting protected biomes, but cannot reconstruct biomes already lost. Restore those areas from a world backup or regenerate only the affected terrain after a separate backup and review.
