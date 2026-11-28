@@ -125,6 +125,8 @@ grinch:
     chatgame-start-cooldown-seconds: 900
 
 cosmetics:
+  trails:
+    preview-seconds: 8
   events:
     gifts:
       trailstudio-effect: trail-aurora-braid
