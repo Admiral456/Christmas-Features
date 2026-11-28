@@ -168,12 +168,16 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
             changed = true;
         }
 
-        for (String obsoletePath : List.of("bosses.frost_emperor", "bosses.winter_boss",
-                "bosses.illusioner", "chest")) {
-            if (getConfig().contains(obsoletePath)) {
-                getConfig().set(obsoletePath, null);
-                changed = true;
-            }
+        List<String> retainedLegacyPaths = List.of(
+                "bosses.frost_emperor",
+                "bosses.winter_boss",
+                "bosses.illusioner",
+                "chest"
+        ).stream().filter(getConfig()::contains).toList();
+        if (!retainedLegacyPaths.isEmpty()) {
+            getLogger().warning("Nalezeny starší konfigurační sekce, které aktuální verze nepoužívá: "
+                    + String.join(", ", retainedLegacyPaths)
+                    + ". Hodnoty byly ponechány beze změny; odstraň je pouze po ruční kontrole a záloze.");
         }
 
         InputStream defaultsStream = getResource("config.yml");
