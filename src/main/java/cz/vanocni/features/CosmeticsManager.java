@@ -32,8 +32,10 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 public final class CosmeticsManager implements Listener {
@@ -45,6 +47,7 @@ public final class CosmeticsManager implements Listener {
     private final org.bukkit.NamespacedKey categoryKey;
     private final org.bukkit.NamespacedKey idKey;
     private final org.bukkit.NamespacedKey hatKey;
+    private final Map<UUID, TrailPreview> trailPreviews = new HashMap<>();
     private BukkitTask particleTask;
     private long animationTick;
 
@@ -187,6 +190,12 @@ public final class CosmeticsManager implements Listener {
             lore.add(" ");
             lore.add(cosmetic.vipOnly() ? "§6✦ VIP kosmetika" : "§aDostupné všem hráčům");
             lore.add(status);
+            if (category.equals("trail")) {
+                lore.add("§bPravý klik: náhled na "
+                        + Math.max(2, Math.min(30, plugin.getConfig().getLong("cosmetics.trails.preview-seconds", 8L)))
+                        + " s");
+                lore.add("§eLevý klik: vybavit");
+            }
             inventory.setItem(slots[i - start], menuItem(cosmetic.icon(), cosmetic.label(), lore, category, cosmetic.id()));
         }
 
@@ -244,7 +253,10 @@ public final class CosmeticsManager implements Listener {
             String path = path(player);
             switch (id) {
                 case "tag" -> data.set(path + ".tag", null);
-                case "trail" -> data.set(path + ".trail", null);
+                case "trail" -> {
+                    data.set(path + ".trail", null);
+                    trailPreviews.remove(player.getUniqueId());
+                }
                 case "hat" -> clearHat(player);
                 default -> { return; }
             }
@@ -262,6 +274,19 @@ public final class CosmeticsManager implements Listener {
             player.playSound(player.getLocation(), "block.note_block.bass", 0.6f, 0.7f);
             return;
         }
+
+        if (action.equals("trail") && event.isRightClick()) {
+            long previewSeconds = Math.max(2L,
+                    Math.min(30L, plugin.getConfig().getLong("cosmetics.trails.preview-seconds", 8L)));
+            trailPreviews.put(player.getUniqueId(),
+                    new TrailPreview(id, System.currentTimeMillis() + previewSeconds * 1000L));
+            player.sendMessage("§bNáhled efektu §f" + cosmetic.label()
+                    + " §bje aktivní na " + previewSeconds + " sekund. Tvůj uložený trail se nezměnil.");
+            player.playSound(player.getLocation(), "block.amethyst_block.chime", 0.7f, 1.4f);
+            return;
+        }
+
+        if (action.equals("trail")) trailPreviews.remove(player.getUniqueId());
 
         switch (action) {
             case "tag" -> {
@@ -285,22 +310,31 @@ public final class CosmeticsManager implements Listener {
 
     private void equipHat(Player player, String id) {
         String path = path(player);
-        if (!data.getBoolean(path + ".hat-captured", false)) {
-            ItemStack current = player.getInventory().getHelmet();
-            if (!isCosmeticHat(current) && current != null && !current.getType().isAir()) {
-                data.set(path + ".original-helmet", current.clone());
-                data.set(path + ".had-original-helmet", true);
-            } else {
-                data.set(path + ".original-helmet", null);
-                data.set(path + ".had-original-helmet", false);
-            }
-            data.set(path + ".hat-captured", true);
+        if (data.getBoolean(path + ".hat-suspended", false)
+                || !data.getBoolean(path + ".hat-captured", false)) {
+            captureCurrentHelmet(player);
         }
+        data.set(path + ".hat-suspended", false);
         data.set(path + ".hat", id);
         save();
         player.getInventory().setHelmet(createHat(id));
         Cosmetic cosmetic = find("hat", id);
         player.sendMessage("§aVybavil sis pokrývku hlavy: §6" + (cosmetic == null ? id : cosmetic.label()) + "§a.");
+    }
+
+    private void captureCurrentHelmet(Player player) {
+        String path = path(player);
+        ItemStack current = player.getInventory().getHelmet();
+        if (!isCosmeticHat(current) && current != null && !current.getType().isAir()) {
+            data.set(path + ".original-helmet", current.clone());
+            data.set(path + ".had-original-helmet", true);
+        } else {
+            data.set(path + ".original-helmet", null);
+            data.set(path + ".had-original-helmet", false);
+        }
+        data.set(path + ".hat-captured", true);
+        data.set(path + ".hat-suspended", false);
+        save();
     }
 
     public void clearHat(Player player) {
@@ -315,18 +349,22 @@ public final class CosmeticsManager implements Listener {
     private void suspendHat(Player player) {
         if (isCosmeticHat(player.getInventory().getHelmet())) {
             restoreOriginalHat(player, false);
+            data.set(path(player) + ".hat-suspended", true);
+            save();
         }
     }
 
     private void restoreOriginalHat(Player player, boolean forgetSelection) {
         String path = path(player);
-        if (data.getBoolean(path + ".hat-captured", false)) {
+        boolean suspended = data.getBoolean(path + ".hat-suspended", false);
+        if (!suspended && data.getBoolean(path + ".hat-captured", false)) {
             ItemStack original = data.getItemStack(path + ".original-helmet");
             player.getInventory().setHelmet(data.getBoolean(path + ".had-original-helmet", false) ? original : null);
         }
         if (forgetSelection) {
             data.set(path + ".hat", null);
             data.set(path + ".hat-captured", null);
+            data.set(path + ".hat-suspended", null);
             data.set(path + ".had-original-helmet", null);
             data.set(path + ".original-helmet", null);
         }
@@ -364,17 +402,9 @@ public final class CosmeticsManager implements Listener {
         if (hatCosmetic != null && hatCosmetic.vipOnly() && !player.hasPermission(VIP_PERMISSION)) {
             suspendHat(player);
         } else if (hatCosmetic != null) {
-            if (!data.getBoolean(path + ".hat-captured", false)) {
-                ItemStack current = player.getInventory().getHelmet();
-                if (!isCosmeticHat(current) && current != null && !current.getType().isAir()) {
-                    data.set(path + ".original-helmet", current.clone());
-                    data.set(path + ".had-original-helmet", true);
-                } else {
-                    data.set(path + ".original-helmet", null);
-                    data.set(path + ".had-original-helmet", false);
-                }
-                data.set(path + ".hat-captured", true);
-                save();
+            if (data.getBoolean(path + ".hat-suspended", false)
+                    || !data.getBoolean(path + ".hat-captured", false)) {
+                captureCurrentHelmet(player);
             }
             player.getInventory().setHelmet(createHat(hat));
         }
@@ -383,8 +413,17 @@ public final class CosmeticsManager implements Listener {
 
     private void tickTrails() {
         animationTick += 4L;
+        long now = System.currentTimeMillis();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            String id = equipped("trail", player.getUniqueId());
+            UUID uuid = player.getUniqueId();
+            TrailPreview preview = trailPreviews.get(uuid);
+            String id;
+            if (preview != null && preview.expiresAtMillis() > now) {
+                id = preview.effectId();
+            } else {
+                if (preview != null) trailPreviews.remove(uuid);
+                id = equipped("trail", uuid);
+            }
             if (id.isBlank()) continue;
             Cosmetic cosmetic = find("trail", id);
             if (cosmetic == null) continue;
@@ -405,15 +444,20 @@ public final class CosmeticsManager implements Listener {
                     continue;
                 }
                 if (!isCosmeticHat(player.getInventory().getHelmet())) {
-                    // Preserve any helmet inserted by another plugin before restoring the cosmetic.
                     String playerPath = path(player);
-                    ItemStack replacement = player.getInventory().getHelmet();
-                    if (replacement != null && !replacement.getType().isAir()) {
-                        // Keep the most recent real helmet so unequipping the cosmetic restores it.
-                        data.set(playerPath + ".original-helmet", replacement.clone());
-                        data.set(playerPath + ".had-original-helmet", true);
-                        data.set(playerPath + ".hat-captured", true);
-                        save();
+                    if (data.getBoolean(playerPath + ".hat-suspended", false)) {
+                        // Capture even an empty helmet slot: the player may have changed
+                        // equipment while their VIP crown was suspended.
+                        captureCurrentHelmet(player);
+                    } else {
+                        // Preserve any helmet inserted by another plugin before restoring the cosmetic.
+                        ItemStack replacement = player.getInventory().getHelmet();
+                        if (replacement != null && !replacement.getType().isAir()) {
+                            data.set(playerPath + ".original-helmet", replacement.clone());
+                            data.set(playerPath + ".had-original-helmet", true);
+                            data.set(playerPath + ".hat-captured", true);
+                            save();
+                        }
                     }
                     player.getInventory().setHelmet(createHat(hat));
                 }
@@ -867,6 +911,7 @@ public final class CosmeticsManager implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
+        trailPreviews.remove(event.getPlayer().getUniqueId());
         save();
     }
 
@@ -904,6 +949,7 @@ public final class CosmeticsManager implements Listener {
     }
 
     private record Cosmetic(String id, String label, boolean vipOnly, Material icon, String description) { }
+    private record TrailPreview(String effectId, long expiresAtMillis) { }
 
     private static final class MenuHolder implements InventoryHolder {
         private final String category;
