@@ -102,7 +102,7 @@ public final class HolidayEventManager implements Listener {
 
         // Guard against accidental extreme values in server configuration.
         int count = Math.min(128, Math.max(1, plugin.getConfig().getInt(path + ".spawn-count", 12)));
-        int radius = Math.max(5, plugin.getConfig().getInt(path + ".radius", 28));
+        int radius = Math.min(128, Math.max(5, plugin.getConfig().getInt(path + ".radius", 28)));
         int duration = Math.max(30, plugin.getConfig().getInt(path + ".duration-seconds", 300));
         int target = Math.max(1, plugin.getConfig().getInt(path + ".target-score", 5));
         Location center = resolveCenter(world, path);
