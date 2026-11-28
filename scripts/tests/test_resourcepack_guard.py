@@ -183,6 +183,50 @@ class ResourcePackGuardTests(unittest.TestCase):
         )
         self.assertEqual(report["files"], 4)
 
+    def test_merge_dry_run_does_not_write_or_modify_inputs(self):
+        import argparse
+        import io
+        import tempfile
+        from contextlib import redirect_stdout
+
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory) / "server-pack"
+            base.mkdir()
+            metadata_path = base / "pack.mcmeta"
+            metadata_path.write_bytes(metadata("existing server pack"))
+            original_metadata = metadata_path.read_bytes()
+            output_path = Path(directory) / "must-not-be-created.zip"
+
+            args = argparse.Namespace(
+                base=str(base),
+                addon=str(ROOT / "resourcepack"),
+                output=str(output_path),
+                dry_run=True,
+            )
+            captured = io.StringIO()
+            with redirect_stdout(captured):
+                guard.command_merge(args)
+
+            result = captured.getvalue()
+            self.assertIn("DRY-RUN", result)
+            self.assertIn("Žádný ZIP ani kontrolní součet nebyl vytvořen", result)
+            self.assertFalse(output_path.exists())
+            self.assertFalse(Path(str(output_path) + ".sha256").exists())
+            self.assertEqual(metadata_path.read_bytes(), original_metadata)
+
+    def test_merge_requires_output_when_not_dry_run(self):
+        import argparse
+
+        args = argparse.Namespace(
+            base="unused-base",
+            addon="unused-addon",
+            output=None,
+            dry_run=False,
+        )
+        with self.assertRaisesRegex(guard.GuardError, "--output is required"):
+            guard.command_merge(args)
+
+
     def test_archive_path_traversal_is_rejected(self):
         import tempfile
         import zipfile
