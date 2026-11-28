@@ -1,12 +1,16 @@
 package cz.vanocni.features;
 
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,6 +53,10 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        if (!validateMainConfig()) {
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
         migrateConfig();
 
         eventItemToken = new NamespacedKey(this, "christmas_event_item");
@@ -99,6 +107,45 @@ public final class ChristmasFeaturesPlugin extends JavaPlugin {
         betterHudBridge.start();
         activityHud.start();
         getLogger().info("ChristmasFeatures has been enabled for Paper 1.21.10.");
+    }
+
+    /**
+     * Validate the server-owned config before any migration can write to it.
+     * A malformed YAML file is backed up and the plugin fails closed.
+     */
+    private boolean validateMainConfig() {
+        File configFile = new File(getDataFolder(), "config.yml");
+        try {
+            new YamlConfiguration().load(configFile);
+            return true;
+        } catch (IOException | InvalidConfigurationException exception) {
+            File backup = backupInvalidYaml(configFile);
+            String backupInfo = backup == null
+                    ? " Zálohu se nepodařilo vytvořit; původní soubor zůstal nedotčen."
+                    : " Záloha: " + backup.getName();
+            getLogger().severe("Soubor config.yml je neplatný YAML: " + exception.getMessage()
+                    + "." + backupInfo + " ChristmasFeatures se vypíná, aby konfiguraci nepřepsal.");
+            return false;
+        }
+    }
+
+    /**
+     * Copies a malformed plugin-owned YAML file without replacing the original.
+     * A null result means the file was missing or the backup could not be created.
+     */
+    public File backupInvalidYaml(File source) {
+        if (source == null || !source.isFile()) return null;
+        String suffix = System.currentTimeMillis() + "-" + Long.toHexString(System.nanoTime());
+        File backup = new File(source.getParentFile(),
+                source.getName() + ".corrupt-" + suffix + ".bak");
+        try {
+            Files.copy(source.toPath(), backup.toPath());
+            return backup;
+        } catch (IOException exception) {
+            getLogger().severe("Nepodařilo se vytvořit zálohu poškozeného souboru "
+                    + source.getName() + ": " + exception.getMessage());
+            return null;
+        }
     }
 
     /**

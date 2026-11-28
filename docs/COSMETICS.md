@@ -121,3 +121,12 @@ cosmetics:
 - `6–10`: méně aktualizací a nižší zátěž při větším počtu současně aktivních trailů.
 
 Plugin hodnotu bezpečně omezí na rozsah 2–10. Po změně není nutné restartovat server; stačí `/christmas reload`.
+
+
+## Bezpečnost uložených kosmetických dat
+
+ChristmasFeatures ukládá výběry hráčů do `plugins/ChristmasFeatures/cosmetics.yml` a odemknutí TrailStudio do `trail-unlocks.yml`. Pokud některý soubor obsahuje neplatný YAML, plugin jej ponechá na místě, vytvoří vedle něj zálohu `.corrupt-....bak` a zablokuje další zápis do tohoto souboru. V GUI nelze měnit kosmetiku, dokud není soubor opraven. Původní data se automaticky nepřepisují prázdnou konfigurací.
+
+Hlavní `config.yml` se kontroluje ještě před migrací. Při chybě parseru plugin vytvoří zálohu a vypne se, aby nezapsal výchozí hodnoty přes poškozený soubor. Oprav YAML ze zálohy nebo ručně a poté server restartuj.
+
+Externí `plugins/TrailStudio/effects.yml` se pouze čte pro ověření efektů; ChristmasFeatures jej nikdy neukládá ani neupravuje.
